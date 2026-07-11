@@ -48,7 +48,7 @@
         .container {
             width: 100%;
             max-width: 1140px;
-            display: none; /* Controlled by JS */
+            display: none;
         }
 
         /* Auth Screen */
@@ -193,6 +193,11 @@
             box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
         }
 
+        /* Input field with custom datalist styling */
+        .input-with-list {
+            position: relative;
+        }
+
         /* Conditional Section - Drops down cleanly */
         .conditional-container {
             display: none;
@@ -312,6 +317,77 @@
             font-weight: 500;
         }
 
+        /* Modal Overlay Confirmation Box */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: var(--radius-pro);
+            width: 100%;
+            max-width: 460px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .modal-body {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .modal-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .modal-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-label {
+            width: 120px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .modal-value {
+            flex: 1;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
         /* Badges */
         .status-badge {
             display: inline-flex;
@@ -426,18 +502,20 @@
                         <input type="text" id="note" class="form-control" placeholder="บันทึกช่วยจำ...">
                     </div>
 
-                    <button type="submit" class="btn-blue">ลงระบบบัญชี</button>
+                    <button type="submit" class="btn-blue">ตรวจสอบข้อมูล</button>
                 </div>
 
-                <!-- Nested Dropdown Context Boxes (ทะเบียนรถ / ชื่อพนักงาน) -->
+                <!-- Nested Dropdown Context Boxes using Datalist for memory feature -->
                 <div id="conditionalWrapper" class="conditional-container">
                     <div id="vehicleFieldBlock" class="form-group" style="display: none;">
                         <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
-                        <input type="text" id="vehiclePlate" class="form-control" placeholder="เช่น กข-1234 สมุทรสาคร">
+                        <input type="text" id="vehiclePlate" class="form-control" list="vehicleList" placeholder="พิมพ์เลือกหรือเพิ่มทะเบียนใหม่...">
+                        <datalist id="vehicleList"></datalist>
                     </div>
                     <div id="personFieldBlock" class="form-group" style="display: none;">
                         <label for="personName">👤 ชื่อผู้รับเงิน / พนักงาน</label>
-                        <input type="text" id="personName" class="form-control" placeholder="ระบุชื่อบุคคล">
+                        <input type="text" id="personName" class="form-control" list="personList" placeholder="พิมพ์เลือกหรือเพิ่มชื่อใหม่...">
+                        <datalist id="personList"></datalist>
                     </div>
                 </div>
             </form>
@@ -481,8 +559,26 @@
 
     </div>
 
+    <!-- Confirmation Modal Box Elements -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">🔍 ยืนยันความถูกต้องของข้อมูลรายจ่าย</div>
+            <div class="modal-body">
+                <div class="modal-row"><div class="modal-label">วันที่:</div><div id="mDate" class="modal-value"></div></div>
+                <div class="modal-row"><div class="modal-label">หมวดหมู่:</div><div id="mCategory" class="modal-value"></div></div>
+                <div class="modal-row" id="mVehicleRow"><div class="modal-label">ทะเบียนรถ:</div><div id="mVehicle" class="modal-value"></div></div>
+                <div class="modal-row" id="mPersonRow"><div class="modal-label">ชื่อผู้รับ/พนักงาน:</div><div id="mPerson" class="modal-value"></div></div>
+                <div class="modal-row"><div class="modal-label">ยอดเงินสุทธิ:</div><div id="mAmount" class="modal-value" style="color: red; font-weight: 700;"></div></div>
+                <div class="modal-row"><div class="modal-label">รายละเอียด:</div><div id="mNote" class="modal-value"></div></div>
+            </div>
+            <div class="modal-buttons">
+                <button id="btnCancelModal" class="btn-outline" style="height: 38px;">แก้ไขข้อมูล</button>
+                <button id="btnConfirmModal" class="btn-blue">ถูกต้อง บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // SHA-256 Checksum System Logic (Default Key: 1234)
         const HASHED_PASSWORD_KEY = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"; 
 
         async function sha256(message) {
@@ -506,14 +602,17 @@
 
         const defaultMock = [
             { id: 1, date: '2026-07-02', category: 'ค่าน้ำมัน', amount: 1800.00, note: 'เติมน้ำมันดีเซลรถกระบะส่งของ', vehiclePlate: 'บย-4321 สมุทรสาคร', personName: '' },
-            { id: 2, date: '2026-07-05', category: 'ค่าเงินเดือน', amount: 28000.00, note: 'จ่ายเงินเดือนพนักงาน', vehiclePlate: '', personName: 'สมชาย' },
-            { id: 3, date: '2026-07-09', category: 'ค่าอุปกรณ์สำนักงาน', amount: 840.00, note: 'ซื้อแฟ้มและอุปกรณ์เอกสารออฟฟิศ', vehiclePlate: '', personName: '' }
+            { id: 2, date: '2026-07-05', category: 'ค่าเงินเดือน', amount: 28000.00, note: 'จ่ายเงินเดือนพนักงาน', vehiclePlate: '', personName: 'สมชาย' }
         ];
 
         let expenses = JSON.parse(localStorage.getItem('kyh_pro_db')) || defaultMock;
         if (!localStorage.getItem('kyh_pro_db')) {
             localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
         }
+
+        // Memory lists arrays
+        let rememberedVehicles = JSON.parse(localStorage.getItem('kyh_vehicles')) || ['บย-4321 สมุทรสาคร', 'กข-9999 กรุงเทพ'];
+        let rememberedPersons = JSON.parse(localStorage.getItem('kyh_persons')) || ['สมชาย', 'สมหญิง', 'นายมั่นคง'];
 
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
 
@@ -532,6 +631,9 @@
         const personFieldBlock = document.getElementById('personFieldBlock');
         const personNameInput = document.getElementById('personName');
         
+        const vehicleList = document.getElementById('vehicleList');
+        const personList = document.getElementById('personList');
+        
         const tableBody = document.getElementById('tableBody');
         const noDataMessage = document.getElementById('noDataMessage');
         const totalAmountEl = document.getElementById('totalAmount');
@@ -539,10 +641,32 @@
         const filterCategory = document.getElementById('filterCategory');
         const exportBtn = document.getElementById('exportBtn');
 
+        // Modal Elements
+        const confirmModal = document.getElementById('confirmModal');
+        const btnCancelModal = document.getElementById('btnCancelModal');
+        const btnConfirmModal = document.getElementById('btnConfirmModal');
+        let temporaryRecordData = null; // Hold object briefly for review
+
         const vehicleCategories = ['ค่าน้ำมัน', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์', 'ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ'];
         const personCategories = ['ค่าเบี้ยเลี้ยง', 'ค่าเงินเดือน', 'ค่าแรงพิเศษลูกน้อง', 'ค่าแรง Outsource'];
 
-        // Dropdown Logic Fields Toggle
+        // Sync and render datalist suggestions
+        function updateDatalists() {
+            vehicleList.innerHTML = '';
+            rememberedVehicles.forEach(item => {
+                let opt = document.createElement('option');
+                opt.value = item;
+                vehicleList.appendChild(opt);
+            });
+
+            personList.innerHTML = '';
+            rememberedPersons.forEach(item => {
+                let opt = document.createElement('option');
+                opt.value = item;
+                personList.appendChild(opt);
+            });
+        }
+
         categorySelect.addEventListener('change', function() {
             const val = categorySelect.value;
             let showVehicle = vehicleCategories.includes(val);
@@ -573,10 +697,10 @@
             }
         });
 
-        // Auth Logic Gates Router
         if (sessionStorage.getItem('isAuthenticated') === 'true') {
             authBlock.style.display = 'none';
             appBlock.style.display = 'block';
+            updateDatalists();
             renderDashboard();
         }
 
@@ -587,6 +711,7 @@
                 sessionStorage.setItem('isAuthenticated', 'true');
                 authBlock.style.display = 'none';
                 appBlock.style.display = 'block';
+                updateDatalists();
                 renderDashboard();
             } else {
                 alert('รหัสผ่านเข้าสู่ระบบไม่ถูกต้อง');
@@ -599,7 +724,6 @@
             window.location.reload();
         });
 
-        // App Workspace Calculations & Core Engine
         function renderDashboard() {
             const catFilter = filterCategory.value;
             const filtered = expenses.filter(exp => catFilter === '' || exp.category === catFilter);
@@ -643,22 +767,74 @@
             totalCountEl.textContent = `${filtered.length} รายการ`;
         }
 
-        // Handle Add New Record Content
+        // Intercept Form Submission to display Confirmation Modal box first
         expenseForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const newRecord = {
-                id: Date.now(),
+            
+            // Put inputs values inside memory proxy object
+            temporaryRecordData = {
                 date: document.getElementById('date').value,
                 category: categorySelect.value,
                 amount: parseFloat(document.getElementById('amount').value),
-                note: document.getElementById('note').value,
-                vehiclePlate: vehiclePlateInput.value,
-                personName: personNameInput.value
+                note: document.getElementById('note').value || '—',
+                vehiclePlate: vehiclePlateInput.value.trim(),
+                personName: personNameInput.value.trim()
             };
 
-            expenses.push(newRecord);
+            // Bind textual data directly into Modal text nodes
+            document.getElementById('mDate').textContent = temporaryRecordData.date;
+            document.getElementById('mCategory').textContent = temporaryRecordData.category;
+            document.getElementById('mAmount').textContent = temporaryRecordData.amount.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' ฿';
+            document.getElementById('mNote').textContent = temporaryRecordData.note;
+
+            // Render specific modal detail boxes depending on categories types
+            if (temporaryRecordData.vehiclePlate) {
+                document.getElementById('mVehicleRow').style.display = 'flex';
+                document.getElementById('mVehicle').textContent = temporaryRecordData.vehiclePlate;
+            } else {
+                document.getElementById('mVehicleRow').style.display = 'none';
+            }
+
+            if (temporaryRecordData.personName) {
+                document.getElementById('mPersonRow').style.display = 'flex';
+                document.getElementById('mPerson').textContent = temporaryRecordData.personName;
+            } else {
+                document.getElementById('mPersonRow').style.display = 'none';
+            }
+
+            // Launch modal popup view
+            confirmModal.classList.add('show');
+        });
+
+        // Cancel verification click handler
+        btnCancelModal.addEventListener('click', function() {
+            confirmModal.classList.remove('show');
+            temporaryRecordData = null;
+        });
+
+        // Confirm data correctness event logic gate -> Actual commitment pipeline
+        btnConfirmModal.addEventListener('click', function() {
+            if (!temporaryRecordData) return;
+
+            // 1. Core ledger push action
+            const finalRecord = {
+                id: Date.now(),
+                ...temporaryRecordData
+            };
+            expenses.push(finalRecord);
             localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
-            
+
+            // 2. Intelligent Auto Memory Check for lists
+            if (finalRecord.vehiclePlate && !rememberedVehicles.includes(finalRecord.vehiclePlate)) {
+                rememberedVehicles.push(finalRecord.vehiclePlate);
+                localStorage.setItem('kyh_vehicles', JSON.stringify(rememberedVehicles));
+            }
+            if (finalRecord.personName && !rememberedPersons.includes(finalRecord.personName)) {
+                rememberedPersons.push(finalRecord.personName);
+                localStorage.setItem('kyh_persons', JSON.stringify(rememberedPersons));
+            }
+
+            // 3. Clear interfaces states values
             document.getElementById('amount').value = '';
             document.getElementById('note').value = '';
             vehiclePlateInput.value = '';
@@ -669,12 +845,18 @@
             vehicleFieldBlock.style.display = 'none';
             personFieldBlock.style.display = 'none';
             
+            // Close modal block window view
+            confirmModal.classList.remove('show');
+            temporaryRecordData = null;
+
+            // 4. Force view render updates refresh
+            updateDatalists();
             renderDashboard();
         });
 
         filterCategory.addEventListener('change', renderDashboard);
 
-        // Exporter Data Pipeline Module
+        // Data Exporter Module
         exportBtn.addEventListener('click', function() {
             if (expenses.length === 0) return alert('ไม่มีข้อมูลสำหรับดึงรายงาน');
             
