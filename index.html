@@ -192,6 +192,7 @@
             padding: 24px;
             margin-bottom: 24px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+            position: relative;
         }
 
         .form-panel h2 {
@@ -304,6 +305,7 @@
             padding: 14px 16px;
             border-bottom: 1px solid var(--border-light);
             color: var(--text-main);
+            vertical-align: middle;
         }
 
         tr:nth-child(even) {
@@ -327,6 +329,22 @@
             background: var(--accent-hover);
         }
 
+        .btn-orange {
+            height: 38px;
+            padding: 0 20px;
+            background: #ff9500;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-orange:hover {
+            background: #e08500;
+        }
+
         .btn-outline {
             background: #ffffff;
             color: var(--text-main);
@@ -344,6 +362,30 @@
 
         .btn-outline:hover {
             background: #f9fafb;
+        }
+
+        .btn-action {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 14px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            color: var(--accent-blue);
+        }
+        .btn-edit:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .btn-delete {
+            color: #ff3b30;
+        }
+        .btn-delete:hover {
+            background: rgba(255, 59, 48, 0.1);
         }
 
         .btn-logout {
@@ -513,8 +555,11 @@
 
         <!-- ROW 3: Horizontal Unified Form Panel -->
         <section class="form-panel">
-            <h2>บันทึกข้อมูลค่าใช้จ่ายใหม่</h2>
+            <h2 id="formPanelTitle">บันทึกข้อมูลค่าใช้จ่ายใหม่</h2>
             <form id="expenseForm">
+                <!-- ID Hidden field for tracking update state -->
+                <input type="hidden" id="editingRecordId" value="">
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="date">วันที่ทำรายการ</label>
@@ -556,7 +601,7 @@
                         <input type="text" id="note" class="form-control" placeholder="บันทึกช่วยจำ...">
                     </div>
 
-                    <button type="submit" class="btn-blue">ตรวจสอบข้อมูล</button>
+                    <button type="submit" id="btnSubmitForm" class="btn-blue">ตรวจสอบข้อมูล</button>
                 </div>
 
                 <!-- Modern Data-list Dropdowns System -->
@@ -598,9 +643,10 @@
                     <thead>
                         <tr>
                             <th style="width: 120px;">วันที่บันทึก</th>
-                            <th style="width: 200px;">หมวดหมู่ประเภท</th>
+                            <th style="width: 180px;">หมวดหมู่ประเภท</th>
                             <th>รายละเอียดรายการบันทึก</th>
-                            <th style="text-align: right; width: 160px;">ยอดเงินสุทธิ</th>
+                            <th style="text-align: right; width: 140px;">ยอดเงินสุทธิ</th>
+                            <th style="text-align: center; width: 130px;">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -664,7 +710,6 @@
             localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
         }
 
-        // Dropdown Core Database lists arrays
         let rememberedVehicles = JSON.parse(localStorage.getItem('kyh_vehicles')) || ['บย-4321 สมุทรสาคร', 'กข-9999 กรุงเทพ'];
         let rememberedPersons = JSON.parse(localStorage.getItem('kyh_persons')) || ['สมชาย', 'สมหญิง', 'นายมั่นคง'];
 
@@ -678,6 +723,9 @@
         const logoutBtn = document.getElementById('logoutBtn');
         const expenseForm = document.getElementById('expenseForm');
         const categorySelect = document.getElementById('category');
+        const editingRecordIdInput = document.getElementById('editingRecordId');
+        const formPanelTitle = document.getElementById('formPanelTitle');
+        const btnSubmitForm = document.getElementById('btnSubmitForm');
         
         const conditionalWrapper = document.getElementById('conditionalWrapper');
         const vehicleFieldBlock = document.getElementById('vehicleFieldBlock');
@@ -695,11 +743,9 @@
         const filterCategory = document.getElementById('filterCategory');
         const exportBtn = document.getElementById('exportBtn');
 
-        // Dashboard Summary Target Elements
         const vehicleSummaryList = document.getElementById('vehicleSummaryList');
         const personSummaryList = document.getElementById('personSummaryList');
 
-        // Modal Elements
         const confirmModal = document.getElementById('confirmModal');
         const btnCancelModal = document.getElementById('btnCancelModal');
         const btnConfirmModal = document.getElementById('btnConfirmModal');
@@ -708,7 +754,6 @@
         const vehicleCategories = ['ค่าน้ำมัน', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์', 'ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ'];
         const personCategories = ['ค่าเบี้ยเลี้ยง', 'ค่าเงินเดือน', 'ค่าแรงพิเศษลูกน้อง', 'ค่าแรง Outsource'];
 
-        // Dropdown Auto Updater Option Rendering
         function updateDropdownOptions() {
             vehicleList.innerHTML = '';
             rememberedVehicles.forEach(item => {
@@ -725,10 +770,9 @@
             });
         }
 
-        categorySelect.addEventListener('change', function() {
-            const val = categorySelect.value;
-            let showVehicle = vehicleCategories.includes(val);
-            let showPerson = personCategories.includes(val);
+        function handleCategoryFieldsVisibility(selectedCategory) {
+            let showVehicle = vehicleCategories.includes(selectedCategory);
+            let showPerson = personCategories.includes(selectedCategory);
 
             if (showVehicle || showPerson) {
                 conditionalWrapper.classList.add('show');
@@ -753,6 +797,10 @@
                 personNameInput.required = false;
                 personNameInput.value = '';
             }
+        }
+
+        categorySelect.addEventListener('change', function() {
+            handleCategoryFieldsVisibility(categorySelect.value);
         });
 
         if (sessionStorage.getItem('isAuthenticated') === 'true') {
@@ -788,10 +836,8 @@
             const filtered = expenses.filter(exp => catFilter === '' || exp.category === catFilter);
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Reset list rendering nodes
             tableBody.innerHTML = '';
             
-            // Temporary Tracking Objects for Dashboards Summaries
             const vehicleTotals = {};
             const personTotals = {};
 
@@ -803,12 +849,10 @@
                     let subBadge = '';
                     if (exp.vehiclePlate) {
                         subBadge = `<span class="tag-pill vehicle">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
-                        // Accumulate vehicle data
                         vehicleTotals[exp.vehiclePlate] = (vehicleTotals[exp.vehiclePlate] || 0) + parseFloat(exp.amount);
                     }
                     if (exp.personName) {
                         subBadge = `<span class="tag-pill person">👤 ผู้รับ: ${exp.personName}</span>`;
-                        // Accumulate personal data
                         personTotals[exp.personName] = (personTotals[exp.personName] || 0) + parseFloat(exp.amount);
                     }
 
@@ -830,17 +874,20 @@
                         <td style="text-align: right; font-weight: 700; color: var(--text-main); font-size: 15px;">
                             ${exp.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿
                         </td>
+                        <td style="text-align: center;">
+                            <button class="btn-action btn-edit" onclick="editRecord(${exp.id})">แก้ไข</button>
+                            <button class="btn-action btn-delete" onclick="deleteRecord(${exp.id})">ลบ</button>
+                        </td>
                     `;
                     tableBody.appendChild(row);
                 });
             }
 
-            // 1. Calculate General KPI Metrics
             const totalSum = filtered.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
             totalAmountEl.textContent = `${totalSum.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿`;
             totalCountEl.textContent = `${filtered.length} รายการ`;
 
-            // 2. Render Vehicle Dashboard Breakdown Box Elements
+            // Render Vehicle Dashboard
             vehicleSummaryList.innerHTML = '';
             const vehicleKeys = Object.keys(vehicleTotals);
             if(vehicleKeys.length === 0) {
@@ -854,7 +901,7 @@
                 });
             }
 
-            // 3. Render Person Dashboard Breakdown Box Elements
+            // Render Person Dashboard
             personSummaryList.innerHTML = '';
             const personKeys = Object.keys(personTotals);
             if(personKeys.length === 0) {
@@ -869,10 +916,80 @@
             }
         }
 
+        // Action Trigger: Edit Data
+        window.editRecord = function(id) {
+            const target = expenses.find(exp => exp.id === id);
+            if (!target) return;
+
+            // Load data back to inputs
+            editingRecordIdInput.value = target.id;
+            document.getElementById('date').value = target.date;
+            categorySelect.value = target.category;
+            document.getElementById('amount').value = target.amount;
+            document.getElementById('note').value = target.note === '—' ? '' : target.note;
+
+            // Trigger conditional field view
+            handleCategoryFieldsVisibility(target.category);
+
+            if (vehicleCategories.includes(target.category)) {
+                vehiclePlateInput.value = target.vehiclePlate || '';
+            }
+            if (personCategories.includes(target.category)) {
+                personNameInput.value = target.personName || '';
+            }
+
+            // Change form title and button state appearance
+            formPanelTitle.textContent = "✏️ กำลังแก้ไขข้อมูลรายการ";
+            formPanelTitle.style.color = "#ff9500";
+            btnSubmitForm.textContent = "ตรวจสอบการแก้ไข";
+            btnSubmitForm.className = "btn-orange";
+
+            // Scroll up to form window nicely
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Action Trigger: Delete Data
+        window.deleteRecord = function(id) {
+            const target = expenses.find(exp => exp.id === id);
+            if (!target) return;
+
+            if (confirm(`คุณต้องการลบรายการ "${target.category} ยอด ${target.amount.toLocaleString()} บาท" ใช่หรือไม่?`)) {
+                expenses = expenses.filter(exp => exp.id !== id);
+                localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
+                
+                // If deleting item while currently editing it, reset form states
+                if (editingRecordIdInput.value == id) {
+                    resetFormState();
+                }
+
+                renderDashboard();
+            }
+        };
+
+        function resetFormState() {
+            editingRecordIdInput.value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('note').value = '';
+            vehiclePlateInput.value = '';
+            personNameInput.value = '';
+            categorySelect.value = '';
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            conditionalWrapper.classList.remove('show');
+            vehicleFieldBlock.style.display = 'none';
+            personFieldBlock.style.display = 'none';
+
+            formPanelTitle.textContent = "บันทึกข้อมูลค่าใช้จ่ายใหม่";
+            formPanelTitle.style.color = "var(--text-main)";
+            btnSubmitForm.textContent = "ตรวจสอบข้อมูล";
+            btnSubmitForm.className = "btn-blue";
+        }
+
         expenseForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             temporaryRecordData = {
+                id: editingRecordIdInput.value ? parseInt(editingRecordIdInput.value) : null,
                 date: document.getElementById('date').value,
                 category: categorySelect.value,
                 amount: parseFloat(document.getElementById('amount').value),
@@ -911,37 +1028,38 @@
         btnConfirmModal.addEventListener('click', function() {
             if (!temporaryRecordData) return;
 
-            const finalRecord = {
-                id: Date.now(),
-                ...temporaryRecordData
-            };
-            expenses.push(finalRecord);
+            if (temporaryRecordData.id) {
+                // Update Pipeline Flow
+                const idx = expenses.findIndex(exp => exp.id === temporaryRecordData.id);
+                if (idx !== -1) {
+                    expenses[idx] = { ...temporaryRecordData };
+                }
+            } else {
+                // Insert New Data Pipeline Flow
+                const finalRecord = {
+                    ...temporaryRecordData,
+                    id: Date.now()
+                };
+                expenses.push(finalRecord);
+            }
+
             localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
 
-            // Intelligent Memory Check for saving custom typing into memory database lists
-            if (finalRecord.vehiclePlate && !rememberedVehicles.includes(finalRecord.vehiclePlate)) {
-                rememberedVehicles.push(finalRecord.vehiclePlate);
+            // Intelligent Auto Suggestion memory addition
+            if (temporaryRecordData.vehiclePlate && !rememberedVehicles.includes(temporaryRecordData.vehiclePlate)) {
+                rememberedVehicles.push(temporaryRecordData.vehiclePlate);
                 localStorage.setItem('kyh_vehicles', JSON.stringify(rememberedVehicles));
             }
-            if (finalRecord.personName && !rememberedPersons.includes(finalRecord.personName)) {
-                rememberedPersons.push(finalRecord.personName);
+            if (temporaryRecordData.personName && !rememberedPersons.includes(temporaryRecordData.personName)) {
+                rememberedPersons.push(temporaryRecordData.personName);
                 localStorage.setItem('kyh_persons', JSON.stringify(rememberedPersons));
             }
 
-            // Clear Interfaces fields UI Values
-            document.getElementById('amount').value = '';
-            document.getElementById('note').value = '';
-            vehiclePlateInput.value = '';
-            personNameInput.value = '';
-            categorySelect.value = '';
-            
-            conditionalWrapper.classList.remove('show');
-            vehicleFieldBlock.style.display = 'none';
-            personFieldBlock.style.display = 'none';
-            
+            // Close Modal & Reset Form interfaces states back cleanly
             confirmModal.classList.remove('show');
             temporaryRecordData = null;
-
+            
+            resetFormState();
             updateDropdownOptions();
             renderDashboard();
         });
