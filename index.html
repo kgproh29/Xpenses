@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KYH — Xpenses Pro</title>
+    <title>KYH — Expense Pro</title>
+    <!-- Import Google Fonts: Inter สำหรับ 영/ตัวเลข และ Sarabun สำหรับภาษาไทยระดับมืออาชีพ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --mac-bg: #eef2f6;
@@ -30,8 +35,10 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            /* ตั้งค่าให้ใช้ Inter ควบคู่กับ Sarabun เพื่อความพรีเมียม */
+            font-family: 'Inter', 'Sarabun', -apple-system, sans-serif;
             -webkit-font-smoothing: antialiased;
+            letter-spacing: -0.2px;
         }
 
         body {
@@ -169,9 +176,9 @@
         }
 
         .kpi-card .kpi-label {
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(255, 255, 255, 0.75);
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -331,6 +338,7 @@
             border-bottom: 1px solid var(--mac-border);
             color: var(--mac-text-main);
             vertical-align: middle;
+            font-size: 14px;
         }
 
         tr:nth-child(even) {
@@ -542,7 +550,6 @@
             'ค่าแรง Outsource': 'var(--color-salary)',
             'ค่าแรงพิเศษลูกน้อง': 'var(--color-salary)',
             'ค่าเบี้ยเลี้ยง': 'var(--color-salary)',
-            'ยิงแอด / การตลาด': 'var(--color-market)',
             'ค่าไฟฟ้า / ประปา': 'var(--color-bill)',
             'ค่าโทรศัพท์ / อินเตอร์เน็ต': 'var(--color-bill)'
         };
@@ -662,11 +669,11 @@
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td style="color: var(--mac-text-muted); font-size: 13px;">${exp.date}</td>
+                        <td style="color: var(--mac-text-muted); font-size: 13px; font-weight: 500;">${exp.date}</td>
                         <td>
                             <div class="status-badge">
                                 <span class="status-dot" style="background-color: ${dotColor};"></span>
-                                <span>${exp.category}</span>
+                                <span style="font-weight: 500;">${exp.category}</span>
                             </div>
                         </td>
                         <td>
