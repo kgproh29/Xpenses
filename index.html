@@ -37,8 +37,8 @@
 
         .container {
             width: 100%;
-            max-width: 1100px;
-            display: none; /* Controlled by JS */
+            max-width: 1200px;
+            display: none;
         }
 
         /* Login Screen */
@@ -69,7 +69,7 @@
             margin-bottom: 32px;
         }
 
-        /* Typography & Header */
+        /* Header */
         header {
             margin-bottom: 40px;
             display: flex;
@@ -96,9 +96,9 @@
             gap: 32px;
         }
 
-        @media (min-width: 800px) {
+        @media (min-width: 850px) {
             .app-grid {
-                grid-template-columns: 360px 1fr;
+                grid-template-columns: 380px 1fr;
             }
         }
 
@@ -123,6 +123,20 @@
         /* Inputs & Controls */
         .form-group {
             margin-bottom: 20px;
+        }
+
+        /* Conditional Animation Box */
+        .conditional-field {
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .conditional-field.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .form-group label {
@@ -190,15 +204,13 @@
             font-size: 14px;
             cursor: pointer;
             font-weight: 400;
-            width: auto;
-            height: auto;
         }
 
         .btn-text:hover {
             text-decoration: underline;
         }
 
-        /* Apple Stats Dashboard */
+        /* Dashboard Overview */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -225,47 +237,6 @@
             letter-spacing: -0.5px;
         }
 
-        /* Chart View */
-        .chart-container {
-            margin-top: 8px;
-        }
-
-        .bar-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .bar-label {
-            width: 110px;
-            font-size: 13px;
-            color: var(--apple-text-main);
-        }
-
-        .bar-wrapper {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.04);
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 0 16px;
-        }
-
-        .bar-fill {
-            height: 100%;
-            background-color: var(--apple-text-main);
-            width: 0%;
-            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            border-radius: 4px;
-        }
-
-        .bar-val {
-            width: 90px;
-            text-align: right;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
         /* Table Filter Group */
         .filter-group {
             display: flex;
@@ -276,7 +247,7 @@
         }
 
         .filter-select {
-            max-width: 200px;
+            max-width: 220px;
             height: 36px;
             font-size: 13px;
             border-radius: 8px;
@@ -313,6 +284,17 @@
             border-bottom: none;
         }
 
+        .meta-tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            color: var(--apple-text-muted);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
         .no-data {
             text-align: center;
             color: var(--apple-text-muted);
@@ -340,7 +322,7 @@
         <header>
             <div>
                 <h1>ค่าใช้จ่ายธุรกิจ</h1>
-                <p>ระบบบันทึกและตรวจสอบงบประมาณรายจ่ายส่วนตัว</p>
+                <p>ระบบบันทึกแยกรายละเอียดตามประเภทและเงื่อนไขอัจฉริยะ</p>
             </div>
             <div>
                 <button id="logoutBtn" class="btn-text">Log out</button>
@@ -368,38 +350,60 @@
                         <label for="date">วันที่</label>
                         <input type="date" id="date" class="form-control" required>
                     </div>
+                    
                     <div class="form-group">
                         <label for="category">หมวดหมู่ค่าใช้จ่าย</label>
                         <select id="category" class="form-control" required>
                             <option value="">-- เลือกหมวดหมู่ --</option>
-                            <option value="ค่าเดินทาง">ค่าเดินทาง / ค่าน้ำมัน</option>
-                            <option value="ค่าอาหาร">ค่าอาหาร / รับรองลูกค้า</option>
-                            <option value="อุปกรณ์สำนักงาน">อุปกรณ์สำนักงาน</option>
-                            <option value="ค่าซ่อมบำรุง">ค่าซ่อมบำรุง / อาคาร</option>
-                            <option value="ยิงแอด / การตลาด">ยิงแอด / การตลาด</option>
-                            <option value="อื่นๆ">ค่าใช้จ่ายอื่นๆ</option>
+                            <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
+                            <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
+                            <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
+                            <option value="ค่าประกันสังคม">ค่าประกันสังคม</option>
+                            <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน / ค่าผ่านทาง</option>
+                            <option value="ค่าโทรศัพท์ / อินเตอร์เน็ต">ค่าโทรศัพท์ / อินเตอร์เน็ต</option>
+                            <option value="ค่าไฟฟ้า / ประปา">ค่าไฟฟ้า / ประปา</option>
+                            <option value="ค่าส่งเอกสาร / พัสดุ / ขนส่งสินค้า">ค่าส่งเอกสาร / พัสดุ / ขนส่งสินค้า</option>
+                            <option value="ค่าอุปกรณ์สำนักงาน">ค่าอุปกรณ์สำนักงาน</option>
+                            <option value="ค่าอุปกรณ์ซ่อมบำรุงรถยนต์">ค่าอุปกรณ์ซ่อมบำรุงรถยนต์</option>
+                            <option value="ค่าปรับจราจร">ค่าปรับจราจร</option>
+                            <option value="ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ">ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ</option>
+                            <option value="ค่างานศพ / งานแต่ง / บริจาค / งานบุญ">ค่างานศพ / งานแต่ง / บริจาค / งานบุญ</option>
+                            <option value="ค่าน้ำดื่ม">ค่าน้ำดื่ม</option>
+                            <option value="ค่าแรงพิเศษลูกน้อง">ค่าแรงพิเศษลูกน้อง</option>
+                            <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
+                            <option value="ค่าไหว้เจ้า">ค่าไหว้เจ้า</option>
+                            <option value="ค่ารับรองแขก">ค่ารับรองแขก</option>
                         </select>
                     </div>
+
+                    <!-- Conditional Field 1: Vehicle Target (ทะเบียนรถ) -->
+                    <div id="vehicleFieldBlock" class="form-group conditional-field">
+                        <label for="vehiclePlate">ทะเบียนรถที่เกี่ยวข้อง</label>
+                        <input type="text" id="vehiclePlate" class="form-control" placeholder="เช่น กข-1234 กทม.">
+                    </div>
+
+                    <!-- Conditional Field 2: Person Target (ชื่อผู้รับเงิน / พนักงาน) -->
+                    <div id="personFieldBlock" class="form-group conditional-field">
+                        <label for="personName">ชื่อผู้รับเงิน / พนักงาน</label>
+                        <input type="text" id="personName" class="form-control" placeholder="ระบุชื่อผู้รับเงิน">
+                    </div>
+
                     <div class="form-group">
                         <label for="amount">จำนวนเงิน (บาท)</label>
                         <input type="number" id="amount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
                     </div>
+                    
                     <div class="form-group">
-                        <label for="note">บันทึกใจความสำคัญ</label>
+                        <label for="note">บันทึกใจความสำคัญ (รายละเอียด)</label>
                         <input type="text" id="note" class="form-control" placeholder="ระบุรายละเอียดเพิ่มเติม">
                     </div>
+                    
                     <button type="submit" class="btn" style="margin-top: 8px;">เพิ่มรายการบันทึก</button>
                 </form>
             </div>
 
             <!-- Right Grid: Output Dashboard -->
             <div style="display: flex; flex-direction: column; gap: 32px;">
-                <!-- Analytics Chart -->
-                <div class="card">
-                    <h2>โครงสร้างค่าใช้จ่ายสะสม</h2>
-                    <div id="chartContainer" class="chart-container"></div>
-                </div>
-
                 <!-- Ledger & Filters -->
                 <div class="card">
                     <div class="filter-group">
@@ -407,12 +411,13 @@
                         <div style="display: flex; gap: 12px; align-items: center;">
                             <select id="filterCategory" class="form-control filter-select">
                                 <option value="">หมวดหมู่ทั้งหมด</option>
-                                <option value="ค่าเดินทาง">ค่าเดินทาง</option>
-                                <option value="ค่าอาหาร">ค่าอาหาร</option>
-                                <option value="อุปกรณ์สำนักงาน">อุปกรณ์สำนักงาน</option>
-                                <option value="ค่าซ่อมบำรุง">ค่าซ่อมบำรุง</option>
-                                <option value="ยิงแอด / การตลาด">ยิงแอด / การตลาด</option>
-                                <option value="อื่นๆ">อื่นๆ</option>
+                                <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
+                                <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
+                                <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
+                                <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน</option>
+                                <option value="ค่าไฟฟ้า / ประปา">ค่าไฟ/ค่าน้ำ</option>
+                                <option value="ค่าอุปกรณ์ซ่อมบำรุงรถยนต์">ค่าซ่อมรถ</option>
+                                <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
                             </select>
                             <button id="exportBtn" class="btn btn-secondary" style="height: 36px; padding: 0 14px; font-size: 13px; width: auto; border-radius: 8px;">Export</button>
                         </div>
@@ -422,10 +427,10 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 120px;">วันที่</th>
-                                    <th style="width: 150px;">หมวดหมู่</th>
+                                    <th style="width: 110px;">วันที่</th>
+                                    <th style="width: 180px;">หมวดหมู่</th>
                                     <th>รายละเอียดบันทึก</th>
-                                    <th style="text-align: right; width: 140px;">จำนวนเงิน</th>
+                                    <th style="text-align: right; width: 130px;">จำนวนเงิน</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody"></tbody>
@@ -440,14 +445,9 @@
     </div>
 
     <script>
-        /**
-         * SECURITY: SHA-256 Password Hash Management
-         * รหัสผ่านเริ่มต้นคือ: 1234
-         * หากต้องการเปลี่ยนรหัสผ่าน ให้ไปสร้างรหัสผ่านใหม่ที่เว็บแบบ https://md5calc.com/hash/sha256 แล้วนำรหัสแฮชมาแทนที่ค่าข้างล่างนี้
-         */
+        // Password Protection Cryptography (Default: 1234)
         const HASHED_PASSWORD_KEY = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"; 
 
-        // Simulated Cryptography Helper for Client-Side Protection
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -455,44 +455,75 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Standard Mock Architecture
+        // Database Seed Mocking
         const defaultMock = [
-            { id: 1, date: '2026-07-01', category: 'ยิงแอด / การตลาด', amount: 14500.00, note: 'ค่าโฆษณา Facebook และ Google' },
-            { id: 2, date: '2026-07-04', category: 'ค่าอาหาร', amount: 3200.00, note: 'พาลูกค้า VIP ไปเลี้ยงมื้อค่ำเพื่อคุยสัญญา' },
-            { id: 3, date: '2026-07-08', category: 'ค่าเดินทาง', amount: 1850.00, note: 'ค่าเดินทางและน้ำมันไปประสานงานนอกสถานที่' }
+            { id: 1, date: '2026-07-01', category: 'ค่าน้ำมัน', amount: 1500.00, note: 'เติมดีเซลเต็มถังรถส่งของ', vehiclePlate: 'กข-9999 สมุทรสาคร', personName: '' },
+            { id: 2, date: '2026-07-04', category: 'ค่าแรง Outsource', amount: 4500.00, note: 'ค่าออกแบบกราฟิกแบนเนอร์', vehiclePlate: '', personName: 'นายสมศักดิ์ (ฟรีแลนซ์)' },
+            { id: 3, date: '2026-07-08', category: 'ค่าไฟฟ้า / ประปา', amount: 2350.00, note: 'ค่าน้ำค่าไฟประจำออฟฟิศ', vehiclePlate: '', personName: '' }
         ];
 
-        let expenses = JSON.parse(localStorage.getItem('apple_expense_db')) || defaultMock;
-        if (!localStorage.getItem('apple_expense_db')) {
-            localStorage.setItem('apple_expense_db', JSON.stringify(expenses));
+        let expenses = JSON.parse(localStorage.getItem('apple_conditional_db')) || defaultMock;
+        if (!localStorage.getItem('apple_conditional_db')) {
+            localStorage.setItem('apple_conditional_db', JSON.stringify(expenses));
         }
 
-        // Set Current Node Date
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
 
-        // UI Core Components
+        // Elements Group
         const authBlock = document.getElementById('authBlock');
         const appBlock = document.getElementById('appBlock');
         const loginForm = document.getElementById('loginForm');
         const passwordInput = document.getElementById('passwordInput');
         const logoutBtn = document.getElementById('logoutBtn');
         const expenseForm = document.getElementById('expenseForm');
+        const categorySelect = document.getElementById('category');
+        const vehicleFieldBlock = document.getElementById('vehicleFieldBlock');
+        const vehiclePlateInput = document.getElementById('vehiclePlate');
+        const personFieldBlock = document.getElementById('personFieldBlock');
+        const personNameInput = document.getElementById('personName');
         const tableBody = document.getElementById('tableBody');
         const noDataMessage = document.getElementById('noDataMessage');
         const totalAmountEl = document.getElementById('totalAmount');
         const totalCountEl = document.getElementById('totalCount');
-        const chartContainer = document.getElementById('chartContainer');
         const filterCategory = document.getElementById('filterCategory');
         const exportBtn = document.getElementById('exportBtn');
 
-        // Session Router
+        // Logic Groups for Fields Visibility
+        const vehicleCategories = ['ค่าน้ำมัน', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์', 'ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ'];
+        const personCategories = ['ค่าเบี้ยเลี้ยง', 'ค่าเงินเดือน', 'ค่าแรงพิเศษลูกน้อง', 'ค่าแรง Outsource'];
+
+        // Trigger Fields Visibility on Category Change
+        categorySelect.addEventListener('change', function() {
+            const val = categorySelect.value;
+            
+            // Handle Vehicle Block
+            if (vehicleCategories.includes(val)) {
+                vehicleFieldBlock.classList.add('show');
+                vehiclePlateInput.required = true;
+            } else {
+                vehicleFieldBlock.classList.remove('show');
+                vehiclePlateInput.required = false;
+                vehiclePlateInput.value = '';
+            }
+
+            // Handle Person Block
+            if (personCategories.includes(val)) {
+                personFieldBlock.classList.add('show');
+                personNameInput.required = true;
+            } else {
+                personFieldBlock.classList.remove('show');
+                personNameInput.required = false;
+                personNameInput.value = '';
+            }
+        });
+
+        // Authentication Core
         if (sessionStorage.getItem('isAuthenticated') === 'true') {
             authBlock.style.display = 'none';
             appBlock.style.display = 'block';
             renderAppCore();
         }
 
-        // Auth Event
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const inputHash = await sha256(passwordInput.value);
@@ -504,7 +535,6 @@
             } else {
                 alert('รหัสผ่านไม่ถูกต้อง โปรดลองอีกครั้ง');
                 passwordInput.value = '';
-                passwordInput.focus();
             }
         });
 
@@ -513,110 +543,90 @@
             window.location.reload();
         });
 
-        // Application Core Engines
+        // Data Management Render Engine
         function renderAppCore() {
             const catFilter = filterCategory.value;
-
             const filtered = expenses.filter(exp => catFilter === '' || exp.category === catFilter);
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Populate Master Ledger Table
             tableBody.innerHTML = '';
             if (filtered.length === 0) {
                 noDataMessage.style.display = 'block';
             } else {
                 noDataMessage.style.display = 'none';
                 filtered.forEach(exp => {
+                    let dynamicMeta = '';
+                    if (exp.vehiclePlate) dynamicMeta = `<br><span class="meta-tag">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
+                    if (exp.personName) dynamicMeta = `<br><span class="meta-tag">👤 ผู้รับเงิน: ${exp.personName}</span>`;
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td style="color: var(--apple-text-muted);">${exp.date}</td>
                         <td style="font-weight: 500;">${exp.category}</td>
-                        <td>${exp.note || '—'}</td>
+                        <td>
+                            <div>${exp.note || '—'}</div>
+                            ${dynamicMeta}
+                        </td>
                         <td style="text-align: right; font-weight: 600;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</td>
                     `;
                     tableBody.appendChild(row);
                 });
             }
 
-            // Sync Analytics Counter
             const totalSum = filtered.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
             totalAmountEl.textContent = `${totalSum.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿`;
             totalCountEl.textContent = `${filtered.length} รายการ`;
-
-            renderPremiumChart(filtered);
         }
 
-        function renderPremiumChart(data) {
-            const segments = ['ค่าเดินทาง', 'ค่าอาหาร', 'อุปกรณ์สำนักงาน', 'ค่าซ่อมบำรุง', 'ยิงแอด / การตลาด', 'อื่นๆ'];
-            const segmentTotals = {};
-            segments.forEach(seg => segmentTotals[seg] = 0);
-
-            data.forEach(exp => {
-                if (segmentTotals[exp.category] !== undefined) {
-                    segmentTotals[exp.category] += parseFloat(exp.amount);
-                } else {
-                    segmentTotals['อื่นๆ'] += parseFloat(exp.amount);
-                }
-            });
-
-            const topPeak = Math.max(...Object.values(segmentTotals), 1);
-            chartContainer.innerHTML = '';
-
-            segments.forEach(seg => {
-                const totalVal = segmentTotals[seg];
-                const scaleWidth = (totalVal / topPeak) * 100;
-
-                const row = document.createElement('div');
-                row.className = 'bar-row';
-                row.innerHTML = `
-                    <div class="bar-label">${seg}</div>
-                    <div class="bar-wrapper">
-                        <div class="bar-fill" style="width: ${scaleWidth}%"></div>
-                    </div>
-                    <div class="bar-val">${totalVal.toLocaleString('th-TH', {minimumFractionDigits: 0})} ฿</div>
-                `;
-                chartContainer.appendChild(row);
-            });
-        }
-
-        // Data Entry Interceptor
+        // Form Submit Actions
         expenseForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const newRecord = {
                 id: Date.now(),
                 date: document.getElementById('date').value,
-                category: document.getElementById('category').value,
+                category: categorySelect.value,
                 amount: parseFloat(document.getElementById('amount').value),
-                note: document.getElementById('note').value
+                note: document.getElementById('note').value,
+                vehiclePlate: vehiclePlateInput.value,
+                personName: personNameInput.value
             };
 
             expenses.push(newRecord);
-            localStorage.setItem('apple_expense_db', JSON.stringify(expenses));
+            localStorage.setItem('apple_conditional_db', JSON.stringify(expenses));
             
+            // Reset input values
             document.getElementById('amount').value = '';
             document.getElementById('note').value = '';
+            vehiclePlateInput.value = '';
+            personNameInput.value = '';
+            
+            // Hide conditional elements
+            vehicleFieldBlock.classList.remove('show');
+            personFieldBlock.classList.remove('show');
             
             renderAppCore();
         });
 
-        // Realtime Filters
         filterCategory.addEventListener('change', renderAppCore);
 
-        // Data Exporter Module (CSV Format for Excel Integration)
+        // Advanced CSV Data Exporter
         exportBtn.addEventListener('click', function() {
             if (expenses.length === 0) return alert('ไม่มีข้อมูลสำหรับออกรายงาน');
             
-            let csvContent = "\uFEFF"; // Byte Order Mark for Thai characters in Excel
-            csvContent += "วันที่,หมวดหมู่,รายละเอียดบันทึก,จำนวนเงิน (บาท)\n";
+            let csvContent = "\uFEFF"; 
+            csvContent += "วันที่,หมวดหมู่,รายละเอียดบันทึก,ทะเบียนรถ,ผู้รับเงิน/พนักงาน,จำนวนเงิน (บาท)\n";
             
             expenses.forEach(exp => {
-                csvContent += `"${exp.date}","${exp.category}","${(exp.note || '').replace(/"/g, '""')}","${exp.amount}"\n`;
+                const noteSanitized = (exp.note || '').replace(/"/g, '""');
+                const plateSanitized = (exp.vehiclePlate || '').replace(/"/g, '""');
+                const personSanitized = (exp.personName || '').replace(/"/g, '""');
+                csvContent += `"${exp.date}","${exp.category}","${noteSanitized}","${plateSanitized}","${personSanitized}","${exp.amount}"\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", "BrahBrahBrand_Expenses.csv");
+            link.setAttribute("download", "BrahBrahBrand_Master_Expenses.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
