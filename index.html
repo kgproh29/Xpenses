@@ -102,6 +102,52 @@
             font-weight: 700;
         }
 
+        /* NAVIGATION TABS SYSTEM */
+        .tabs-navigation {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 6px;
+            border-radius: var(--radius-pro);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: var(--panel-bg);
+            color: var(--accent-blue);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* SECTION VIEWS CONTROLLER */
+        .section-view {
+            display: none;
+        }
+
+        .section-view.active {
+            display: block;
+        }
+
         /* Filter Panel Dashboard Widget */
         .filter-panel {
             background: var(--panel-bg);
@@ -204,7 +250,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 240px;
+            max-height: 350px;
             overflow-y: auto;
             flex: 1;
         }
@@ -213,7 +259,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            padding: 8px 12px;
+            padding: 10px 14px;
             background: #f8fafc;
             border-radius: 6px;
             font-weight: 500;
@@ -224,9 +270,9 @@
         .chart-item {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
             background: #f8fafc;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
         }
         .chart-info {
@@ -303,7 +349,7 @@
             box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
         }
 
-        /* Conditional Section - Drops down cleanly */
+        /* Conditional Section */
         .conditional-container {
             display: none;
             grid-template-columns: 1fr 1fr;
@@ -533,7 +579,7 @@
     <!-- Main Section App Platform -->
     <div id="appBlock" class="container">
         
-        <!-- ROW 1: Header Info -->
+        <!-- HEADER INFO -->
         <header class="app-header">
             <div>
                 <h1>KYH Workspace</h1>
@@ -541,102 +587,125 @@
             <button id="logoutBtn" class="btn-logout">ออกจากระบบ</button>
         </header>
 
-        <!-- NEW CONTROLS: Advanced Filter View Panel -->
-        <section class="filter-panel">
-            <h2>🔍 ค้นหาและคัดกรองข้อมูลรายการแบบระบุเงื่อนไข</h2>
-            <div class="filter-row">
-                <div class="form-group">
-                    <label for="filterStartDate">📅 ตั้งแต่วันที่ (From)</label>
-                    <input type="date" id="filterStartDate" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="filterEndDate">📅 ถึงวันที่ (To)</label>
-                    <input type="date" id="filterEndDate" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="filterCategory">📁 เลือกหมวดหมู่ค่าใช้จ่าย</label>
-                    <select id="filterCategory" class="form-control">
-                        <option value="">หมวดหมู่ทั้งหมด</option>
-                        <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
-                        <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
-                        <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
-                        <option value="ค่าประกันสังคม">ค่าประกันสังคม</option>
-                        <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน / ค่าผ่านทาง</option>
-                        <option value="ค่าโทรศัพท์ / อินเตอร์เน็ต">ค่าโทรศัพท์ / อินเตอร์เน็ต</option>
-                        <option value="ค่าไฟฟ้า / ประปา">ค่าไฟฟ้า / ประปา</option>
-                        <option value="ค่าส่งเอกสาร / พัสดุ / ขนส่งสินค้า">ค่าส่งเอกสาร / พัสดุ</option>
-                        <option value="ค่าอุปกรณ์สำนักงาน">ค่าอุปกรณ์สำนักงาน</option>
-                        <option value="ค่าอุปกรณ์ซ่อมบำรุงรถยนต์">ค่าอุปกรณ์ซ่อมรถ</option>
-                        <option value="ค่าปรับจราจร">ค่าปรับจราจร</option>
-                        <option value="ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ">ค่า พรบ. / ประกันรถ</option>
-                        <option value="ค่างานศพ / งานแต่ง / บริจาค / งานบุญ">ค่างานบุญ / บริจาค</option>
-                        <option value="ค่าน้ำดื่ม">ค่าน้ำดื่ม</option>
-                        <option value="ค่าแรงพิเศษลูกน้อง">ค่าแรงพิเศษลูกน้อง</option>
-                        <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
-                        <option value="ค่าไหว้เจ้า">ค่าไหว้เจ้า</option>
-                        <option value="ค่ารับรองแขก">ค่ารับรองแขก</option>
-                    </select>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button id="btnApplyFilter" class="btn-blue" style="flex: 1;">ดึงข้อมูลรายการ</button>
-                    <button id="btnResetFilter" class="btn-outline" title="ล้างการกรองทั้งหมด">ล้างค่า</button>
-                </div>
-            </div>
-        </section>
+        <!-- TWO TABS NAVIGATION BUTTONS -->
+        <nav class="tabs-navigation">
+            <button id="tabEntryBtn" class="tab-btn active" onclick="switchSection('entry')">📝 บันทึกข้อมูลค่าใช้จ่าย</button>
+            <button id="tabVisualBtn" class="tab-btn" onclick="switchSection('visual')">📊 สรุปแดชบอร์ด & วิเคราะห์</button>
+        </nav>
 
-        <!-- ROW 2: KPI Summaries Indicators (ตามเงื่อนไขการกรอง) -->
-        <section class="kpi-row">
-            <div class="kpi-card highlight">
-                <div class="kpi-label">รายจ่ายรวมตามช่วงที่เลือก (Filtered Outflow)</div>
-                <div class="kpi-value" id="totalAmount">0.00 ฿</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-label">จำนวนรายการบัญชี (Transactions)</div>
-                <div class="kpi-value" id="totalCount">0 รายการ</div>
-            </div>
-        </section>
+        <!-- ==================== SECTION 1: DATA ENTRY & TABLE LIST ==================== -->
+        <main id="sectionEntry" class="section-view active">
+            <!-- Form Input Panel -->
+            <section class="form-panel">
+                <h2 id="formPanelTitle">บันทึกข้อมูลค่าใช้จ่ายใหม่</h2>
+                <form id="expenseForm">
+                    <input type="hidden" id="editingRecordId" value="">
 
-        <!-- ROW 3: Interactive Analytics Widgets Dashboard -->
-        <section class="analytics-grid">
-            <!-- 1. Category Percentage Breakdown -->
-            <div class="summary-box">
-                <h3><span>📊 สัดส่วนค่าใช้จ่ายแยกตามหมวดหมู่ (%)</span></h3>
-                <div id="categoryChartList" class="summary-list">
-                    <!-- Dynamic Progress Bars -->
-                </div>
-            </div>
-            <!-- 2. Vehicle Summary List -->
-            <div class="summary-box">
-                <h3><span>🚗 ยอดสะสมแยกตามทะเบียนรถ</span></h3>
-                <div id="vehicleSummaryList" class="summary-list">
-                    <!-- Dynamic Items -->
-                </div>
-            </div>
-            <!-- 3. Person Summary List -->
-            <div class="summary-box">
-                <h3><span>👤 ยอดสะสมแยกตามบุคคล</span></h3>
-                <div id="personSummaryList" class="summary-list">
-                    <!-- Dynamic Items -->
-                </div>
-            </div>
-        </section>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">วันที่ทำรายการ</label>
+                            <input type="date" id="date" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category">หมวดหมู่ค่าใช้จ่าย</label>
+                            <select id="category" class="form-control" required>
+                                <option value="">-- เลือกหมวดหมู่ --</option>
+                                <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
+                                <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
+                                <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
+                                <option value="ค่าประกันสังคม">ค่าประกันสังคม</option>
+                                <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน / ค่าผ่านทาง</option>
+                                <option value="ค่าโทรศัพท์ / อินเตอร์เน็ต">ค่าโทรศัพท์ / อินเตอร์เน็ต</option>
+                                <option value="ค่าไฟฟ้า / ประปา">ค่าไฟฟ้า / ประปา</option>
+                                <option value="ค่าส่งเอกสาร / พัสดุ / ขนส่งสินค้า">ค่าส่งเอกสาร / พัสดุ</option>
+                                <option value="ค่าอุปกรณ์สำนักงาน">ค่าอุปกรณ์สำนักงาน</option>
+                                <option value="ค่าอุปกรณ์ซ่อมบำรุงรถยนต์">ค่าอุปกรณ์ซ่อมรถ</option>
+                                <option value="ค่าปรับจราจร">ค่าปรับจราจร</option>
+                                <option value="ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ">ค่า พรบ. / ประกันรถ</option>
+                                <option value="ค่างานศพ / งานแต่ง / บริจาค / งานบุญ">ค่างานบุญ / บริจาค</option>
+                                <option value="ค่าน้ำดื่ม">ค่าน้ำดื่ม</option>
+                                <option value="ค่าแรงพิเศษลูกน้อง">ค่าแรงพิเศษลูกน้อง</option>
+                                <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
+                                <option value="ค่าไหว้เจ้า">ค่าไหว้เจ้า</option>
+                                <option value="ค่ารับรองแขก">ค่ารับรองแขก</option>
+                            </select>
+                        </div>
 
-        <!-- ROW 4: Horizontal Unified Form Panel -->
-        <section class="form-panel">
-            <h2 id="formPanelTitle">บันทึกข้อมูลค่าใช้จ่ายใหม่</h2>
-            <form id="expenseForm">
-                <input type="hidden" id="editingRecordId" value="">
+                        <div class="form-group">
+                            <label for="amount">จำนวนเงินสุทธิ (บาท)</label>
+                            <input type="number" id="amount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
+                        </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="date">วันที่ทำรายการ</label>
-                        <input type="date" id="date" class="form-control" required>
+                        <div class="form-group">
+                            <label for="note">รายละเอียดเพิ่มเติม</label>
+                            <input type="text" id="note" class="form-control" placeholder="บันทึกช่วยจำ...">
+                        </div>
+
+                        <button type="submit" id="btnSubmitForm" class="btn-blue">ตรวจสอบข้อมูล</button>
                     </div>
-                    
+
+                    <div id="conditionalWrapper" class="conditional-container">
+                        <div id="vehicleFieldBlock" class="form-group" style="display: none;">
+                            <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
+                            <input type="text" id="vehiclePlate" class="form-control" list="vehicleList" placeholder="เลือกทะเบียน หรือพิมพ์ใหม่...">
+                            <datalist id="vehicleList"></datalist>
+                        </div>
+                        <div id="personFieldBlock" class="form-group" style="display: none;">
+                            <label for="personName">👤 ชื่อผู้รับเงิน / พนักงาน</label>
+                            <input type="text" id="personName" class="form-control" list="personList" placeholder="เลือกพนักงาน หรือพิมพ์ใหม่...">
+                            <datalist id="personList"></datalist>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Table Panel Ledger Grid -->
+            <section class="table-panel">
+                <div class="table-toolbar">
+                    <h2>สมุดบัญชีรายจ่ายแยกตามแถวรายการทั้งหมด</h2>
+                    <button id="exportBtn" class="btn-outline">📥 Export CSV รายการทั้งหมด</button>
+                </div>
+
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">วันที่บันทึก</th>
+                                <th style="width: 180px;">หมวดหมู่ประเภท</th>
+                                <th>รายละเอียดรายการบันทึก</th>
+                                <th style="text-align: right; width: 140px;">ยอดเงินสุทธิ</th>
+                                <th style="text-align: center; width: 130px;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                    <div id="noDataMessage" class="no-data" style="display: none;">
+                        ยังไม่มีข้อมูลรายการบัญชีในระบบ
+                    </div>
+                </div>
+            </section>
+        </main>
+
+
+        <!-- ==================== SECTION 2: VISUALIZE & DASHBOARD ==================== -->
+        <main id="sectionVisual" class="section-view">
+            <!-- Advanced Date/Category Filter View Panel -->
+            <section class="filter-panel">
+                <h2>🔍 เลือกช่วงเวลาและกรองเงื่อนไขสำหรับการแสดงผลกราฟแดชบอร์ด</h2>
+                <div class="filter-row">
                     <div class="form-group">
-                        <label for="category">หมวดหมู่ค่าใช้จ่าย</label>
-                        <select id="category" class="form-control" required>
-                            <option value="">-- เลือกหมวดหมู่ --</option>
+                        <label for="filterStartDate">📅 ตั้งแต่วันที่ (From)</label>
+                        <input type="date" id="filterStartDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="filterEndDate">📅 ถึงวันที่ (To)</label>
+                        <input type="date" id="filterEndDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="filterCategory">📁 เจาะลึกหมวดหมู่</label>
+                        <select id="filterCategory" class="form-control">
+                            <option value="">หมวดหมู่ทั้งหมด</option>
                             <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
                             <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
                             <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
@@ -657,65 +726,54 @@
                             <option value="ค่ารับรองแขก">ค่ารับรองแขก</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label for="amount">จำนวนเงินสุทธิ (บาท)</label>
-                        <input type="number" id="amount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="note">รายละเอียดเพิ่มเติม</label>
-                        <input type="text" id="note" class="form-control" placeholder="บันทึกช่วยจำ...">
-                    </div>
-
-                    <button type="submit" id="btnSubmitForm" class="btn-blue">ตรวจสอบข้อมูล</button>
-                </div>
-
-                <!-- Dropdowns Options Menu Context -->
-                <div id="conditionalWrapper" class="conditional-container">
-                    <div id="vehicleFieldBlock" class="form-group" style="display: none;">
-                        <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
-                        <input type="text" id="vehiclePlate" class="form-control" list="vehicleList" placeholder="เลือกทะเบียน หรือพิมพ์ใหม่...">
-                        <datalist id="vehicleList"></datalist>
-                    </div>
-                    <div id="personFieldBlock" class="form-group" style="display: none;">
-                        <label for="personName">👤 ชื่อผู้รับเงิน / พนักงาน</label>
-                        <input type="text" id="personName" class="form-control" list="personList" placeholder="เลือกพนักงาน หรือพิมพ์ใหม่...">
-                        <datalist id="personList"></datalist>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="btnApplyFilter" class="btn-blue" style="flex: 1;">ประมวลผลข้อมูล</button>
+                        <button id="btnResetFilter" class="btn-outline" title="ล้างการกรองทั้งหมด">ล้างค่า</button>
                     </div>
                 </div>
-            </form>
-        </section>
+            </section>
 
-        <!-- ROW 5: Full Width Table Ledger Grid -->
-        <section class="table-panel">
-            <div class="table-toolbar">
-                <h2>สมุดบัญชีรายจ่ายแยกตามแถวรายการ</h2>
-                <button id="exportBtn" class="btn-outline">📥 Export CSV ตามตัวกรอง</button>
-            </div>
-
-            <div class="table-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 120px;">วันที่บันทึก</th>
-                            <th style="width: 180px;">หมวดหมู่ประเภท</th>
-                            <th>รายละเอียดรายการบันทึก</th>
-                            <th style="text-align: right; width: 140px;">ยอดเงินสุทธิ</th>
-                            <th style="text-align: center; width: 130px;">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-                <div id="noDataMessage" class="no-data" style="display: none;">
-                    ไม่พบข้อมูลรายการบัญชีในช่วงเงื่อนไขและเวลาที่เลือก
+            <!-- KPI Summaries Indicators Dashboard -->
+            <section class="kpi-row">
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">รายจ่ายรวมตามเงื่อนไข (Filtered Outflow)</div>
+                    <div class="kpi-value" id="totalAmount">0.00 ฿</div>
                 </div>
-            </div>
-        </section>
+                <div class="kpi-card">
+                    <div class="kpi-label">จำนวนรายการประมวลผล (Transactions)</div>
+                    <div class="kpi-value" id="totalCount">0 รายการ</div>
+                </div>
+            </section>
+
+            <!-- Interactive Analytics Charts Widgets -->
+            <section class="analytics-grid">
+                <!-- 1. Category Percentage Breakdown -->
+                <div class="summary-box">
+                    <h3><span>📊 สัดส่วนค่าใช้จ่ายแยกตามหมวดหมู่ (%)</span></h3>
+                    <div id="categoryChartList" class="summary-list">
+                        <!-- Dynamic Progress Bars -->
+                    </div>
+                </div>
+                <!-- 2. Vehicle Summary List -->
+                <div class="summary-box">
+                    <h3><span>🚗 ยอดสะสมแยกตามทะเบียนรถ</span></h3>
+                    <div id="vehicleSummaryList" class="summary-list">
+                        <!-- Dynamic Items -->
+                    </div>
+                </div>
+                <!-- 3. Person Summary List -->
+                <div class="summary-box">
+                    <h3><span>👤 ยอดสะสมแยกตามบุคคล</span></h3>
+                    <div id="personSummaryList" class="summary-list">
+                        <!-- Dynamic Items -->
+                    </div>
+                </div>
+            </section>
+        </main>
 
     </div>
 
-    <!-- Confirmation Modal Box Elements -->
+    <!-- Confirmation Modal Box -->
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-title">🔍 ยืนยันความถูกต้องของข้อมูลรายจ่าย</div>
@@ -766,7 +824,7 @@
 
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
 
-        // UI Target Maps Elements
+        // Target Dom elements
         const authBlock = document.getElementById('authBlock');
         const appBlock = document.getElementById('appBlock');
         const loginForm = document.getElementById('loginForm');
@@ -787,7 +845,7 @@
         const vehicleList = document.getElementById('vehicleList');
         const personList = document.getElementById('personList');
         
-        // Advanced Filter Dom Elements
+        // Filter elements
         const filterStartDate = document.getElementById('filterStartDate');
         const filterEndDate = document.getElementById('filterEndDate');
         const filterCategory = document.getElementById('filterCategory');
@@ -811,6 +869,18 @@
 
         const vehicleCategories = ['ค่าน้ำมัน', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์', 'ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ'];
         const personCategories = ['ค่าเบี้ยเลี้ยง', 'ค่าเงินเดือน', 'ค่าแรงพิเศษลูกน้อง', 'ค่าแรง Outsource'];
+
+        // TAB SWITCHING FUNCTION
+        window.switchSection = function(sectionType) {
+            document.getElementById('tabEntryBtn').classList.toggle('active', sectionType === 'entry');
+            document.getElementById('tabVisualBtn').classList.toggle('active', sectionType === 'visual');
+            
+            document.getElementById('sectionEntry').classList.toggle('active', sectionType === 'entry');
+            document.getElementById('sectionVisual').classList.toggle('active', sectionType === 'visual');
+            
+            // Re-render always to push data live across screen views
+            renderCoreEngine();
+        }
 
         function updateDropdownOptions() {
             vehicleList.innerHTML = '';
@@ -843,7 +913,7 @@
 
         if (sessionStorage.getItem('isAuthenticated') === 'true') {
             authBlock.style.display = 'none'; appBlock.style.display = 'block';
-            updateDropdownOptions(); renderDashboard();
+            updateDropdownOptions(); renderCoreEngine();
         }
 
         loginForm.addEventListener('submit', async function(e) {
@@ -851,7 +921,7 @@
             if ((await sha256(passwordInput.value)) === HASHED_PASSWORD_KEY) {
                 sessionStorage.setItem('isAuthenticated', 'true');
                 authBlock.style.display = 'none'; appBlock.style.display = 'block';
-                updateDropdownOptions(); renderDashboard();
+                updateDropdownOptions(); renderCoreEngine();
             } else {
                 alert('รหัสผ่านเข้าสู่ระบบไม่ถูกต้อง'); passwordInput.value = '';
             }
@@ -859,45 +929,21 @@
 
         logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('isAuthenticated'); window.location.reload(); });
 
-        // Main Calculation Engine & Advanced Dashboard Builder
-        function renderDashboard() {
-            const startStr = filterStartDate.value;
-            const endStr = filterEndDate.value;
-            const catFilter = filterCategory.value;
-
-            // Pipeline filter execution
-            const filtered = expenses.filter(exp => {
-                if (catFilter && exp.category !== catFilter) return false;
-                if (startStr && exp.date < startStr) return false;
-                if (endStr && exp.date > endStr) return false;
-                return true;
-            });
-
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // CORE ENGINE CONTROL
+        function renderCoreEngine() {
+            // 1. Always Render Table List (Section 1) - Shows everything all time sorted by date
+            const masterList = [...expenses];
+            masterList.sort((a, b) => new Date(b.date) - new Date(a.date));
             tableBody.innerHTML = '';
             
-            const categoryTotals = {};
-            const vehicleTotals = {};
-            const personTotals = {};
-            let totalSum = 0;
-
-            if (filtered.length === 0) {
+            if (masterList.length === 0) {
                 noDataMessage.style.display = 'block';
             } else {
                 noDataMessage.style.display = 'none';
-                filtered.forEach(exp => {
-                    totalSum += parseFloat(exp.amount);
-                    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + parseFloat(exp.amount);
-
+                masterList.forEach(exp => {
                     let subBadge = '';
-                    if (exp.vehiclePlate) {
-                        subBadge = `<span class="tag-pill vehicle">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
-                        vehicleTotals[exp.vehiclePlate] = (vehicleTotals[exp.vehiclePlate] || 0) + parseFloat(exp.amount);
-                    }
-                    if (exp.personName) {
-                        subBadge = `<span class="tag-pill person">👤 ผู้รับ: ${exp.personName}</span>`;
-                        personTotals[exp.personName] = (personTotals[exp.personName] || 0) + parseFloat(exp.amount);
-                    }
+                    if (exp.vehiclePlate) subBadge = `<span class="tag-pill vehicle">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
+                    if (exp.personName) subBadge = `<span class="tag-pill person">👤 ผู้รับ: ${exp.personName}</span>`;
 
                     const dotColor = dotColors[exp.category] || 'var(--color-other)';
                     const row = document.createElement('tr');
@@ -915,10 +961,34 @@
                 });
             }
 
-            totalAmountEl.textContent = `${totalSum.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿`;
-            totalCountEl.textContent = `${filtered.length} รายการ`;
+            // 2. Compute Filter Dashboard Analytics View Matrix (Section 2)
+            const startStr = filterStartDate.value;
+            const endStr = filterEndDate.value;
+            const catFilter = filterCategory.value;
 
-            // 1. Render Category Breakdown Charts Matrix (%)
+            const filteredData = expenses.filter(exp => {
+                if (catFilter && exp.category !== catFilter) return false;
+                if (startStr && exp.date < startStr) return false;
+                if (endStr && exp.date > endStr) return false;
+                return true;
+            });
+
+            let totalSum = 0;
+            const categoryTotals = {};
+            const vehicleTotals = {};
+            const personTotals = {};
+
+            filteredData.forEach(exp => {
+                totalSum += parseFloat(exp.amount);
+                categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + parseFloat(exp.amount);
+                if (exp.vehiclePlate) vehicleTotals[exp.vehiclePlate] = (vehicleTotals[exp.vehiclePlate] || 0) + parseFloat(exp.amount);
+                if (exp.personName) personTotals[exp.personName] = (personTotals[exp.personName] || 0) + parseFloat(exp.amount);
+            });
+
+            totalAmountEl.textContent = `${totalSum.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿`;
+            totalCountEl.textContent = `${filteredData.length} รายการ`;
+
+            // Render Progress Chart
             categoryChartList.innerHTML = '';
             const catKeys = Object.keys(categoryTotals).sort((a,b) => categoryTotals[b] - categoryTotals[a]);
             if(catKeys.length === 0) {
@@ -929,22 +999,16 @@
                     const percentage = totalSum > 0 ? ((amt / totalSum) * 100).toFixed(1) : 0;
                     const barColor = dotColors[cat] || 'var(--color-other)';
                     
-                    const div = document.createElement('div');
-                    div.className = 'chart-item';
+                    const div = document.createElement('div'); div.className = 'chart-item';
                     div.innerHTML = `
-                        <div class="chart-info">
-                            <span>${cat}</span>
-                            <span style="font-weight:700;">${amt.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿ (${percentage}%)</span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: ${percentage}%; background-color: ${barColor};"></div>
-                        </div>
+                        <div class="chart-info"><span>${cat}</span><span style="font-weight:700;">${amt.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿ (${percentage}%)</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percentage}%; background-color: ${barColor};"></div></div>
                     `;
                     categoryChartList.appendChild(div);
                 });
             }
 
-            // 2. Render Vehicle Dashboard Accumulation
+            // Render Vehicle Accumulation
             vehicleSummaryList.innerHTML = '';
             const vehicleKeys = Object.keys(vehicleTotals);
             if(vehicleKeys.length === 0) {
@@ -957,7 +1021,7 @@
                 });
             }
 
-            // 3. Render Person Dashboard Accumulation
+            // Render Person Accumulation
             personSummaryList.innerHTML = '';
             const personKeys = Object.keys(personTotals);
             if(personKeys.length === 0) {
@@ -971,16 +1035,12 @@
             }
         }
 
-        // Filter Controls Triggers
-        btnApplyFilter.addEventListener('click', renderDashboard);
+        btnApplyFilter.addEventListener('click', renderCoreEngine);
         btnResetFilter.addEventListener('click', function() {
-            filterStartDate.value = '';
-            filterEndDate.value = '';
-            filterCategory.value = '';
-            renderDashboard();
+            filterStartDate.value = ''; filterEndDate.value = ''; filterCategory.value = '';
+            renderCoreEngine();
         });
 
-        // Action Trigger: Edit Data Row Pipeline
         window.editRecord = function(id) {
             const target = expenses.find(exp => exp.id === id);
             if (!target) return;
@@ -1003,7 +1063,6 @@
             window.scrollTo({ top: document.getElementById('expenseForm').offsetTop - 40, behavior: 'smooth' });
         };
 
-        // Action Trigger: Delete Data Row Pipeline
         window.deleteRecord = function(id) {
             const target = expenses.find(exp => exp.id === id);
             if (!target) return;
@@ -1012,7 +1071,7 @@
                 expenses = expenses.filter(exp => exp.id !== id);
                 localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
                 if (editingRecordIdInput.value == id) resetFormState();
-                renderDashboard();
+                renderCoreEngine();
             }
         };
 
@@ -1087,34 +1146,20 @@
             temporaryRecordData = null;
             resetFormState();
             updateDropdownOptions();
-            renderDashboard();
+            renderCoreEngine();
         });
 
         exportBtn.addEventListener('click', function() {
-            // Re-apply current filtering rules for dataset export scope
-            const startStr = filterStartDate.value;
-            const endStr = filterEndDate.value;
-            const catFilter = filterCategory.value;
-
-            const targets = expenses.filter(exp => {
-                if (catFilter && exp.category !== catFilter) return false;
-                if (startStr && exp.date < startStr) return false;
-                if (endStr && exp.date > endStr) return false;
-                return true;
-            });
-
-            if (targets.length === 0) return alert('ไม่มีข้อมูลตามตัวกรองนี้ให้ดึงรายงาน');
-            
+            if (expenses.length === 0) return alert('ไม่มีข้อมูลในระบบให้ส่งออก');
             let csvContent = "\uFEFF"; 
             csvContent += "วันที่,หมวดหมู่ค่าใช้จ่าย,รายละเอียด,ทะเบียนรถ,ชื่อผู้รับเงิน/พนักงาน,จำนวนเงิน (บาท)\n";
-            targets.forEach(exp => {
+            expenses.forEach(exp => {
                 csvContent += `"${exp.date}","${exp.category}","${(exp.note || '').replace(/"/g, '""')}","${(exp.vehiclePlate || '').replace(/"/g, '""')}","${(exp.personName || '').replace(/"/g, '""')}","${exp.amount}"\n`;
             });
-
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `KYH_Filtered_Report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute("download", `KYH_Master_Report.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         });
     </script>
