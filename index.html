@@ -325,109 +325,6 @@
         .tag-pill.vehicle { background: #ffedd5; color: #c2410c; }
         .tag-pill.person { background: #dcfce7; color: #15803d; }
         .no-data { text-align: center; color: var(--text-muted); padding: 40px; }
-
-          /* Modern Custom Dropdown System */
-        .custom-select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-        
-        .custom-select-trigger {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 38px;
-            padding: 0 12px;
-            background: #ffffff;
-            border: 1px solid var(--border-heavy);
-            border-radius: 6px;
-            font-size: 14px;
-            color: var(--text-main);
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-        }
-        
-        .custom-select-trigger:after {
-            content: '▼';
-            font-size: 10px;
-            color: var(--text-muted);
-            transition: transform 0.2s ease;
-        }
-        
-        .custom-select-wrapper.open .custom-select-trigger:after {
-            transform: rotate(180deg);
-        }
-        
-        .custom-select-dropdown {
-            position: absolute;
-            top: 105%;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            border: 1px solid var(--border-heavy);
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            z-index: 999;
-            display: none;
-            max-height: 250px;
-            overflow-y: auto;
-            padding: 6px;
-        }
-        
-        .custom-select-wrapper.open .custom-select-dropdown {
-            display: block;
-        }
-        
-        .dropdown-search-box {
-            width: 100%;
-            height: 34px;
-            padding: 0 8px;
-            margin-bottom: 6px;
-            border: 1px solid var(--border-light);
-            border-radius: 4px;
-            font-size: 13px;
-            outline: none;
-        }
-        
-        .dropdown-options-list {
-            max-height: 160px;
-            overflow-y: auto;
-        }
-        
-        .dropdown-option {
-            padding: 8px 12px;
-            font-size: 13px;
-            color: var(--text-main);
-            cursor: pointer;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.15s ease;
-        }
-        
-        .dropdown-option:hover {
-            background: #f0f7ff;
-            color: var(--accent-blue);
-        }
-        
-        .dropdown-add-action {
-            padding: 8px 12px;
-            font-size: 13px;
-            color: var(--accent-blue);
-            font-weight: 600;
-            cursor: pointer;
-            border-top: 1px solid var(--border-light);
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .dropdown-add-action:hover {
-            background: #e6f2ff;
-        }          
     </style>
 </head>
 <body>
@@ -513,24 +410,11 @@
                     <!-- Dynamic Fields Blocks Context Wrapper -->
                     <div id="conditionalWrapper" class="conditional-container">
                         <!-- Vehicle Selector Column -->
-                        <!-- Vehicle Selector Column (Upgraded Custom UI) -->
-<div id="vehicleFieldBlock" class="form-group" style="display: none;">
-    <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
-    <div class="custom-select-wrapper" id="vehicleSelectWrapper">
-        <div class="custom-select-trigger" id="vehicleSelectTrigger">-- เลือกทะเบียนรถ --</div>
-        <input type="hidden" id="vehiclePlate" required disabled>
-        
-        <div class="custom-select-dropdown">
-            <input type="text" class="dropdown-search-box" id="vehicleSearchInput" placeholder="🔍 พิมพ์เพื่อค้นหา หรือ เพิ่มทะเบียนใหม่...">
-            <div class="dropdown-options-list" id="vehicleOptionsList">
-                <!-- ตัวเลือกจะถูกเรนเดอร์ผ่าน JS -->
-            </div>
-            <div class="dropdown-add-action" id="vehicleAddAction" style="display: none;">
-                ➕ เพิ่มทะเบียนรถใหม่: <span id="newVehicleValue" style="font-weight:700;"></span>
-            </div>
-        </div>
-    </div>
-</div>
+                        <div id="vehicleFieldBlock" class="form-group" style="display: none;">
+                            <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
+                            <input type="text" id="vehiclePlate" class="form-control" list="vehicleList" placeholder="เลือกทะเบียน หรือพิมพ์ใหม่...">
+                            <datalist id="vehicleList"></datalist>
+                        </div>
 
                         <!-- NEW: Fuel Sub-Form Fields Block -->
                         <div id="fuelDetailsBlock" class="form-group" style="display: none; margin-top: 10px;">
@@ -1100,116 +984,6 @@
 
             confirmModal.classList.remove('show'); temporaryRecordData = null; resetFormState(); updateDropdownOptions(); renderCoreEngine();
         });
-
-        // อ้างอิง Element สำหรับระบบ Custom Dropdown ทะเบียนรถ
-const vehicleSelectWrapper = document.getElementById('vehicleSelectWrapper');
-const vehicleSelectTrigger = document.getElementById('vehicleSelectTrigger');
-const vehicleSearchInput = document.getElementById('vehicleSearchInput');
-const vehicleOptionsList = document.getElementById('vehicleOptionsList');
-const vehicleAddAction = document.getElementById('vehicleAddAction');
-const newVehicleValueEl = document.getElementById('newVehicleValue');
-
-// ฟังก์ชันสำหรับเปิด/ปิด Dropdown
-vehicleSelectTrigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    vehicleSelectWrapper.classList.toggle('open');
-    if(vehicleSelectWrapper.classList.contains('open')) {
-        vehicleSearchInput.value = '';
-        renderCustomVehicleDropdown();
-        vehicleSearchInput.focus();
-    }
-});
-
-// ฟังก์ชันคลิกปิด Dropdown เมื่อกดยังพื้นที่อื่นนอกหน้าต่าง
-document.addEventListener('click', () => {
-    vehicleSelectWrapper.classList.remove('open');
-});
-
-// ฟังก์ชันกรองการค้นหาข้อมูลในกล่องข้อความ
-vehicleSearchInput.addEventListener('input', (e) => {
-    e.stopPropagation();
-    renderCustomVehicleDropdown(vehicleSearchInput.value);
-});
-
-vehicleSearchInput.addEventListener('click', (e) => e.stopPropagation());
-
-// ฟังก์ชันเรนเดอร์ตัวเลือกรายการใน Dropdown ใหม่แบบเรียลไทม์
-function renderCustomVehicleDropdown(filterText = '') {
-    vehicleOptionsList.innerHTML = '';
-    const cleanFilter = filterText.trim().toLowerCase();
-    
-    // คัดกรองตัวเลือกตามข้อความที่ผู้ใช้พิมพ์
-    const filtered = rememberedVehicles.filter(v => v.toLowerCase().includes(cleanFilter));
-    
-    filtered.forEach(vehicle => {
-        const item = document.createElement('div');
-        item.className = 'dropdown-option';
-        item.innerHTML = `🚗 <span>${vehicle}</span>`;
-        item.addEventListener('click', () => {
-            selectVehicleOption(vehicle);
-        });
-        vehicleOptionsList.appendChild(item);
-    });
-    
-    // หากพิมพ์ค้นหาแล้วไม่มีในระบบเดิม หรือต้องการเพิ่มเป็นตัวเลือกใหม่
-    if(cleanFilter.length > 0 && !rememberedVehicles.map(x=>x.toLowerCase()).includes(cleanFilter)) {
-        vehicleAddAction.style.display = 'flex';
-        newVehicleValueEl.textContent = filterText.trim();
-    } else {
-        vehicleAddAction.style.display = 'none';
-    }
-}
-
-// ฟังก์ชันเมื่อคลิกเลือกทะเบียนรถคันนั้นๆ
-function selectVehicleOption(value) {
-    vehicleSelectTrigger.textContent = `🚗 ${value}`;
-    vehiclePlateInput.value = value; // ผูกค่าเข้ากับ Input Hidden เพื่อใช้บันทึกส่งข้อมูลต่อ
-    vehicleSelectWrapper.classList.remove('open');
-}
-
-// ฟังก์ชันเมื่อกดปุ่มเพิ่มทางเลือกใหม่ (+ Add)
-vehicleAddAction.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const newPlate = newVehicleValueEl.textContent.trim();
-    if(newPlate && !rememberedVehicles.includes(newPlate)) {
-        rememberedVehicles.push(newPlate);
-        localStorage.setItem('kyh_vehicles', JSON.stringify(rememberedVehicles));
-        selectVehicleOption(newPlate);
-        renderCustomVehicleDropdown();
-    }
-});
-
-// ปรับปรุงฟังก์ชันแก้ไขข้อมูล (editRecord) ของเดิมให้มารันระบบใหม่นี้ด้วย
-const originalEditRecord = window.editRecord;
-window.editRecord = function(id) {
-    originalEditRecord(id); // รันคำสั่งสลับฟิลด์ตัวเดิมก่อน
-    const t = expenses.find(x => x.id === id);
-    if (t && vehicleCategories.includes(t.category)) {
-        if(t.vehiclePlate) {
-            selectVehicleOption(t.vehiclePlate);
-        } else {
-            vehicleSelectTrigger.textContent = "-- เลือกทะเบียนรถ --";
-            vehiclePlateInput.value = "";
-        }
-    }
-}
-
-// ปรับปรุงฟังก์ชันล้างค่าฟอร์ม (resetFormState) ให้ล้างชื่อ Dropdown ด้วย
-const originalResetFormState = resetFormState;
-resetFormState = function() {
-    originalResetFormState();
-    vehicleSelectTrigger.textContent = "-- เลือกทะเบียนรถ --";
-    vehiclePlateInput.value = "";
-}
-
-// แก้ไขฟังก์ชันอัปเดตข้อมูลพนักงานตัวเลือกเดิม (สำหรับฟิลด์ส่วนบุคคลอื่นคงเดิมไว้)
-function updateDropdownOptions() {
-    renderCustomVehicleDropdown();
-    personList.innerHTML = ''; 
-    rememberedPersons.forEach(x => { 
-        let o = document.createElement('option'); o.value = x; personList.appendChild(o); 
-    });
-}
     </script>
 </body>
 </html>
