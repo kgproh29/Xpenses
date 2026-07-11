@@ -3,30 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KYH — Expense Pro</title>
-    <!-- Import Google Fonts: Inter สำหรับ 영/ตัวเลข และ Sarabun สำหรับภาษาไทยระดับมืออาชีพ -->
+    <title>KYH — Expense Management System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --mac-bg: #eef2f6;
-            --mac-card: #ffffff;
-            --mac-sidebar: #f8fafc;
-            --mac-text-main: #1c1c1e;
-            --mac-text-muted: #636366;
-            --mac-accent: #007aff;
-            --mac-accent-hover: #0062cc;
-            --mac-border: rgba(0, 0, 0, 0.06);
-            --mac-border-heavy: rgba(0, 0, 0, 0.12);
-            --radius-pro: 14px;
-            --radius-input: 8px;
+            --bg-main: #f4f6f9;
+            --panel-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --accent-blue: #007aff;
+            --accent-hover: #0062cc;
+            --border-light: rgba(0, 0, 0, 0.08);
+            --border-heavy: rgba(0, 0, 0, 0.15);
+            --radius-pro: 12px;
             
             /* Status Colors */
             --color-fuel: #ff9500;
             --color-salary: #34c759;
-            --color-market: #af52de;
             --color-bill: #55befc;
             --color-other: #8e8e93;
         }
@@ -35,172 +31,149 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            /* ตั้งค่าให้ใช้ Inter ควบคู่กับ Sarabun เพื่อความพรีเมียม */
             font-family: 'Inter', 'Sarabun', -apple-system, sans-serif;
             -webkit-font-smoothing: antialiased;
             letter-spacing: -0.2px;
         }
 
         body {
-            background-color: var(--mac-bg);
-            color: var(--mac-text-main);
-            padding: 30px;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
             min-height: 100vh;
         }
 
         .container {
             width: 100%;
-            max-width: 1280px;
+            max-width: 1140px;
             display: none; /* Controlled by JS */
         }
 
-        /* Pro Login Screen */
+        /* Auth Screen */
         .auth-wrapper {
             width: 100%;
-            max-width: 420px;
-            margin-top: 12vh;
-            background: var(--mac-card);
-            border: 1px solid var(--mac-border-heavy);
+            max-width: 400px;
+            margin-top: 15vh;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
             border-radius: var(--radius-pro);
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            padding: 36px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             text-align: center;
         }
 
         .auth-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #007aff, #5856d6);
+            width: 56px;
+            height: 56px;
+            background: var(--accent-blue);
             color: white;
-            border-radius: 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            font-weight: 700;
-            margin: 0 auto 20px auto;
-            box-shadow: 0 8px 16px rgba(0, 122, 255, 0.25);
+            font-size: 24px;
+            margin: 0 auto 16px auto;
         }
 
         .auth-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
+            margin-bottom: 4px;
         }
 
         .auth-subtitle {
-            color: var(--mac-text-muted);
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-
-        /* Pro Layout Grid */
-        .window-shell {
-            background: var(--mac-card);
-            border: 1px solid var(--mac-border-heavy);
-            border-radius: var(--radius-pro);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        @media (min-width: 900px) {
-            .window-shell {
-                grid-template-columns: 360px 1fr;
-            }
-        }
-
-        /* Sidebar Panel (Controls) */
-        .sidebar {
-            background-color: var(--mac-sidebar);
-            border-right: 1px solid var(--mac-border);
-            padding: 32px 24px;
-        }
-
-        .sidebar h2 {
-            font-size: 18px;
-            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 13px;
             margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        /* Main Display Panel */
-        .main-panel {
-            padding: 32px;
-            background: #ffffff;
-        }
-
-        /* Top Bar Header */
-        .top-bar {
+        /* Header Top-Down */
+        .app-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--mac-border);
+            margin-bottom: 24px;
         }
 
-        .top-bar h1 {
+        .app-header h1 {
             font-size: 26px;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
 
-        /* Summary Cards - Vivid Style */
+        /* KPI Layout Row */
         .kpi-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .kpi-card {
-            background: linear-gradient(145deg, #1c1c1e, #2c2c2e);
-            color: #ffffff;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
             border-radius: var(--radius-pro);
-            padding: 24px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
-            position: relative;
-            overflow: hidden;
+            padding: 20px 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
         }
 
-        .kpi-card.blue-theme {
-            background: linear-gradient(145deg, #007aff, #0056b3);
+        .kpi-card.highlight {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
         }
 
-        .kpi-card .kpi-label {
+        .kpi-label {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.75);
             font-weight: 600;
-            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            opacity: 0.8;
         }
 
-        .kpi-card .kpi-value {
+        .kpi-card:not(.highlight) .kpi-label {
+            color: var(--text-muted);
+        }
+
+        .kpi-value {
             font-size: 28px;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
 
-        /* Inputs Elements */
+        /* Horizontal Input Form block */
+        .form-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-pro);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+        }
+
+        .form-panel h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: flex-end;
+        }
+
         .form-group {
-            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .form-group label {
-            display: block;
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--mac-text-main);
         }
 
         .form-control {
@@ -208,79 +181,126 @@
             height: 38px;
             padding: 0 12px;
             background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            border-radius: var(--radius-input);
+            border: 1px solid var(--border-heavy);
+            border-radius: 6px;
             font-size: 14px;
-            color: var(--mac-text-main);
+            color: var(--text-main);
             outline: none;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
-            transition: all 0.15s ease-in-out;
         }
 
         .form-control:focus {
-            border-color: var(--mac-accent);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
         }
 
-        /* Dynamic Field Animation Container */
+        /* Conditional Section - Drops down cleanly */
         .conditional-container {
             display: none;
-            background: rgba(0, 0, 0, 0.03);
-            padding: 14px;
-            border-radius: var(--radius-input);
-            margin-bottom: 18px;
-            border: 1px dashed rgba(0,0,0,0.1);
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border: 1px dashed var(--border-light);
         }
 
         .conditional-container.show {
-            display: block;
+            display: grid;
         }
 
-        .conditional-container .form-group:last-child {
-            margin-bottom: 0;
+        /* Full Width Table Panel */
+        .table-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-pro);
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
         }
 
-        /* Professional Buttons */
-        .btn-pro {
-            display: inline-flex;
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        .table-toolbar h2 {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: var(--text-main);
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-main);
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        /* Buttons */
+        .btn-blue {
             height: 38px;
             padding: 0 20px;
-            background: var(--mac-accent);
+            background: var(--accent-blue);
             color: white;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: var(--radius-input);
+            border: none;
+            border-radius: 6px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.15);
-            transition: background 0.15s;
         }
 
-        .btn-pro:hover {
-            background: var(--mac-accent-hover);
+        .btn-blue:hover {
+            background: var(--accent-hover);
         }
 
-        .btn-action-outline {
+        .btn-outline {
             background: #ffffff;
-            color: var(--mac-text-main);
-            border: 1px solid rgba(0,0,0,0.15);
-            border-radius: var(--radius-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-heavy);
+            border-radius: 6px;
             height: 34px;
-            padding: 0 16px;
+            padding: 0 14px;
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         }
 
-        .btn-action-outline:hover {
-            background: #f5f5f7;
+        .btn-outline:hover {
+            background: #f9fafb;
         }
 
         .btn-logout {
@@ -292,119 +312,80 @@
             font-weight: 500;
         }
 
-        .btn-logout:hover {
-            text-decoration: underline;
-        }
-
-        /* Table Control Bar */
-        .table-header-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .table-header-group h2 {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        /* Pro Data Table (Zebra Pattern) */
-        .table-scroll {
-            overflow-x: auto;
-            border: 1px solid var(--mac-border-heavy);
-            border-radius: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            background: #ffffff;
-        }
-
-        th {
-            background: #f5f5f7;
-            color: var(--mac-text-main);
-            font-weight: 600;
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 13px;
-            border-bottom: 1px solid var(--mac-border-heavy);
-        }
-
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--mac-border);
-            color: var(--mac-text-main);
-            vertical-align: middle;
-            font-size: 14px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9fbfd; /* Subtle contrast row */
-        }
-
-        /* Decorative Category Dots */
+        /* Badges */
         .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-weight: 500;
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            display: inline-block;
         }
 
-        /* Dynamic Badge Tags */
         .tag-pill {
             display: inline-block;
             font-size: 11px;
             font-weight: 600;
-            padding: 3px 8px;
-            background: #e5e5ea;
-            color: #48484a;
-            border-radius: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
             margin-top: 4px;
         }
-
         .tag-pill.vehicle { background: #ffedd5; color: #c2410c; }
         .tag-pill.person { background: #dcfce7; color: #15803d; }
 
         .no-data {
             text-align: center;
-            color: var(--mac-text-muted);
+            color: var(--text-muted);
             padding: 40px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Professional Auth Panel -->
+    <!-- Auth Frame -->
     <div id="authBlock" class="auth-wrapper">
-        <div class="auth-icon">⚙️</div>
-        <div class="auth-title">KYH Ledger</div>
-        <div class="auth-subtitle">ระบบบันทึกบัญชีรายจ่ายสําหรับผู้บริหาร</div>
+        <div class="auth-icon">📊</div>
+        <div class="auth-title">KYH Ledger System</div>
+        <div class="auth-subtitle">ระบบบันทึกและตรวจสอบบัญชีรายจ่ายกลาง</div>
         <form id="loginForm">
-            <div class="form-group">
-                <input type="password" id="passwordInput" class="form-control" placeholder="ใส่รหัสผ่านเพื่อยืนยันตัวตน" style="text-align: center; height: 42px;" required autofocus>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <input type="password" id="passwordInput" class="form-control" placeholder="กรอกรหัสผ่านเพื่อตรวจสอบสิทธิ์" style="text-align: center; height: 42px;" required autofocus>
             </div>
-            <button type="submit" class="btn-pro" style="height: 42px;">Unlock System</button>
+            <button type="submit" class="btn-blue" style="width: 100%; height: 42px;">เข้าสู่ระบบ</button>
         </form>
     </div>
 
-    <!-- Main Core Dashboard App Shell -->
+    <!-- Main Section App Platform -->
     <div id="appBlock" class="container">
-        <div class="window-shell">
-            
-            <!-- LEFT CONTROL PANEL: Input Controller -->
-            <div class="sidebar">
-                <h2><span>📝</span> บันทึกข้อมูล</h2>
-                <form id="expenseForm">
+        
+        <!-- ROW 1: Header Info -->
+        <header class="app-header">
+            <div>
+                <h1>KYH Workspace</h1>
+            </div>
+            <button id="logoutBtn" class="btn-logout">ออกจากระบบ</button>
+        </header>
+
+        <!-- ROW 2: KPI Summaries Indicators -->
+        <section class="kpi-row">
+            <div class="kpi-card highlight">
+                <div class="kpi-label">รายจ่ายสะสมทั้งหมด (Total Outflow)</div>
+                <div class="kpi-value" id="totalAmount">0.00 ฿</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">จำนวนรายการบัญชี (Transactions)</div>
+                <div class="kpi-value" id="totalCount">0 รายการ</div>
+            </div>
+        </section>
+
+        <!-- ROW 3: Horizontal Unified Form Panel -->
+        <section class="form-panel">
+            <h2>บันทึกข้อมูลค่าใช้จ่ายใหม่</h2>
+            <form id="expenseForm">
+                <div class="form-row">
                     <div class="form-group">
                         <label for="date">วันที่ทำรายการ</label>
                         <input type="date" id="date" class="form-control" required>
@@ -435,103 +416,73 @@
                         </select>
                     </div>
 
-                    <!-- Dynamic Nested Context Fields Boxes -->
-                    <div id="conditionalWrapper" class="conditional-container">
-                        <div id="vehicleFieldBlock" style="display: none;">
-                            <div class="form-group">
-                                <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
-                                <input type="text" id="vehiclePlate" class="form-control" placeholder="เช่น กข-1234 สมุทรสาคร">
-                            </div>
-                        </div>
-                        <div id="personFieldBlock" style="display: none;">
-                            <div class="form-group">
-                                <label for="personName">👤 ชื่อผู้รับเงิน / พนักงาน</label>
-                                <input type="text" id="personName" class="form-control" placeholder="ระบุชื่อบุคคล">
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label for="amount">จำนวนเงินสุทธิ (บาท)</label>
                         <input type="number" id="amount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="note">รายละเอียดเพิ่มเติม</label>
                         <input type="text" id="note" class="form-control" placeholder="บันทึกช่วยจำ...">
                     </div>
-                    
-                    <button type="submit" class="btn-pro" style="margin-top: 10px;">คีย์ลงระบบบัญชี</button>
-                </form>
+
+                    <button type="submit" class="btn-blue">ลงระบบบัญชี</button>
+                </div>
+
+                <!-- Nested Dropdown Context Boxes (ทะเบียนรถ / ชื่อพนักงาน) -->
+                <div id="conditionalWrapper" class="conditional-container">
+                    <div id="vehicleFieldBlock" class="form-group" style="display: none;">
+                        <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
+                        <input type="text" id="vehiclePlate" class="form-control" placeholder="เช่น กข-1234 สมุทรสาคร">
+                    </div>
+                    <div id="personFieldBlock" class="form-group" style="display: none;">
+                        <label for="personName">👤 ชื่อผู้รับเงิน / พนักงาน</label>
+                        <input type="text" id="personName" class="form-control" placeholder="ระบุชื่อบุคคล">
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- ROW 4: Full Width Table Ledger Grid -->
+        <section class="table-panel">
+            <div class="table-toolbar">
+                <h2>สมุดบัญชีรายจ่ายแสดงผลแยกแถว</h2>
+                <div class="table-controls">
+                    <select id="filterCategory" class="form-control" style="width: 180px; height: 34px; font-size: 13px;">
+                        <option value="">หมวดหมู่ทั้งหมด</option>
+                        <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
+                        <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
+                        <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
+                        <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน</option>
+                        <option value="ค่าไฟฟ้า / ประปา">ค่าไฟ / ค่าน้ำ</option>
+                        <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
+                    </select>
+                    <button id="exportBtn" class="btn-outline">📥 Export CSV</button>
+                </div>
             </div>
 
-            <!-- RIGHT MAIN PANEL: Analytics & Ledger Viewing Explorer -->
-            <div class="main-panel">
-                <div class="top-bar">
-                    <div>
-                        <h1>KYH Workspace</h1>
-                    </div>
-                    <div>
-                        <button id="logoutBtn" class="btn-logout">ออกจากระบบบัญชี</button>
-                    </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">วันที่บันทึก</th>
+                            <th style="width: 200px;">หมวดหมู่ประเภท</th>
+                            <th>รายละเอียดรายการบันทึก</th>
+                            <th style="text-align: right; width: 160px;">ยอดเงินสุทธิ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div id="noDataMessage" class="no-data" style="display: none;">
+                    ไม่พบข้อมูลรายการบัญชีในเงื่อนไขการกรองนี้
                 </div>
-
-                <!-- Financial Highlight Display Boxes -->
-                <div class="kpi-row">
-                    <div class="kpi-card blue-theme">
-                        <div class="kpi-label">Total Outflow / รายจ่ายสะสม</div>
-                        <div class="kpi-value" id="totalAmount">0.00 ฿</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">Transactions / จำนวนรายการ</div>
-                        <div class="kpi-value" id="totalCount">0 รายการ</div>
-                    </div>
-                </div>
-
-                <!-- Ledger Grid Area -->
-                <div>
-                    <div class="table-header-group">
-                        <h2>สมุดบัญชีรายจ่ายแยกหมวดหมู่</h2>
-                        <div style="display: flex; gap: 10px;">
-                            <select id="filterCategory" class="form-control" style="width: 180px; height: 34px; font-size: 13px;">
-                                <option value="">หมวดหมู่ทั้งหมด</option>
-                                <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
-                                <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
-                                <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
-                                <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน</option>
-                                <option value="ค่าไฟฟ้า / ประปา">ค่าไฟ / ค่าน้ำ</option>
-                                <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
-                            </select>
-                            <button id="exportBtn" class="btn-action-outline">
-                                <span>📥</span> Export CSV
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="table-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 110px;">วันที่บันทึก</th>
-                                    <th style="width: 190px;">หมวดหมู่ประเภท</th>
-                                    <th>รายละเอียดรายการ</th>
-                                    <th style="text-align: right; width: 140px;">ยอดเงินสุทธิ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody"></tbody>
-                        </table>
-                        <div id="noDataMessage" class="no-data" style="display: none;">
-                            ไม่พบข้อมูลรายการบัญชีในตัวกรองนี้
-                        </div>
-                    </div>
-                </div>
-
             </div>
-        </div>
+        </section>
+
     </div>
 
     <script>
-        // SHA-256 Checksum Verification (Default: 1234)
+        // SHA-256 Checksum System Logic (Default Key: 1234)
         const HASHED_PASSWORD_KEY = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"; 
 
         async function sha256(message) {
@@ -541,7 +492,6 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Color Palette Mapper for Categories Indicators
         const dotColors = {
             'ค่าน้ำมัน': 'var(--color-fuel)',
             'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์': 'var(--color-fuel)',
@@ -555,19 +505,19 @@
         };
 
         const defaultMock = [
-            { id: 1, date: '2026-07-02', category: 'ค่าน้ำมัน', amount: 1800.00, note: 'เติมน้ำมันดีเซลรถกระบะขนส่งสินค้า', vehiclePlate: 'บย-4321 สมุทรสาคร', personName: '' },
-            { id: 2, date: '2026-07-05', category: 'ค่าเงินเดือน', amount: 28000.00, note: 'เงินเดือนพนักงานประจำงวดล่าสุด', vehiclePlate: '', personName: 'สมชาย ตั้งใจทำงาน' },
-            { id: 3, date: '2026-07-09', category: 'ค่าอุปกรณ์สำนักงาน', amount: 840.00, note: 'ซื้อแฟ้มและอุปกรณ์จัดระเบียบเอกสารออฟฟิศ', vehiclePlate: '', personName: '' }
+            { id: 1, date: '2026-07-02', category: 'ค่าน้ำมัน', amount: 1800.00, note: 'เติมน้ำมันดีเซลรถกระบะส่งของ', vehiclePlate: 'บย-4321 สมุทรสาคร', personName: '' },
+            { id: 2, date: '2026-07-05', category: 'ค่าเงินเดือน', amount: 28000.00, note: 'จ่ายเงินเดือนพนักงาน', vehiclePlate: '', personName: 'สมชาย' },
+            { id: 3, date: '2026-07-09', category: 'ค่าอุปกรณ์สำนักงาน', amount: 840.00, note: 'ซื้อแฟ้มและอุปกรณ์เอกสารออฟฟิศ', vehiclePlate: '', personName: '' }
         ];
 
-        let expenses = JSON.parse(localStorage.getItem('apple_pro_db')) || defaultMock;
-        if (!localStorage.getItem('apple_pro_db')) {
-            localStorage.setItem('apple_pro_db', JSON.stringify(expenses));
+        let expenses = JSON.parse(localStorage.getItem('kyh_pro_db')) || defaultMock;
+        if (!localStorage.getItem('kyh_pro_db')) {
+            localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
         }
 
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
 
-        // Layout Elements Mapping
+        // System Layout Elements
         const authBlock = document.getElementById('authBlock');
         const appBlock = document.getElementById('appBlock');
         const loginForm = document.getElementById('loginForm');
@@ -592,7 +542,7 @@
         const vehicleCategories = ['ค่าน้ำมัน', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์', 'ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ'];
         const personCategories = ['ค่าเบี้ยเลี้ยง', 'ค่าเงินเดือน', 'ค่าแรงพิเศษลูกน้อง', 'ค่าแรง Outsource'];
 
-        // Dynamic Interface Render Engine
+        // Dropdown Logic Fields Toggle
         categorySelect.addEventListener('change', function() {
             const val = categorySelect.value;
             let showVehicle = vehicleCategories.includes(val);
@@ -623,11 +573,11 @@
             }
         });
 
-        // Guard Router Access
+        // Auth Logic Gates Router
         if (sessionStorage.getItem('isAuthenticated') === 'true') {
             authBlock.style.display = 'none';
             appBlock.style.display = 'block';
-            renderProDashboard();
+            renderDashboard();
         }
 
         loginForm.addEventListener('submit', async function(e) {
@@ -637,7 +587,7 @@
                 sessionStorage.setItem('isAuthenticated', 'true');
                 authBlock.style.display = 'none';
                 appBlock.style.display = 'block';
-                renderProDashboard();
+                renderDashboard();
             } else {
                 alert('รหัสผ่านเข้าสู่ระบบไม่ถูกต้อง');
                 passwordInput.value = '';
@@ -649,8 +599,8 @@
             window.location.reload();
         });
 
-        // Main Ledger Calculations
-        function renderProDashboard() {
+        // App Workspace Calculations & Core Engine
+        function renderDashboard() {
             const catFilter = filterCategory.value;
             const filtered = expenses.filter(exp => catFilter === '' || exp.category === catFilter);
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -662,14 +612,14 @@
                 noDataMessage.style.display = 'none';
                 filtered.forEach(exp => {
                     let subBadge = '';
-                    if (exp.vehiclePlate) subBadge = `<br><span class="tag-pill vehicle">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
-                    if (exp.personName) subBadge = `<br><span class="tag-pill person">👤 ผู้รับ: ${exp.personName}</span>`;
+                    if (exp.vehiclePlate) subBadge = `<span class="tag-pill vehicle">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
+                    if (exp.personName) subBadge = `<span class="tag-pill person">👤 ผู้รับ: ${exp.personName}</span>`;
 
                     const dotColor = dotColors[exp.category] || 'var(--color-other)';
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td style="color: var(--mac-text-muted); font-size: 13px; font-weight: 500;">${exp.date}</td>
+                        <td style="color: var(--text-muted); font-size: 13px; font-weight: 500;">${exp.date}</td>
                         <td>
                             <div class="status-badge">
                                 <span class="status-dot" style="background-color: ${dotColor};"></span>
@@ -677,10 +627,10 @@
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight: 500;">${exp.note || '—'}</div>
+                            <div style="font-weight: 500; margin-bottom: 2px;">${exp.note || '—'}</div>
                             ${subBadge}
                         </td>
-                        <td style="text-align: right; font-weight: 700; color: var(--mac-text-main); font-size: 15px;">
+                        <td style="text-align: right; font-weight: 700; color: var(--text-main); font-size: 15px;">
                             ${exp.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿
                         </td>
                     `;
@@ -693,7 +643,7 @@
             totalCountEl.textContent = `${filtered.length} รายการ`;
         }
 
-        // Action Data Controller
+        // Handle Add New Record Content
         expenseForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const newRecord = {
@@ -707,25 +657,26 @@
             };
 
             expenses.push(newRecord);
-            localStorage.setItem('apple_pro_db', JSON.stringify(expenses));
+            localStorage.setItem('kyh_pro_db', JSON.stringify(expenses));
             
             document.getElementById('amount').value = '';
             document.getElementById('note').value = '';
             vehiclePlateInput.value = '';
             personNameInput.value = '';
+            categorySelect.value = '';
             
             conditionalWrapper.classList.remove('show');
             vehicleFieldBlock.style.display = 'none';
             personFieldBlock.style.display = 'none';
             
-            renderProDashboard();
+            renderDashboard();
         });
 
-        filterCategory.addEventListener('change', renderProDashboard);
+        filterCategory.addEventListener('change', renderDashboard);
 
-        // Data Exporter Module
+        // Exporter Data Pipeline Module
         exportBtn.addEventListener('click', function() {
-            if (expenses.length === 0) return alert('ไม่มีข้อมูลสําหรับดึงรายงาน');
+            if (expenses.length === 0) return alert('ไม่มีข้อมูลสำหรับดึงรายงาน');
             
             let csvContent = "\uFEFF"; 
             csvContent += "วันที่,หมวดหมู่ค่าใช้จ่าย,รายละเอียด,ทะเบียนรถ,ชื่อผู้รับเงิน/พนักงาน,จำนวนเงิน (บาท)\n";
@@ -737,7 +688,7 @@
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", "KYH_Pro_Ledger.csv");
+            link.setAttribute("download", "KYH_Master_Ledger.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
