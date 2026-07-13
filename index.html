@@ -632,9 +632,7 @@
     'Folklife : Manual'
 ];
 let rememberedPersons = JSON.parse(localStorage.getItem('kyh_persons')) || ['สุธา', 'มาโนช', 'สำราญ', 'พรพรหม', 'ธีรภพ', 'สุภา', 'สิริรัตน์', 'สุรีย์พร', 'พงศกร', 'ธนาภรณ์', 'สมชาย'];
-let expenses = JSON.parse(localStorage.getItem('kyh_pro_db2')) || [];
-if(!localStorage.getItem('kyh_pro_db2')) localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
-        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
 
         const authBlock = document.getElementById('authBlock'); const appBlock = document.getElementById('appBlock');
         const loginForm = document.getElementById('loginForm'); const passwordInput = document.getElementById('passwordInput');
