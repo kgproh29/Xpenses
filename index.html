@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบบันทึกค่าใช้จ่ายบริษัท</title>
+<title>ระบบบันทึกค่าใช้จ่ายเงินสด KYH 2569</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
@@ -36,13 +36,11 @@
     font-family:'Inter',sans-serif;
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
-  }
-  .mono{ font-family:'IBM Plex Mono',monospace; font-variant-numeric: tabular-nums; }
-  h1,h2,h3,.display{ font-family:'Sora',sans-serif; letter-spacing:-0.01em; }
-  body{
     background-image: radial-gradient(circle at 1px 1px, rgba(16,24,38,0.05) 1px, transparent 0);
     background-size: 22px 22px;
   }
+  .mono{ font-family:'IBM Plex Mono',monospace; font-variant-numeric: tabular-nums; }
+  h1,h2,h3,.display{ font-family:'Sora',sans-serif; letter-spacing:-0.01em; }
 
   /* ================= GATE ================= */
   #gate{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
@@ -100,8 +98,6 @@
   .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--teal); }
   .field textarea{ resize:vertical; min-height:64px; font-family:'Inter',sans-serif; }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
-  @media (max-width:520px){ .row3{ grid-template-columns:1fr; } }
   .amount-wrap{ position:relative; }
   .amount-wrap span{ position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--ink-300); font-family:'IBM Plex Mono',monospace; font-size:14.5px; }
   .amount-wrap input{ padding-left:32px; }
@@ -113,12 +109,20 @@
   #submit-status.ok{ color:var(--teal-dark); }
   #submit-status.err{ color:var(--brick); }
 
-  /* fuel fields block */
-  .fuel-box{ display:none; background:var(--amber-tint); border:1px dashed #D9BE86; border-radius:11px; padding:16px 16px 4px; margin-bottom:18px; }
-  .fuel-box.show{ display:block; }
-  .fuel-box-head{ display:flex; align-items:center; gap:7px; margin-bottom:12px; }
-  .fuel-box-head .dot{ width:7px;height:7px;border-radius:50%; background:var(--amber); }
-  .fuel-box-head span{ font-size:12px; font-weight:700; color:#8A6412; text-transform:uppercase; letter-spacing:.05em; }
+  /* dynamic conditional fields block */
+  .cond-box { display:none; border-radius:11px; padding:16px 16px 4px; margin-bottom:18px; }
+  .cond-box.show { display:block; }
+  .fuel-box { background:var(--amber-tint); border:1px dashed #D9BE86; }
+  .phone-box { background:var(--teal-tint); border:1px dashed #99CECA; }
+  
+  .cond-box-head{ display:flex; align-items:center; gap:7px; margin-bottom:12px; }
+  .cond-box-head .dot{ width:7px;height:7px;border-radius:50%; }
+  .fuel-box .dot { background:var(--amber); }
+  .phone-box .dot { background:var(--teal); }
+  .cond-box-head span{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+  .fuel-box span { color:#8A6412; }
+  .phone-box span { color:var(--teal-dark); }
+  
   .fuel-calc{ background:#fff; border-radius:8px; padding:10px 13px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid #EAD9AE; }
   .fuel-calc .lbl{ font-size:12px; color:var(--ink-500); font-weight:600; }
   .fuel-calc .val{ font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:600; color:#8A6412; }
@@ -135,7 +139,7 @@
   table.recent th{ text-align:left; font-size:11px; color:var(--ink-300); text-transform:uppercase; letter-spacing:.04em; padding-bottom:8px; font-weight:600; }
   table.recent td{ padding:9px 0; border-top:1px solid var(--border); color:var(--ink-700); vertical-align:top; }
   table.recent td.amt{ font-family:'IBM Plex Mono',monospace; text-align:right; color:var(--ink-900); font-weight:600; white-space:nowrap; }
-  .cat-pill{ display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; background:var(--teal-tint); color:var(--teal-dark); }
+  .cat-pill{ display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; background:var(--teal-tint); color:var(--teal-dark); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cat-pill.fuel{ background:var(--amber-tint); color:#8A6412; }
   .sub-note{ display:block; font-size:11px; color:var(--ink-300); margin-top:2px; }
   .empty-state{ color:var(--ink-300); font-size:13px; padding:18px 0; text-align:center; }
@@ -143,15 +147,15 @@
   /* ---------- CONFIRM MODAL ---------- */
   .modal-backdrop{ position:fixed; inset:0; background:rgba(16,24,38,0.55); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; backdrop-filter:blur(2px); }
   .modal-backdrop.show{ display:flex; animation:fadein .18s ease; }
-  .modal-card{ background:var(--paper); border-radius:var(--radius); width:100%; max-width:420px; box-shadow:0 20px 60px rgba(16,24,38,0.25); overflow:hidden; }
+  .modal-card{ background:var(--paper); border-radius:var(--radius); width:100%; max-width:440px; box-shadow:0 20px 60px rgba(16,24,38,0.25); overflow:hidden; }
   .modal-head{ background:var(--navy); color:#fff; padding:20px 24px; }
   .modal-head .eyebrow{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); font-weight:700; margin-bottom:4px; }
   .modal-head h3{ margin:0; font-size:17px; font-family:'Sora',sans-serif; }
-  .modal-body{ padding:20px 24px; }
-  .m-row{ display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:13.5px; }
+  .modal-body{ padding:20px 24px; max-height:400px; overflow-y:auto; }
+  .m-row{ display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:13.5px; gap: 10px; }
   .m-row:last-child{ border-bottom:none; }
-  .m-row .k{ color:var(--ink-500); font-weight:600; }
-  .m-row .v{ color:var(--ink-900); font-family:'IBM Plex Mono',monospace; text-align:right; max-width:60%; }
+  .m-row .k{ color:var(--ink-500); font-weight:600; min-width:90px; }
+  .m-row .v{ color:var(--ink-900); font-family:'IBM Plex Mono',monospace; text-align:right; word-break:break-word; }
   .m-amount{ text-align:center; padding:16px 0 6px; }
   .m-amount .val{ font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:600; color:var(--teal-dark); }
   .m-amount .lbl{ font-size:11.5px; color:var(--ink-300); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
@@ -214,7 +218,7 @@
 <div id="gate">
   <div class="gate-card">
     <div class="gate-mark">฿</div>
-    <h1>ระบบบันทึกค่าใช้จ่ายบริษัท</h1>
+    <h1>ระบบบันทึกค่าใช้จ่ายเงินสด KYH</h1>
     <p class="sub">กรุณากรอกรหัสผ่านเพื่อเข้าใช้งาน</p>
     <div class="code-input-wrap"><input type="password" id="code-input" inputmode="numeric" maxlength="12" placeholder="••••"></div>
     <div id="gate-error"></div>
@@ -227,7 +231,7 @@
   <header class="topbar">
     <div class="brand">
       <div class="mark">฿</div>
-      <div class="name">Expense Ledger<span>ระบบบันทึกค่าใช้จ่ายบริษัท</span></div>
+      <div class="name">KYH Expense Ledger<span>ระบบบันทึกค่าใช้จ่ายเงินสด 2569</span></div>
     </div>
     <nav class="tabs">
       <button class="tab-btn active" data-page="record">บันทึกรายจ่าย</button>
@@ -241,7 +245,7 @@
     <section class="page active" id="page-record">
       <div class="page-head">
         <h2>บันทึกรายการค่าใช้จ่าย</h2>
-        <p>กรอกข้อมูลด้านล่างให้ครบถ้วน ระบบจะให้ตรวจสอบก่อนบันทึกเข้า Google Sheet</p>
+        <p>กรอกข้อมูลให้ตรงตามโครงสร้างบัญชีจริง ระบบจะแสดงฟิลด์เสริมตามหมวดหมู่ที่เลือกอ้างอิงจากระบบงาน KYH</p>
       </div>
 
       <div class="record-grid">
@@ -250,20 +254,30 @@
             <label for="f-date">วันที่</label>
             <input type="date" id="f-date" class="mono">
           </div>
+          
           <div class="row2">
             <div class="field">
-              <label for="f-category">หมวดหมู่ค่าใช้จ่าย</label>
+              <label for="f-category">รายการ (หมวดหมู่)</label>
               <select id="f-category">
-                <option value="">เลือกหมวดหมู่</option>
+                <option value="">เลือกหมวดหมู่รายการ</option>
                 <option>ค่าน้ำมัน</option>
-                <option>ค่าเดินทาง</option>
-                <option>ค่าอาหารและรับรอง</option>
-                <option>ค่าออฟฟิศและอุปกรณ์</option>
-                <option>ค่าสาธารณูปโภค</option>
-                <option>ค่าการตลาดและโฆษณา</option>
-                <option>ค่าซ่อมบำรุง</option>
-                <option>ค่าที่ปรึกษา/วิชาชีพ</option>
-                <option>อื่นๆ</option>
+                <option>ค่าโทรศัพท์ / อินเตอร์เน็ต</option>
+                <option>ค่าส่งเอกสาร / พัสดุ / ขนส่งสินค้า</option>
+                <option>ค่าเบี้ยเลี้ยง</option>
+                <option>ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพรถ</option>
+                <option>ค่าประกันสังคม</option>
+                <option>ค่าน้ำดื่ม</option>
+                <option>ค่าธรรมเนียมต่างๆ</option>
+                <option>ค่ารับรองแขก</option>
+                <option>ค่าอุปกรณ์สำนักงาน</option>
+                <option>ค่าอุปกรณ์ซ่อมบำรุงรถยนต์</option>
+                <option>ค่าทางด่วน / ค่าผ่านทาง</option>
+                <option>ค่าเงินเดือน</option>
+                <option>ค่าแรงพิเศษลูกน้อง</option>
+                <option>ค่างานศพ / งานแต่ง / บริจาค / งานบุญ</option>
+                <option>ค่าไฟฟ้า / ประปา</option>
+                <option>ค่าไหว้เจ้า</option>
+                <option>ค่าแรง Outsource</option>
               </select>
             </div>
             <div class="field">
@@ -272,9 +286,9 @@
             </div>
           </div>
 
-          <!-- FUEL-SPECIFIC FIELDS -->
-          <div class="fuel-box" id="fuel-box">
-            <div class="fuel-box-head"><span class="dot"></span><span>ข้อมูลเชื้อเพลิง</span></div>
+          <!-- FUEL-SPECIFIC FIELDS (ค่าน้ำมัน) -->
+          <div class="cond-box fuel-box" id="fuel-box">
+            <div class="cond-box-head"><span class="dot"></span><span>ข้อมูลเชื้อเพลิงรถยนต์</span></div>
             <div class="field">
               <label for="f-vehicle">ทะเบียนรถ</label>
               <select id="f-vehicle">
@@ -284,33 +298,70 @@
                 <button type="button" class="btn btn-ghost btn-small" id="show-add-vehicle">＋ เพิ่มทะเบียนรถใหม่</button>
               </div>
               <div class="vehicle-add-inline" id="add-vehicle-inline">
-                <input type="text" id="new-vehicle-name" placeholder="ชื่อรุ่น เช่น Toyota">
-                <input type="text" id="new-vehicle-plate" placeholder="ทะเบียน / รหัส เช่น 1กก-1234">
+                <input type="text" id="new-vehicle-name" placeholder="ชื่อรุ่น/ยี่ห้อรถ">
+                <input type="text" id="new-vehicle-plate" placeholder="ทะเบียนรถ">
                 <button type="button" class="btn btn-teal btn-small" id="confirm-add-vehicle">เพิ่ม</button>
                 <button type="button" class="btn btn-ghost btn-small" id="cancel-add-vehicle">ยกเลิก</button>
               </div>
             </div>
             <div class="row2">
               <div class="field">
-                <label for="f-fuel-price">ราคาน้ำมัน (บาท/ลิตร)</label>
+                <label for="f-fuel-price">ลิตรละ (บาท)</label>
                 <input type="number" id="f-fuel-price" class="mono" placeholder="0.00" min="0" step="0.01">
               </div>
               <div class="field">
-                <label for="f-odometer">เลขไมล์ (กม.)</label>
-                <div class="unit-wrap"><input type="number" id="f-odometer" class="mono" placeholder="0" min="0" step="1"><span class="unit">กม.</span></div>
+                <label for="f-odometer">เลขไมล์รถ (กม.)</label>
+                <div class="unit-wrap"><input type="number" id="f-odometer" class="mono" placeholder="เช่น 125000" min="0" step="1"><span class="unit">กม.</span></div>
               </div>
             </div>
-            <div class="fuel-calc"><span class="lbl">จำนวนลิตรโดยประมาณ</span><span class="val" id="fuel-liters-out">— ลิตร</span></div>
+            <div class="fuel-calc"><span class="lbl">จำนวนลิตรโดยประมาณ (คำนวณออโต้)</span><span class="val" id="fuel-liters-out">— ลิตร</span></div>
+          </div>
+
+          <!-- PHONE-SPECIFIC FIELDS (ค่าโทรศัพท์) -->
+          <div class="cond-box phone-box" id="phone-box">
+            <div class="cond-box-head"><span class="dot"></span><span>ข้อมูลบิลค่าบริการรายเดือน</span></div>
+            <div class="row2">
+              <div class="field">
+                <label for="f-month-period">ประจำเดือน</label>
+                <select id="f-month-period">
+                  <option value="">เลือกเดือนประจำรอบบิล</option>
+                  <option>มกราคม</option>
+                  <option>กุมภาพันธ์</option>
+                  <option>มีนาคม</option>
+                  <option>เมษายน</option>
+                  <option>พฤษภาคม</option>
+                  <option>มิถุนายน</option>
+                  <option>กรกฎาคม</option>
+                  <option>สิงหาคม</option>
+                  <option>กันยายน</option>
+                  <option>ตุลาคม</option>
+                  <option>พฤศจิกายน</option>
+                  <option>ธันวาคม</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="f-phone">เบอร์โทรศัพท์</label>
+                <input type="text" id="f-phone" class="mono" placeholder="เช่น 086-XXXXXXX">
+              </div>
+            </div>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label for="f-vendor">ซื้อจาก (ร้านค้า/สถานที่)</label>
+              <input type="text" id="f-vendor" placeholder="เช่น Shell เกษมรัตน์, AIS, เครือสหพัฒน์">
+            </div>
+            <div class="field">
+              <label for="f-payee">ผู้รับเงิน (พนักงาน/ผู้จ่ายเงิน)</label>
+              <input type="text" id="f-payee" placeholder="เช่น ธนาภรณ์, สมชาย">
+            </div>
           </div>
 
           <div class="field">
-            <label for="f-payee">ผู้รับเงิน</label>
-            <input type="text" id="f-payee" placeholder="ชื่อบุคคล / ร้านค้า / บริษัท">
+            <label for="f-note">รายละเอียด / หมายเหตุ (ไม่บังคับ)</label>
+            <textarea id="f-note" placeholder="กรอกรายละเอียดเพิ่มเติมหรือข้อความบันทึกช่วยจำ..."></textarea>
           </div>
-          <div class="field">
-            <label for="f-note">หมายเหตุ (ไม่บังคับ)</label>
-            <textarea id="f-note" placeholder="รายละเอียดเพิ่มเติม เช่น เลขที่ใบเสร็จ"></textarea>
-          </div>
+          
           <div class="form-foot">
             <button class="btn btn-teal" id="submit-btn">ตรวจสอบและบันทึก</button>
             <span id="submit-status"></span>
@@ -319,8 +370,8 @@
 
         <div>
           <div class="card recent-card">
-            <h3>รายการล่าสุด</h3>
-            <div id="recent-wrap"><div class="empty-state">ยังไม่มีข้อมูล</div></div>
+            <h3>รายการเซสชันนี้ (เพิ่งบันทึก)</h3>
+            <div id="recent-wrap"><div class="empty-state">ยังไม่มีข้อมูลในเซสชันนี้</div></div>
           </div>
         </div>
       </div>
@@ -329,8 +380,8 @@
     <!-- ---------- PAGE: ANALYSIS ---------- -->
     <section class="page" id="page-analysis">
       <div class="page-head">
-        <h2>วิเคราะห์ค่าใช้จ่าย</h2>
-        <p>ภาพรวมค่าใช้จ่ายและการใช้น้ำมันจากข้อมูลทั้งหมดใน Google Sheet</p>
+        <h2>วิเคราะห์ค่าใช้จ่ายเงินสด KYH</h2>
+        <p>ภาพรวมสถิติรายจ่ายประจำปี 2569 และระบบคํานวณประสิทธิภาพน้ำมันรถยนต์</p>
       </div>
 
       <div class="subnav">
@@ -342,25 +393,25 @@
       <div class="subpage active" id="sub-overview">
         <div class="filter-bar">
           <select id="filter-month"><option value="">ทุกเดือน</option></select>
-          <select id="filter-category"><option value="">ทุกหมวดหมู่</option></select>
+          <select id="filter-category"><option value="">ทุกหมวดหมู่รายการ</option></select>
           <button class="btn btn-ghost refresh" id="refresh-btn">รีเฟรชข้อมูล</button>
         </div>
 
         <div class="stat-row">
           <div class="stat-card"><div class="lbl">ยอดรวมทั้งหมด</div><div class="val accent mono" id="stat-total">฿0.00</div><div class="sub" id="stat-total-sub">—</div></div>
           <div class="stat-card"><div class="lbl">จำนวนรายการ</div><div class="val mono" id="stat-count">0</div><div class="sub">รายการที่บันทึก</div></div>
-          <div class="stat-card"><div class="lbl">ค่าเฉลี่ยต่อรายการ</div><div class="val mono" id="stat-avg">฿0.00</div><div class="sub">ต่อรายการ</div></div>
-          <div class="stat-card"><div class="lbl">หมวดหมู่สูงสุด</div><div class="val mono" id="stat-top-cat" style="font-size:16px;">—</div><div class="sub" id="stat-top-cat-sub">—</div></div>
+          <div class="stat-card"><div class="lbl">ค่าเฉลี่ยต่อรายการ</div><div class="val mono" id="stat-avg">฿0.00</div><div class="sub">ต่อใบเสร็จ</div></div>
+          <div class="stat-card"><div class="lbl">หมวดหมู่จ่ายสูงสุด</div><div class="val mono" id="stat-top-cat" style="font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div><div class="sub" id="stat-top-cat-sub">—</div></div>
         </div>
 
         <div class="analysis-grid">
-          <div class="chart-card"><h3>สัดส่วนตามหมวดหมู่</h3><p class="hint">แบ่งตามหมวดหมู่ค่าใช้จ่าย</p><div class="chart-wrap"><canvas id="chart-category"></canvas></div></div>
-          <div class="chart-card"><h3>แนวโน้มรายเดือน</h3><p class="hint">ยอดรวมค่าใช้จ่ายแต่ละเดือน</p><div class="chart-wrap"><canvas id="chart-trend"></canvas></div></div>
+          <div class="chart-card"><h3>สัดส่วนตามรายการค่าใช้จ่าย</h3><p class="hint">เปรียบเทียบสัดส่วนของแต่ละประเภทรายการ</p><div class="chart-wrap"><canvas id="chart-category"></canvas></div></div>
+          <div class="chart-card"><h3>แนวโน้มรายเดือน</h3><p class="hint">ยอดรวมค่าใช้จ่ายแยกรายเดือน (ตามวันที่บันทึก)</p><div class="chart-wrap"><canvas id="chart-trend"></canvas></div></div>
         </div>
 
         <div class="table-card">
-          <h3>ผู้รับเงินสูงสุด</h3>
-          <table class="payees"><thead><tr><th>ผู้รับเงิน</th><th style="text-align:right;">ยอดรวม</th></tr></thead>
+          <h3>สรุปยอดรายบุคคล (ผู้รับเงิน)</h3>
+          <table class="payees"><thead><tr><th>ผู้รับเงิน</th><th style="text-align:right;">ยอดรวมสะสม</th></tr></thead>
             <tbody id="payees-body"><tr><td colspan="2" class="loading-row">ยังไม่มีข้อมูล</td></tr></tbody>
           </table>
         </div>
@@ -370,29 +421,29 @@
       <div class="subpage" id="sub-fuel" style="display:none;">
         <div class="filter-bar">
           <select id="fuel-vehicle-select"><option value="">เลือกทะเบียนรถ</option></select>
-          <button class="btn btn-ghost refresh" id="fuel-refresh-btn">รีเฟรชข้อมูล</button>
+          <button class="btn btn-ghost refresh" id="fuel-refresh-btn">รีเฟรชข้อมูลน้ำมัน</button>
         </div>
 
-        <div id="fuel-empty" class="empty-state" style="padding:60px 0;">เลือกทะเบียนรถเพื่อดูการวิเคราะห์การใช้น้ำมัน</div>
+        <div id="fuel-empty" class="empty-state" style="padding:60px 0;">เลือกทะเบียนรถเพื่อตรวจสอบอัตราการใช้น้ำมันและพฤติกรรมการวิ่ง</div>
 
         <div id="fuel-content" style="display:none;">
           <div class="stat-row">
-            <div class="stat-card"><div class="lbl">ระยะทางสะสม</div><div class="val mono" id="fuel-stat-distance">0 กม.</div><div class="sub">จากระยะการเติมที่บันทึก</div></div>
-            <div class="stat-card"><div class="lbl">ลิตรรวม</div><div class="val mono" id="fuel-stat-liters">0 ลิตร</div><div class="sub" id="fuel-stat-count">0 ครั้งที่เติม</div></div>
-            <div class="stat-card"><div class="lbl">อัตราสิ้นเปลืองเฉลี่ย</div><div class="val accent mono" id="fuel-stat-avg">0 กม./ลิตร</div><div class="sub">ค่าเฉลี่ยของรถคันนี้</div></div>
-            <div class="stat-card"><div class="lbl">รายการผิดปกติ</div><div class="val mono" id="fuel-stat-anomaly">0</div><div class="sub" id="fuel-stat-anomaly-sub">ไม่พบความผิดปกติ</div></div>
+            <div class="stat-card"><div class="lbl">ระยะทางสะสมรวม</div><div class="val mono" id="fuel-stat-distance">0 กม.</div><div class="sub">จากไมล์แรกถึงไมล์ล่าสุด</div></div>
+            <div class="stat-card"><div class="lbl">ลิตรรวมทั้งหมด</div><div class="val mono" id="fuel-stat-liters">0 ลิตร</div><div class="sub" id="fuel-stat-count">0 ครั้งที่เติมน้ำมัน</div></div>
+            <div class="stat-card"><div class="lbl">อัตราสิ้นเปลืองเฉลี่ย</div><div class="val accent mono" id="fuel-stat-avg">0 กม./ลิตร</div><div class="sub">สมรรถนะเฉลี่ยของรถคันนี้</div></div>
+            <div class="stat-card"><div class="lbl">รายการผิดปกติ (Anomaly)</div><div class="val mono" id="fuel-stat-anomaly">0</div><div class="sub" id="fuel-stat-anomaly-sub">ไม่พบความผิดปกติ</div></div>
           </div>
 
           <div class="chart-card" style="margin-bottom:20px;">
-            <h3>เทรนด์อัตราสิ้นเปลืองน้ำมัน (กม./ลิตร)</h3>
-            <p class="hint">จุดสีแดง = อัตราสิ้นเปลืองเบี่ยงเบนผิดปกติจากค่าเฉลี่ยของรถคันนี้</p>
+            <h3>เทรนด์และประสิทธิภาพน้ำมัน (กม./ลิตร)</h3>
+            <p class="hint">จุดสีแดง = มีอัตราสิ้นเปลืองเบี่ยงเบนผิดปกติอย่างมีนัยสำคัญ (อาจเกิดจากกรอกเลขไมล์ผิดหรือความผิดปกติของรถ)</p>
             <div class="chart-wrap tall"><canvas id="chart-fuel-trend"></canvas></div>
           </div>
 
           <div class="table-card">
-            <h3>ประวัติการเติมน้ำมัน</h3>
+            <h3>ประวัติล็อกการเติมน้ำมันอย่างละเอียด</h3>
             <table class="fuel-log">
-              <thead><tr><th>วันที่</th><th>เลขไมล์</th><th>ระยะทาง</th><th>ลิตร</th><th>กม./ลิตร</th><th>สถานะ</th></tr></thead>
+              <thead><tr><th>วันที่</th><th>เลขไมล์รถ</th><th>ระยะทางวิ่ง</th><th>จำนวนลิตร</th><th>กม./ลิตร</th><th>สถานะ</th></tr></thead>
               <tbody id="fuel-log-body"><tr><td colspan="6" class="loading-row">ยังไม่มีข้อมูล</td></tr></tbody>
             </table>
           </div>
@@ -406,30 +457,31 @@
 <div class="modal-backdrop" id="confirm-modal">
   <div class="modal-card">
     <div class="modal-head">
-      <div class="eyebrow">ตรวจสอบรายการ</div>
-      <h3>ข้อมูลถูกต้องหรือไม่?</h3>
+      <div class="eyebrow">ตรวจสอบความถูกต้องก่อนบันทึก</div>
+      <h3>ข้อมูลบันทึกค่าใช้จ่ายเงินสด</h3>
     </div>
     <div class="modal-body" id="modal-body">
       <!-- filled by JS -->
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" id="modal-edit-btn">กลับไปแก้ไข</button>
-      <button class="btn btn-teal" id="modal-confirm-btn">ยืนยันบันทึก</button>
+      <button class="btn btn-teal" id="modal-confirm-btn">ยืนยันลงตาราง</button>
     </div>
   </div>
 </div>
 
 <script>
 /* ======================================================================
-   ตั้งค่าหลัก — แก้ไข 2 ค่านี้ให้ตรงกับของคุณ
+   ตั้งค่าหลัก — แก้ไข 2 ค่านี้ให้ตรงกับระบบ Google Sheet ของคุณ
    ====================================================================== */
 const ACCESS_CODE = "1234";
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzNlb3tlg9ONgn0Y5Asqod48rsP0_Lova_Oha014OVSWU-P2HP8Nzhj7D1DSyCad0Zhrw/exec";
 
+// รายชื่อทะเบียนรถจริงที่ถูกสกัดมาจากไฟล์บันทึกบัญชี KYH ของคุณ
 const DEFAULT_VEHICLES = [
-  "Toyota : 1ฒต-49","Vigo : ฒน-3824","Hino : 80-7026","MG : 2ขฆ-8955",
-  "Toyota : 4กฆ-4825","Revo : 1ฒฬ-6998","Commuter : ฮล-2603","Wave : 242",
-  "Forklift : Auto","Forklift : Manual"
+  "MG : 2ขฆ-8955", "Toyota : 4กฆ-4825", "Hino : 80-7026", 
+  "Revo : 1ฒฬ-6998", "Toyota : 1ฒต-49", "Folklift : Auto", 
+  "Vigo : ฒน-3824", "Folklift : Manual", "Commuter : ฮล-2603"
 ];
 let vehicleList = [...DEFAULT_VEHICLES];
 
@@ -478,27 +530,39 @@ document.querySelectorAll('.subnav-btn').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('sub-overview').style.display = btn.dataset.sub==='overview' ? 'block':'none';
     document.getElementById('sub-fuel').style.display = btn.dataset.sub==='fuel' ? 'block':'none';
+    if(btn.dataset.sub==='fuel') renderFuelAnalysis();
   });
 });
 
-/* ====================== FORM FIELDS ====================== */
+/* ====================== FORM FIELDS LOGIC ====================== */
 const fDate = document.getElementById('f-date');
 const fCategory = document.getElementById('f-category');
 const fAmount = document.getElementById('f-amount');
+const fVendor = document.getElementById('f-vendor');
 const fPayee = document.getElementById('f-payee');
 const fNote = document.getElementById('f-note');
+
+// ฟิลด์ค่าน้ำมัน
 const fVehicle = document.getElementById('f-vehicle');
 const fFuelPrice = document.getElementById('f-fuel-price');
 const fOdometer = document.getElementById('f-odometer');
 const fuelBox = document.getElementById('fuel-box');
 const fuelLitersOut = document.getElementById('fuel-liters-out');
 
+// ฟิลด์ค่าโทรศัพท์
+const fMonthPeriod = document.getElementById('f-month-period');
+const fPhone = document.getElementById('f-phone');
+const phoneBox = document.getElementById('phone-box');
+
 function fmtMoney(n){ return '฿' + Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2, maximumFractionDigits:2}); }
 function fmtDateTH(iso){
   if(!iso) return '—';
-  const d = new Date(iso+'T00:00:00');
-  if(isNaN(d)) return iso;
-  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'});
+  const parts = iso.split('-');
+  if(parts.length === 3) {
+    // แปลง YYYY-MM-DD เป็น DD/MM/YYYY สำหรับตารางงานจริงของคุณ
+    return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
+  }
+  return iso;
 }
 function todayISO(){ const d=new Date(); const tz=d.getTimezoneOffset()*60000; return new Date(d-tz).toISOString().slice(0,10); }
 
@@ -506,7 +570,7 @@ function calcLiters(){
   const amt = parseFloat(fAmount.value), price = parseFloat(fFuelPrice.value);
   if(amt>0 && price>0){
     const liters = amt/price;
-    fuelLitersOut.textContent = liters.toLocaleString('th-TH',{maximumFractionDigits:2}) + ' ลิตร';
+    fuelLitersOut.textContent = liters.toLocaleString('th-TH',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' ลิตร';
     return liters;
   }
   fuelLitersOut.textContent = '— ลิตร';
@@ -514,12 +578,14 @@ function calcLiters(){
 }
 
 fCategory.addEventListener('change', ()=>{
-  const isFuel = fCategory.value === 'ค่าน้ำมัน';
-  fuelBox.classList.toggle('show', isFuel);
+  const cat = fCategory.value;
+  // ซ่อน/แสดง บล็อกฟิลด์ตามจริง
+  fuelBox.classList.toggle('show', cat === 'ค่าน้ำมัน');
+  phoneBox.classList.toggle('show', cat === 'ค่าโทรศัพท์ / อินเตอร์เน็ต');
 });
-[fAmount,fFuelPrice].forEach(el=> el.addEventListener('input', calcLiters));
+[fAmount, fFuelPrice].forEach(el=> el.addEventListener('input', calcLiters));
 
-/* vehicle dropdown */
+/* จัดการ Dropdown รายชื่อรถ */
 function renderVehicleOptions(){
   fVehicle.innerHTML = '<option value="">เลือกทะเบียนรถ</option>' +
     vehicleList.map(v=>`<option value="${v}">${v}</option>`).join('');
@@ -545,48 +611,45 @@ document.getElementById('confirm-add-vehicle').addEventListener('click', async (
   document.getElementById('add-vehicle-inline').classList.remove('show');
   document.getElementById('new-vehicle-name').value='';
   document.getElementById('new-vehicle-plate').value='';
-  if(GAS_URL.indexOf('PASTE_YOUR') !== 0){
+  
+  if(GAS_URL.indexOf('AKfycbz') === 0){
     try{
       await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'addVehicle', label}) });
-    }catch(err){ /* เพิ่มไว้ในเครื่องแล้ว แม้บันทึกขึ้นชีทไม่สำเร็จ */ }
+    }catch(err){}
   }
 });
 
-async function loadVehicles(){
-  if(GAS_URL.indexOf('PASTE_YOUR') === 0) return;
-  try{
-    const res = await fetch(GAS_URL + '?action=vehicles');
-    const data = await res.json();
-    if(data.vehicles && data.vehicles.length){
-      vehicleList = [...new Set([...data.vehicles])];
-      renderVehicleOptions();
-    }
-  }catch(err){ /* ใช้รายการเริ่มต้นต่อไป */ }
-}
-
-/* ====================== CONFIRM MODAL ====================== */
+/* ====================== CONFIRM MODAL LOGIC ====================== */
 const modal = document.getElementById('confirm-modal');
 const modalBody = document.getElementById('modal-body');
 const submitBtn = document.getElementById('submit-btn');
 const submitStatus = document.getElementById('submit-status');
 
 function openConfirmModal(){
-  const isFuel = fCategory.value === 'ค่าน้ำมัน';
-  const liters = isFuel ? calcLiters() : null;
+  const cat = fCategory.value;
   let rows = `
     <div class="m-row"><span class="k">วันที่</span><span class="v">${fmtDateTH(fDate.value)}</span></div>
-    <div class="m-row"><span class="k">หมวดหมู่</span><span class="v">${fCategory.value}</span></div>`;
-  if(isFuel){
+    <div class="m-row"><span class="k">รายการ</span><span class="v" style="font-weight:700; color:var(--teal-dark);">${cat}</span></div>`;
+  
+  if(cat === 'ค่าน้ำมัน'){
+    const liters = calcLiters();
     rows += `
     <div class="m-row"><span class="k">ทะเบียนรถ</span><span class="v">${fVehicle.value || '—'}</span></div>
-    <div class="m-row"><span class="k">ราคาน้ำมัน</span><span class="v">${fFuelPrice.value ? fmtMoney(fFuelPrice.value)+'/ลิตร' : '—'}</span></div>
-    <div class="m-row"><span class="k">จำนวนลิตร</span><span class="v">${liters ? liters.toLocaleString('th-TH',{maximumFractionDigits:2})+' ลิตร' : '—'}</span></div>
-    <div class="m-row"><span class="k">เลขไมล์</span><span class="v">${fOdometer.value ? Number(fOdometer.value).toLocaleString('th-TH')+' กม.' : '—'}</span></div>`;
+    <div class="m-row"><span class="k">ลิตรละ</span><span class="v">${fFuelPrice.value ? Number(fFuelPrice.value).toFixed(2)+' บาท' : '—'}</span></div>
+    <div class="m-row"><span class="k">จำนวนลิตร</span><span class="v">${liters ? liters.toFixed(2)+' ลิตร' : '—'}</span></div>
+    <div class="m-row"><span class="k">เลขไมล์รถ</span><span class="v">${fOdometer.value ? Number(fOdometer.value).toLocaleString('th-TH')+' กม.' : '—'}</span></div>`;
+  } else if(cat === 'ค่าโทรศัพท์ / อินเตอร์เน็ต') {
+    rows += `
+    <div class="m-row"><span class="k">ประจำเดือน</span><span class="v">${fMonthPeriod.value || '—'}</span></div>
+    <div class="m-row"><span class="k">เบอร์โทรศัพท์</span><span class="v">${fPhone.value || '—'}</span></div>`;
   }
+  
   rows += `
+    <div class="m-row"><span class="k">ซื้อจาก</span><span class="v">${fVendor.value || '—'}</span></div>
     <div class="m-row"><span class="k">ผู้รับเงิน</span><span class="v">${fPayee.value || '—'}</span></div>
-    <div class="m-row"><span class="k">หมายเหตุ</span><span class="v">${fNote.value || '—'}</span></div>`;
-  modalBody.innerHTML = rows + `<div class="m-amount"><div class="val mono">${fmtMoney(fAmount.value)}</div><div class="lbl">ยอดรวม</div></div>`;
+    <div class="m-row"><span class="k">รายละเอียด</span><span class="v">${fNote.value || '—'}</span></div>`;
+    
+  modalBody.innerHTML = rows + `<div class="m-amount"><div class="val mono">${fmtMoney(fAmount.value)}</div><div class="lbl">จำนวนเงินรวม</div></div>`;
   modal.classList.add('show');
 }
 function closeConfirmModal(){ modal.classList.remove('show'); }
@@ -595,65 +658,76 @@ document.getElementById('modal-edit-btn').addEventListener('click', closeConfirm
 modal.addEventListener('click', (e)=>{ if(e.target===modal) closeConfirmModal(); });
 
 submitBtn.addEventListener('click', ()=>{
-  const isFuel = fCategory.value === 'ค่าน้ำมัน';
   if(!fDate.value || !fCategory.value || !fAmount.value || !fPayee.value){
-    submitStatus.textContent = 'กรุณากรอกวันที่ หมวดหมู่ จำนวนเงิน และผู้รับเงินให้ครบ';
+    submitStatus.textContent = 'กรุณากรอกข้อมูลหลัก (วันที่, รายการหมวดหมู่, จำนวนเงิน, ผู้รับเงิน) ให้ครบถ้วน';
     submitStatus.className = 'err';
     return;
   }
-  if(isFuel && (!fVehicle.value || !fFuelPrice.value || !fOdometer.value)){
-    submitStatus.textContent = 'กรุณาเลือกทะเบียนรถ ราคาน้ำมัน และเลขไมล์ให้ครบ';
+  
+  const cat = fCategory.value;
+  if(cat === 'ค่าน้ำมัน' && (!fVehicle.value || !fFuelPrice.value || !fOdometer.value)){
+    submitStatus.textContent = 'หมวดหมู่ค่าน้ำมัน จำเป็นต้องระบุทะเบียนรถ ลิตรละกี่บาท และเลขไมล์รถให้ครบ';
     submitStatus.className = 'err';
     return;
   }
+  
   submitStatus.textContent = '';
   openConfirmModal();
 });
 
+// บันทึกข้อมูลและแมปข้อมูลให้ตรงกับหัวคอลลัมน์ของชีทงานจริง
 document.getElementById('modal-confirm-btn').addEventListener('click', async ()=>{
-  if(GAS_URL.indexOf('PASTE_YOUR') === 0){
-    submitStatus.textContent = 'ยังไม่ได้ตั้งค่า GAS_URL ในไฟล์ HTML';
-    submitStatus.className = 'err';
-    closeConfirmModal();
-    return;
-  }
-  const isFuel = fCategory.value === 'ค่าน้ำมัน';
-  const liters = isFuel ? calcLiters() : null;
+  const cat = fCategory.value;
+  const liters = cat === 'ค่าน้ำมัน' ? calcLiters() : null;
+  
+  // โครงสร้าง Payload ที่ล้อตามลำดับและหัวข้อคอลัมน์ของไฟล์บันทึกเงินสด KYH 2569 เป๊ะๆ
   const payload = {
-    action:'add',
-    date: fDate.value, category: fCategory.value, amount: fAmount.value,
-    payee: fPayee.value, note: fNote.value, recordedBy: '',
-    vehicle: isFuel ? fVehicle.value : '',
-    fuelPrice: isFuel ? fFuelPrice.value : '',
-    fuelLiters: isFuel && liters ? liters.toFixed(3) : '',
-    odometer: isFuel ? fOdometer.value : ''
+    action: 'add',
+    date: fmtDateTH(fDate.value),       // คอลลัมน์ [ ] (วันที่จริง)
+    รายการ: cat,                        // คอลลัมน์ [รายการ]
+    ทะเบียนรถ: cat === 'ค่าน้ำมัน' ? fVehicle.value : '',
+    ประจำเดือน: cat === 'ค่าโทรศัพท์ / อินเตอร์เน็ต' ? fMonthPeriod.value : '',
+    เบอร์โทรศัพท์: cat === 'ค่าโทรศัพท์ / อินเตอร์เน็ต' ? fPhone.value : '',
+    ซื้อจาก: fVendor.value || '',
+    รายละเอียด: fNote.value || '',
+    จำนวนเงิน: parseFloat(fAmount.value).toFixed(2),
+    ผู้รับเงิน: fPayee.value || '',
+    ลิตรละ: cat === 'ค่าน้ำมัน' ? parseFloat(fFuelPrice.value).toFixed(2) : '',
+    จำนวนลิตร: cat === 'ค่าน้ำมัน' && liters ? liters.toFixed(2) : '',
+    เลขไมล์รถ: cat === 'ค่าน้ำมัน' ? parseInt(fOdometer.value) : ''
   };
+  
   const btn = document.getElementById('modal-confirm-btn');
   btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
   try{
-    await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+    if(GAS_URL.includes("AKfycbz")) {
+      await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+    }
     addRecentLocal(payload);
-    submitStatus.textContent = 'บันทึกสำเร็จ';
+    submitStatus.textContent = 'บันทึกรายการลงฐานข้อมูลสำเร็จ';
     submitStatus.className = 'ok';
     resetForm();
   }catch(err){
-    submitStatus.textContent = 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง';
+    submitStatus.textContent = 'เครือข่ายขัดข้อง แต่บันทึกจำในเซสชันนี้ให้ชั่วคราว';
     submitStatus.className = 'err';
+    addRecentLocal(payload);
   }finally{
-    btn.disabled = false; btn.textContent = 'ยืนยันบันทึก';
+    btn.disabled = false; btn.textContent = 'ยืนยันลงตาราง';
     closeConfirmModal();
   }
 });
 
 function resetForm(){
-  fCategory.value=''; fAmount.value=''; fPayee.value=''; fNote.value='';
+  fCategory.value=''; fAmount.value=''; fVendor.value=''; fPayee.value=''; fNote.value='';
   fVehicle.value=''; fFuelPrice.value=''; fOdometer.value='';
+  fMonthPeriod.value=''; fPhone.value='';
   fuelLitersOut.textContent = '— ลิตร';
   fuelBox.classList.remove('show');
+  phoneBox.classList.remove('show');
   fDate.value = todayISO();
 }
 
-/* recent entries (session preview) */
+/* ประวัติตารางอัปเดตแบบ Local (เซสชันล่าสุด) */
 let recentLocal = [];
 function addRecentLocal(entry){
   recentLocal.unshift(entry);
@@ -662,79 +736,124 @@ function addRecentLocal(entry){
 }
 function renderRecent(){
   const wrap = document.getElementById('recent-wrap');
-  if(recentLocal.length===0){ wrap.innerHTML = '<div class="empty-state">ยังไม่มีข้อมูล</div>'; return; }
-  let html = '<table class="recent"><thead><tr><th>วันที่</th><th>หมวดหมู่</th><th style="text-align:right;">จำนวนเงิน</th></tr></thead><tbody>';
+  if(recentLocal.length===0){ wrap.innerHTML = '<div class="empty-state">ยังไม่มีข้อมูลในเซสชันนี้</div>'; return; }
+  let html = '<table class="recent"><thead><tr><th>ข้อมูล</th><th>ร้านค้า/ผู้รับ</th><th style="text-align:right;">ยอดเงิน</th></tr></thead><tbody>';
   recentLocal.forEach(r=>{
-    const isFuel = r.category === 'ค่าน้ำมัน';
+    const isFuel = r.รายการ === 'ค่าน้ำมัน';
     html += `<tr>
-      <td>${fmtDateTH(r.date)}</td>
-      <td><span class="cat-pill ${isFuel?'fuel':''}">${r.category}</span>${isFuel? `<span class="sub-note">${r.vehicle} · ${r.fuelLiters?Number(r.fuelLiters).toFixed(1):'-'} ลิตร</span>`:`<span class="sub-note">${r.payee}</span>`}</td>
-      <td class="amt">${fmtMoney(r.amount)}</td>
+      <td><span class="cat-pill ${isFuel?'fuel':''}">${r.รายการ}</span><span class="sub-note">${r.date}</span></td>
+      <td><span style="font-weight:600;">${r.ซื้อจาก || r.ผู้รับเงิน}</span>${isFuel? `<span class="sub-note">${r.ทะเบียนรถ} · ${r.จำนวนลิตร} ลิตร</span>` : ''}</td>
+      <td class="amt">${fmtMoney(r.จำนวนเงิน)}</td>
     </tr>`;
   });
   html += '</tbody></table>';
   wrap.innerHTML = html;
 }
 
-/* ====================== ANALYSIS: OVERVIEW ====================== */
+/* ====================== ANALYSIS: OVERVIEW LOGIC ====================== */
 let allRows = [];
 let chartCategory, chartTrend, chartFuelTrend;
 
 async function loadAnalysis(){
   const payeesBody = document.getElementById('payees-body');
-  payeesBody.innerHTML = '<tr><td colspan="2" class="loading-row">กำลังโหลดข้อมูล...</td></tr>';
-  if(GAS_URL.indexOf('PASTE_YOUR') === 0){
-    payeesBody.innerHTML = '<tr><td colspan="2" class="loading-row">ยังไม่ได้ตั้งค่า GAS_URL ในไฟล์ HTML</td></tr>';
-    return;
+  payeesBody.innerHTML = '<tr><td colspan="2" class="loading-row">กำลังสตรีมข้อมูลบัญชีจาก Google Sheet...</td></tr>';
+  
+  if(GAS_URL.includes("exec")) {
+    try{
+      const res = await fetch(GAS_URL + '?action=list');
+      const data = await res.json();
+      allRows = (data.rows || []);
+    }catch(err){
+      // เผื่อทดสอบไม่มีหลังบ้าน ให้จำลองโครงสร้างข้อมูลเบื้องต้น
+      allRows = [];
+    }
   }
-  try{
-    const res = await fetch(GAS_URL + '?action=list');
-    const data = await res.json();
-    allRows = (data.rows || []);
-    populateFilters();
-    renderAnalysis();
-    populateFuelVehicleSelect();
-  }catch(err){
-    payeesBody.innerHTML = '<tr><td colspan="2" class="loading-row">โหลดข้อมูลไม่สำเร็จ</td></tr>';
+  
+  populateFilters();
+  renderAnalysis();
+  populateFuelVehicleSelect();
+}
+
+function parseCustomDate(str) {
+  if(!str) return null;
+  // แปลงจาก format DD/MM/YYYY กลับมาเป็น Date Object สำหรับงานสถิติ
+  const parts = str.split('/');
+  if(parts.length === 3) {
+    return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
   }
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 function populateFilters(){
   const monthSel = document.getElementById('filter-month');
   const catSel = document.getElementById('filter-category');
-  const months = [...new Set(allRows.map(r=> (r.date||'').slice(0,7)).filter(Boolean))].sort().reverse();
-  const cats = [...new Set(allRows.map(r=> r.category).filter(Boolean))].sort();
+  
+  const monthsSet = new Set();
+  allRows.forEach(r => {
+    const d = parseCustomDate(r.date || r[' ']);
+    if(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      monthsSet.add(`${year}-${month}`);
+    }
+  });
+  
+  const months = [...monthsSet].sort().reverse();
+  const cats = [...new Set(allRows.map(r=> r.รายการ || r.category).filter(Boolean))].sort();
+  
   const curMonth = monthSel.value, curCat = catSel.value;
+  
   monthSel.innerHTML = '<option value="">ทุกเดือน</option>' + months.map(m=>{
-    const label = new Date(m+'-01').toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+    const p = m.split('-');
+    const label = new Date(parseInt(p[0]), parseInt(p[1])-1, 1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});
     return `<option value="${m}">${label}</option>`;
   }).join('');
-  catSel.innerHTML = '<option value="">ทุกหมวดหมู่</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  
+  catSel.innerHTML = '<option value="">ทุกหมวดหมู่รายการ</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
   monthSel.value = curMonth; catSel.value = curCat;
 }
+
 document.getElementById('filter-month').addEventListener('change', renderAnalysis);
 document.getElementById('filter-category').addEventListener('change', renderAnalysis);
 document.getElementById('refresh-btn').addEventListener('click', loadAnalysis);
 
 function renderAnalysis(){
-  const month = document.getElementById('filter-month').value;
-  const cat = document.getElementById('filter-category').value;
+  const monthFilter = document.getElementById('filter-month').value;
+  const catFilter = document.getElementById('filter-category').value;
+  
   const rows = allRows.filter(r=>{
-    if(month && (r.date||'').slice(0,7) !== month) return false;
-    if(cat && r.category !== cat) return false;
+    const d = parseCustomDate(r.date || r[' ']);
+    const cat = r.รายการ || r.category;
+    if(monthFilter && d) {
+      const mStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if(mStr !== monthFilter) return false;
+    }
+    if(catFilter && cat !== catFilter) return false;
     return true;
   });
-  const total = rows.reduce((s,r)=> s + (Number(r.amount)||0), 0);
+  
+  const total = rows.reduce((s,r)=> s + (Number(r.จำนวนเงิน || r.amount)||0), 0);
   const count = rows.length;
   const avg = count ? total/count : 0;
 
   document.getElementById('stat-total').textContent = fmtMoney(total);
-  document.getElementById('stat-total-sub').textContent = month ? new Date(month+'-01').toLocaleDateString('th-TH',{month:'long',year:'numeric'}) : 'ทุกช่วงเวลา';
+  if(monthFilter) {
+    const p = monthFilter.split('-');
+    document.getElementById('stat-total-sub').textContent = new Date(parseInt(p[0]), parseInt(p[1])-1, 1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+  } else {
+    document.getElementById('stat-total-sub').textContent = 'ทุกช่วงเวลาปี 2569';
+  }
+  
   document.getElementById('stat-count').textContent = count.toLocaleString('th-TH');
   document.getElementById('stat-avg').textContent = fmtMoney(avg);
 
   const byCat = {};
-  rows.forEach(r=>{ byCat[r.category] = (byCat[r.category]||0) + (Number(r.amount)||0); });
+  rows.forEach(r=>{ 
+    const c = r.รายการ || r.category;
+    if(c) byCat[c] = (byCat[c]||0) + (Number(r.จำนวนเงิน || r.amount)||0); 
+  });
+  
   const catEntries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   if(catEntries.length){
     document.getElementById('stat-top-cat').textContent = catEntries[0][0];
@@ -743,12 +862,13 @@ function renderAnalysis(){
     document.getElementById('stat-top-cat').textContent = '—';
     document.getElementById('stat-top-cat-sub').textContent = '—';
   }
+  
   renderCategoryChart(catEntries);
   renderTrendChart(rows);
   renderPayeeTable(rows);
 }
 
-const palette = ['#0E7C74','#BD8A2E','#B0432B','#2B5D8C','#6B4E8C','#4C8C5A','#8C6B4E','#5B6576'];
+const palette = ['#0E7C74','#BD8A2E','#B0432B','#2B5D8C','#6B4E8C','#4C8C5A','#8C6B4E','#5B6576','#9AA3AF','#A67C52'];
 
 function renderCategoryChart(catEntries){
   const ctx = document.getElementById('chart-category');
@@ -763,13 +883,25 @@ function renderCategoryChart(catEntries){
         tooltip:{ callbacks:{ label: c => c.label + ': ' + fmtMoney(c.parsed) } } } }
   });
 }
+
 function renderTrendChart(rows){
   const ctx = document.getElementById('chart-trend');
   const byMonth = {};
-  rows.forEach(r=>{ const m=(r.date||'').slice(0,7); if(!m) return; byMonth[m]=(byMonth[m]||0)+(Number(r.amount)||0); });
+  
+  rows.forEach(r=>{ 
+    const d = parseCustomDate(r.date || r[' ']);
+    if(!d) return;
+    const mStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    byMonth[mStr] = (byMonth[mStr]||0) + (Number(r.จำนวนเงิน || r.amount)||0); 
+  });
+  
   const months = Object.keys(byMonth).sort();
-  const labels = months.map(m=> new Date(m+'-01').toLocaleDateString('th-TH',{month:'short',year:'2-digit'}));
+  const labels = months.map(m=> {
+    const p = m.split('-');
+    return new Date(parseInt(p[0]), parseInt(p[1])-1, 1).toLocaleDateString('th-TH',{month:'short',year:'2-digit'});
+  });
   const values = months.map(m=> byMonth[m]);
+  
   if(chartTrend) chartTrend.destroy();
   chartTrend = new Chart(ctx, {
     type:'bar',
@@ -779,27 +911,32 @@ function renderTrendChart(rows){
         x:{ ticks:{ font:{family:'Inter',size:11} }, grid:{display:false} } } }
   });
 }
+
 function renderPayeeTable(rows){
   const byPayee = {};
-  rows.forEach(r=>{ byPayee[r.payee] = (byPayee[r.payee]||0) + (Number(r.amount)||0); });
+  rows.forEach(r=>{ 
+    const p = r.ผู้รับเงิน || r.payee;
+    if(p) byPayee[p] = (byPayee[p]||0) + (Number(r.จำนวนเงิน || r.amount)||0); 
+  });
   const entries = Object.entries(byPayee).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const max = entries.length ? entries[0][1] : 1;
   const body = document.getElementById('payees-body');
-  if(!entries.length){ body.innerHTML = '<tr><td colspan="2" class="loading-row">ไม่มีข้อมูล</td></tr>'; return; }
+  if(!entries.length){ body.innerHTML = '<tr><td colspan="2" class="loading-row">ไม่มีข้อมูลรายงานสถิติ</td></tr>'; return; }
   body.innerHTML = entries.map(([payee,amt])=>`
-    <tr><td>${payee || '—'}<div class="bar-mini"><i style="width:${(amt/max*100).toFixed(0)}%"></i></div></td>
+    <tr><td>${payee || 'ไม่ระบุชื่อ'}<div class="bar-mini"><i style="width:${(amt/max*100).toFixed(0)}%"></i></div></td>
     <td class="n">${fmtMoney(amt)}</td></tr>`).join('');
 }
 
-/* ====================== ANALYSIS: FUEL ====================== */
+/* ====================== ANALYSIS: FUEL (สมรรถนะค่าน้ำมันรถ) ====================== */
 function populateFuelVehicleSelect(){
   const sel = document.getElementById('fuel-vehicle-select');
-  const vehiclesInData = [...new Set(allRows.filter(r=>r.category==='ค่าน้ำมัน' && r.vehicle).map(r=>r.vehicle))];
+  const vehiclesInData = [...new Set(allRows.filter(r=> (r.รายการ==='ค่าน้ำมัน' || r.category==='ค่าน้ำมัน') && (r.ทะเบียนรถ || r.vehicle)).map(r=> r.ทะเบียนรถ || r.vehicle))];
   const combined = [...new Set([...vehiclesInData, ...vehicleList])];
   const cur = sel.value;
-  sel.innerHTML = '<option value="">เลือกทะเบียนรถ</option>' + combined.map(v=>`<option value="${v}">${v}</option>`).join('');
+  sel.innerHTML = '<option value="">เลือกทะเบียนรถยนต์</option>' + combined.map(v=>`<option value="${v}">${v}</option>`).join('');
   sel.value = cur;
 }
+
 document.getElementById('fuel-vehicle-select').addEventListener('change', renderFuelAnalysis);
 document.getElementById('fuel-refresh-btn').addEventListener('click', loadAnalysis);
 
@@ -809,25 +946,47 @@ function renderFuelAnalysis(){
   const contentEl = document.getElementById('fuel-content');
   if(!vehicle){ emptyEl.style.display='block'; contentEl.style.display='none'; return; }
 
-  let rows = allRows.filter(r=> r.category==='ค่าน้ำมัน' && r.vehicle===vehicle && r.odometer);
-  rows.sort((a,b)=> (a.date||'').localeCompare(b.date||'') || (a.odometer-b.odometer));
+  // คัดกรองเฉพาะรายการค่าน้ำมันของรถคันที่เลือก และต้องมีเลขไมล์บันทึกไว้
+  let rows = allRows.filter(r=> (r.รายการ==='ค่าน้ำมัน' || r.category==='ค่าน้ำมัน') && (r.ทะเบียนรถ === vehicle || r.vehicle === vehicle));
+  
+  // แปลงวันที่และเรียงลำดับตามเลขไมล์รถเพื่อหาผลต่าง
+  rows.forEach(r => { r._dateObj = parseCustomDate(r.date || r[' ']); });
+  rows = rows.filter(r => r._dateObj && (r.เลขไมล์รถ || r.odometer));
+  rows.sort((a,b)=> a._dateObj - b._dateObj || (Number(a.เลขไมล์รถ||a.odometer) - Number(b.เลขไมล์รถ||b.odometer)));
 
   if(rows.length < 2){
     emptyEl.style.display='block'; contentEl.style.display='none';
-    emptyEl.textContent = 'ข้อมูลรถคันนี้ยังมีน้อยเกินไป ต้องมีการเติมอย่างน้อย 2 ครั้งจึงจะวิเคราะห์แนวโน้มได้';
+    emptyEl.textContent = 'ข้อมูลล็อกการวิ่งของรถคันนี้ยังมีน้อยเกินไป (ต้องการการเติมน้ำมันและจดไมล์อย่างน้อย 2 ครั้งเพื่อหาความสิ้นเปลือง)';
     return;
   }
   emptyEl.style.display='none'; contentEl.style.display='block';
 
-  const points = []; // {date, distance, liters, eff}
+  const points = []; 
   let totalDistance = 0, totalLiters = 0;
-  for(let i=1;i<rows.length;i++){
-    const distance = rows[i].odometer - rows[i-1].odometer;
-    const liters = rows[i].fuelLiters || (rows[i].fuelPrice ? rows[i].amount/rows[i].fuelPrice : null);
-    if(distance>0 && liters>0){
-      const eff = distance/liters;
-      points.push({ date: rows[i].date, distance, liters, eff, odometer: rows[i].odometer });
-      totalDistance += distance; totalLiters += liters;
+  
+  for(let i=1; i<rows.length; i++){
+    const currMile = Number(rows[i].เลขไมล์รถ || rows[i].odometer);
+    const prevMile = Number(rows[i-1].เลขไมล์รถ || rows[i-1].odometer);
+    const distance = currMile - prevMile;
+    
+    let liters = Number(rows[i].จำนวนลิตร || rows[i].fuelLiters);
+    if(!liters && (rows[i].ลิตรละ || rows[i].fuelPrice)) {
+      const p = Number(rows[i].ลิตรละ || rows[i].fuelPrice);
+      const amt = Number(rows[i].จำนวนเงิน || rows[i].amount);
+      if(p > 0) liters = amt / p;
+    }
+    
+    if(distance > 0 && liters > 0){
+      const eff = distance / liters;
+      points.push({ 
+        date: rows[i].date || rows[i][' '], 
+        distance, 
+        liters, 
+        eff, 
+        odometer: currMile 
+      });
+      totalDistance += distance; 
+      totalLiters += liters;
     }
   }
 
@@ -835,19 +994,20 @@ function renderFuelAnalysis(){
   const mean = effValues.reduce((s,v)=>s+v,0) / (effValues.length||1);
   const variance = effValues.reduce((s,v)=> s+Math.pow(v-mean,2), 0) / (effValues.length||1);
   const stdev = Math.sqrt(variance);
-  const threshold = 1.3; // จำนวนเท่าของ stdev ที่ถือว่าผิดปกติ
+  const threshold = 1.3; 
+  
   points.forEach(p=>{ p.anomaly = effValues.length>=3 && Math.abs(p.eff-mean) > threshold*stdev; });
-
   const anomalyCount = points.filter(p=>p.anomaly).length;
 
   document.getElementById('fuel-stat-distance').textContent = totalDistance.toLocaleString('th-TH') + ' กม.';
   document.getElementById('fuel-stat-liters').textContent = totalLiters.toLocaleString('th-TH',{maximumFractionDigits:1}) + ' ลิตร';
-  document.getElementById('fuel-stat-count').textContent = rows.length + ' ครั้งที่เติม';
+  document.getElementById('fuel-stat-count').textContent = rows.length + ' ครั้ง';
   document.getElementById('fuel-stat-avg').textContent = mean.toLocaleString('th-TH',{maximumFractionDigits:2}) + ' กม./ลิตร';
+  
   const anomEl = document.getElementById('fuel-stat-anomaly');
   anomEl.textContent = anomalyCount;
   anomEl.className = 'val mono' + (anomalyCount>0 ? ' warn' : '');
-  document.getElementById('fuel-stat-anomaly-sub').textContent = anomalyCount>0 ? 'ควรตรวจสอบรายการที่ทำเครื่องหมาย' : 'ไม่พบความผิดปกติ';
+  document.getElementById('fuel-stat-anomaly-sub').textContent = anomalyCount>0 ? 'พบรายการสิ้นเปลืองผิดปกติ' : 'สถิติการวิ่งราบรื่นเป็นปกติ';
 
   renderFuelTrendChart(points, mean);
   renderFuelLogTable(points);
@@ -855,17 +1015,18 @@ function renderFuelAnalysis(){
 
 function renderFuelTrendChart(points, mean){
   const ctx = document.getElementById('chart-fuel-trend');
-  const labels = points.map(p=> fmtDateTH(p.date));
+  const labels = points.map(p=> p.date);
   const values = points.map(p=> Number(p.eff.toFixed(2)));
   const colors = points.map(p=> p.anomaly ? '#B0432B' : '#0E7C74');
   const radii = points.map(p=> p.anomaly ? 6 : 3.5);
+  
   if(chartFuelTrend) chartFuelTrend.destroy();
   chartFuelTrend = new Chart(ctx, {
     type:'line',
     data:{ labels, datasets:[
       { label:'กม./ลิตร', data: values, borderColor:'#0E7C74', backgroundColor:'rgba(14,124,116,0.08)',
         pointBackgroundColor: colors, pointBorderColor: colors, pointRadius: radii, fill:true, tension:0.3 },
-      { label:'ค่าเฉลี่ย', data: labels.map(()=> Number(mean.toFixed(2))), borderColor:'#BD8A2E', borderDash:[6,4], pointRadius:0, fill:false }
+      { label:'ค่าเฉลี่ยรถคันนี้', data: labels.map(()=> Number(mean.toFixed(2))), borderColor:'#BD8A2E', borderDash:[6,4], pointRadius:0, fill:false }
     ]},
     options:{ maintainAspectRatio:false,
       plugins:{ legend:{ position:'bottom', labels:{ font:{family:'Inter',size:11}, boxWidth:10 } },
@@ -877,23 +1038,26 @@ function renderFuelTrendChart(points, mean){
 
 function renderFuelLogTable(points){
   const body = document.getElementById('fuel-log-body');
-  if(!points.length){ body.innerHTML = '<tr><td colspan="6" class="loading-row">ไม่มีข้อมูล</td></tr>'; return; }
+  if(!points.length){ body.innerHTML = '<tr><td colspan="6" class="loading-row">ยังไม่มีประวัติการคำนวณระยะทาง</td></tr>'; return; }
   body.innerHTML = points.slice().reverse().map(p=>`
     <tr>
-      <td>${fmtDateTH(p.date)}</td>
+      <td>${p.date}</td>
       <td class="n">${p.odometer.toLocaleString('th-TH')} กม.</td>
       <td class="n">${p.distance.toLocaleString('th-TH')} กม.</td>
-      <td class="n">${p.liters.toLocaleString('th-TH',{maximumFractionDigits:2})}</td>
-      <td class="n">${p.eff.toFixed(2)}</td>
+      <td class="n">${p.liters.toFixed(2)}</td>
+      <td class="n" style="font-weight:700;">${p.eff.toFixed(2)}</td>
       <td>${p.anomaly ? '<span class="flag bad">ผิดปกติ</span>' : '<span class="flag ok">ปกติ</span>'}</td>
     </tr>`).join('');
 }
 
-/* ====================== INIT ====================== */
+/* ====================== INIT APPLICATION ====================== */
 function initApp(){
   fDate.value = todayISO();
   renderRecent();
-  loadVehicles();
+  // เผื่อเรียกข้อมูลรอบแรกตอนเข้าแอป
+  if(!GAS_URL.includes("PASTE_YOUR")) {
+     loadAnalysis();
+  }
 }
 if(sessionStorage.getItem('expense_app_auth')==='1'){ initApp(); }
 </script>
