@@ -619,9 +619,21 @@
         let expenses = JSON.parse(localStorage.getItem('kyh_pro_db2')) || defaultMock;
         if(!localStorage.getItem('kyh_pro_db2')) localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
 
-        let rememberedVehicles = JSON.parse(localStorage.getItem('kyh_vehicles')) || ['บย-4321 สมุทรสาคร', 'กข-9999 กรุงเทพ'];
-        let rememberedPersons = JSON.parse(localStorage.getItem('kyh_persons')) || ['สมชาย', 'สมหญิง'];
-
+        let rememberedVehicles = JSON.parse(localStorage.getItem('kyh_vehicles')) || [
+    'Toyota : 1ฒต-49',
+    'Vigo : ฒน-3824',
+    'Hino : 80-7026',
+    'MG : 2ขฆ-8955',
+    'Toyota : 4กฆ-4825',
+    'Revo : 1ฒฬ-6998',
+    'Commuter : ฮล-2603',
+    'Wave : 242',
+    'Folklift : Auto',
+    'Folklife : Manual'
+];
+let rememberedPersons = JSON.parse(localStorage.getItem('kyh_persons')) || ['สุธา', 'มาโนช', 'สำราญ', 'พรพรหม', 'ธีรภพ', 'สุภา', 'สิริรัตน์', 'สุรีย์พร', 'พงศกร', 'ธนาภรณ์', 'สมชาย'];
+let expenses = JSON.parse(localStorage.getItem('kyh_pro_db2')) || [];
+if(!localStorage.getItem('kyh_pro_db2')) localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
 
         const authBlock = document.getElementById('authBlock'); const appBlock = document.getElementById('appBlock');
