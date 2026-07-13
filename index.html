@@ -1,994 +1,838 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KYH — Expense & Fuel Analytics Management System</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- เปลี่ยนฟอนต์ไทยเป็น Prompt และอังกฤษเป็น Inter เพื่อความมินิมอลและอบอุ่น -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            /* MUJI Color Palette: ขาวนวล, ครีมเบจ, เทาแมตต์หม่น และแดงอิฐตุ่น */
-            --bg-main: #FDFBF7;           /* สีพื้นหลังหลักขาวนวลสบายตา */
-            --panel-bg: #FFFFFF;
-            --text-main: #333333;          /* สีเทาถ่านเข้ม ลดความกระด้างของสีดำสนิท */
-            --text-muted: #7A756B;         /* เทาอมเบจสำหรับตัวอักษรรอง */
-            --accent-blue: #5F6B59;        /* ปรับเป็นสีเขียวมะกอกตุ่นสไตล์ธรรมชาติ */
-            --accent-hover: #4B5446;
-            --accent-muji-red: #A94442;    /* สีแดงอิฐหม่นสำหรับจุดเน้น/เตือน */
-            --border-light: #EBE7DF;       /* เส้นขอบสีเบจอ่อนนุ่มนวล */
-            --border-heavy: #D1C9BC;
-            --radius-pro: 8px;             /* ความโค้งมนระดับพอดีแบบเฟอร์นิเจอร์ญี่ปุ่น */
-            
-            /* Status Colors (Muted Tone) */
-            --color-fuel: #D9822B;
-            --color-salary: #5F6B59;
-            --color-bill: #6B8E9E;
-            --color-other: #968F85;
-            --color-danger: #A94442;
-            --color-danger-bg: #FDF3F2;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบบันทึกค่าใช้จ่ายบริษัท</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F5F6F3;
+    --paper:#FFFFFF;
+    --ink-900:#101826;
+    --ink-700:#2B3444;
+    --ink-500:#5B6576;
+    --ink-300:#9AA3AF;
+    --navy:#122036;
+    --navy-soft:#1C2F4C;
+    --teal:#0E7C74;
+    --teal-dark:#0A5F59;
+    --teal-tint:#E4F1EF;
+    --amber:#BD8A2E;
+    --amber-tint:#F6ECD8;
+    --brick:#B0432B;
+    --brick-tint:#F7E7E2;
+    --border:#E2E4DF;
+    --shadow: 0 1px 2px rgba(16,24,38,0.04), 0 8px 24px rgba(16,24,38,0.06);
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink-900);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{ font-family:'IBM Plex Mono',monospace; font-variant-numeric: tabular-nums; }
+  h1,h2,h3,.display{ font-family:'Sora',sans-serif; letter-spacing:-0.01em; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', 'Prompt', -apple-system, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            letter-spacing: -0.1px;
-        }
+  /* ---------- background texture ---------- */
+  body{
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(16,24,38,0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            padding: 50px 24px; /* เพิ่มระยะขอบบนล่างให้โปร่งโล่ง */
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
+  /* ================= GATE SCREEN ================= */
+  #gate{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .gate-card{
+    width:100%;
+    max-width:380px;
+    background:var(--paper);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:40px 32px 32px;
+    text-align:center;
+    border:1px solid var(--border);
+    position:relative;
+  }
+  .gate-mark{
+    width:52px;height:52px;
+    margin:0 auto 20px;
+    background:var(--navy);
+    border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--amber);
+    font-family:'Sora',sans-serif;
+    font-weight:800;
+    font-size:20px;
+  }
+  .gate-card h1{
+    font-size:19px;
+    margin:0 0 6px;
+    font-weight:700;
+    color:var(--ink-900);
+  }
+  .gate-card p.sub{
+    margin:0 0 28px;
+    font-size:13px;
+    color:var(--ink-500);
+  }
+  .code-input-wrap{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:18px;
+  }
+  .code-input-wrap input{
+    width:100%;
+    text-align:center;
+    letter-spacing:0.35em;
+    font-size:20px;
+    font-family:'IBM Plex Mono',monospace;
+    padding:14px 10px;
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    background:var(--bg);
+    color:var(--ink-900);
+    outline:none;
+    transition:border-color .15s;
+  }
+  .code-input-wrap input:focus{ border-color:var(--teal); }
+  #gate-error{
+    color:var(--brick);
+    font-size:12.5px;
+    height:16px;
+    margin-bottom:14px;
+    font-weight:600;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    border:none;
+    border-radius:10px;
+    padding:13px 22px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    cursor:pointer;
+    transition:transform .08s ease, opacity .15s ease, background .15s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--navy); color:#fff; width:100%; }
+  .btn-primary:hover{ background:var(--navy-soft); }
+  .btn-teal{ background:var(--teal); color:#fff; }
+  .btn-teal:hover{ background:var(--teal-dark); }
+  .btn-ghost{ background:transparent; color:var(--ink-500); border:1px solid var(--border); }
+  .btn-ghost:hover{ background:var(--paper); }
+  .btn[disabled]{ opacity:.55; cursor:not-allowed; }
 
-        .container {
-            width: 100%;
-            max-width: 1140px;
-            display: none;
-            animation: fadeIn 0.4s ease-out; /* Smooth Fade In ตอนโหลด */
-        }
+  /* ================= APP SHELL ================= */
+  #app{ display:none; min-height:100vh; flex-direction:column; }
+  header.topbar{
+    background:var(--navy);
+    color:#fff;
+    padding:0 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:66px;
+    position:sticky; top:0; z-index:20;
+    box-shadow:0 2px 10px rgba(0,0,0,0.12);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand .mark{
+    width:34px;height:34px;border-radius:8px;
+    background:var(--amber); color:var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif; font-weight:800; font-size:15px;
+  }
+  .brand .name{ font-family:'Sora',sans-serif; font-weight:700; font-size:15.5px; }
+  .brand .name span{ display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:#AEB9CB; margin-top:1px;}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  nav.tabs{
+    display:flex; gap:4px;
+    background:rgba(255,255,255,0.08);
+    padding:4px; border-radius:10px;
+  }
+  nav.tabs button{
+    border:none; background:transparent; color:#C6CEDB;
+    padding:9px 18px; border-radius:8px;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
+    cursor:pointer; transition:.15s;
+  }
+  nav.tabs button.active{ background:#fff; color:var(--navy); }
+  nav.tabs button:not(.active):hover{ color:#fff; }
 
-        /* Auth Screen */
-        .auth-wrapper {
-            width: 100%;
-            max-width: 400px;
-            margin-top: 12vh;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 40px 32px;
-            box-shadow: none; /* ถอดเงาหนาออกตามสไตล์ Muji */
-            text-align: center;
-        }
+  .session-info{ display:flex; align-items:center; gap:14px; }
+  .session-info button{
+    background:transparent;border:1px solid rgba(255,255,255,0.25);
+    color:#C6CEDB; padding:7px 13px; border-radius:8px; font-size:12.5px;
+    font-family:'Inter',sans-serif; cursor:pointer;
+  }
+  .session-info button:hover{ color:#fff; border-color:#fff; }
 
-        .auth-icon {
-            width: 52px;
-            height: 52px;
-            background: #F5F2EB; /* เปลี่ยนพื้นหลังไอคอนเป็นสีเบจกระดาษคราฟต์ */
-            color: var(--text-main);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin: 0 auto 20px auto;
-        }
+  main{ flex:1; padding:32px 28px 60px; max-width:1180px; margin:0 auto; width:100%; }
 
-        .auth-title {
-            font-size: 20px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--text-main);
-        }
+  .page{ display:none; }
+  .page.active{ display:block; animation:fadein .25s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
 
-        .auth-subtitle {
-            color: var(--text-muted);
-            font-size: 13px;
-            margin-bottom: 28px;
-        }
+  .page-head{ margin-bottom:24px; }
+  .page-head h2{ font-size:22px; margin:0 0 4px; }
+  .page-head p{ margin:0; color:var(--ink-500); font-size:13.5px; }
 
-        /* Header */
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: 16px;
-        }
+  /* ---------- RECORD PAGE LAYOUT ---------- */
+  .record-grid{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width: 860px){ .record-grid{ grid-template-columns:1fr; } }
 
-        .app-header h1 {
-            font-size: 22px;
-            font-weight: 500;
-        }
+  .card{
+    background:var(--paper);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .form-card{ padding:26px 26px 22px; }
+  .field{ margin-bottom:18px; }
+  .field label{
+    display:block; font-size:12.5px; font-weight:600;
+    color:var(--ink-700); margin-bottom:7px;
+    text-transform:uppercase; letter-spacing:.04em;
+  }
+  .field input, .field select, .field textarea{
+    width:100%; padding:12px 13px;
+    border:1.5px solid var(--border); border-radius:9px;
+    background:var(--bg); color:var(--ink-900);
+    font-family:'Inter',sans-serif; font-size:14.5px;
+    outline:none; transition:border-color .15s;
+  }
+  .field input.mono, .field select.mono{ font-family:'IBM Plex Mono',monospace; }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--teal); }
+  .field textarea{ resize:vertical; min-height:64px; font-family:'Inter',sans-serif; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .amount-wrap{ position:relative; }
+  .amount-wrap span{
+    position:absolute; left:13px; top:50%; transform:translateY(-50%);
+    color:var(--ink-300); font-family:'IBM Plex Mono',monospace; font-size:14.5px;
+  }
+  .amount-wrap input{ padding-left:32px; }
 
-        /* NAVIGATION TABS SYSTEM */
-        .tabs-navigation {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 32px;
-            background: #F5F2EB; /* พื้นหลังแท็บสีเบจกระดาษคราฟต์อ่อน */
-            padding: 4px;
-            border-radius: var(--radius-pro);
-        }
+  .form-foot{ display:flex; align-items:center; gap:12px; margin-top:6px; }
+  #submit-status{ font-size:12.5px; font-weight:600; }
+  #submit-status.ok{ color:var(--teal-dark); }
+  #submit-status.err{ color:var(--brick); }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 400;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
+  /* ---------- VOUCHER STUB (signature element) ---------- */
+  .voucher{
+    background:var(--navy);
+    border-radius:var(--radius);
+    color:#fff;
+    padding:0;
+    overflow:hidden;
+    position:sticky; top:90px;
+  }
+  .voucher-top{ padding:22px 24px 18px; }
+  .voucher-eyebrow{
+    font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--amber); font-weight:700; margin-bottom:6px;
+  }
+  .voucher-title{ font-family:'Sora',sans-serif; font-weight:700; font-size:16.5px; }
+  .voucher-id{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B97AC; margin-top:3px; }
 
-        .tab-btn:hover { color: var(--text-main); }
-        .tab-btn.active {
-            background: var(--panel-bg);
-            color: var(--text-main);
-            font-weight: 500;
-            /* ใช้การตัดกันของพื้นหลังแทนเงาเข้ม */
-            border: 1px solid var(--border-light);
-        }
+  .voucher-perf{
+    position:relative; height:0; border-top:1.5px dashed rgba(255,255,255,0.25); margin:0 24px;
+  }
+  .voucher-perf::before, .voucher-perf::after{
+    content:''; position:absolute; top:-8px; width:16px; height:16px; border-radius:50%; background:var(--bg);
+  }
+  .voucher-perf::before{ left:-32px; }
+  .voucher-perf::after{ right:-32px; }
 
-        .section-view { display: none; }
-        .section-view.active { display: block; }
+  .voucher-body{ padding:20px 24px 24px; }
+  .v-row{ display:flex; justify-content:space-between; align-items:baseline; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .v-row:last-of-type{ border-bottom:none; }
+  .v-label{ font-size:11.5px; color:#8B97AC; text-transform:uppercase; letter-spacing:.05em; }
+  .v-value{ font-family:'IBM Plex Mono',monospace; font-size:14px; color:#fff; text-align:right; max-width:60%; word-break:break-word; }
+  .v-value.empty{ color:#5C6980; }
 
-        /* Panels (เน้นเว้นพื้นที่ว่าง White Space และถอดเงา) */
-        .filter-panel, .form-panel, .table-panel, .summary-box {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 28px;
-            margin-bottom: 28px;
-        }
+  .v-amount{ margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.14); display:flex; justify-content:space-between; align-items:baseline; }
+  .v-amount .lbl{ font-size:12px; color:#AEB9CB; font-weight:600; }
+  .v-amount .val{ font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; color:var(--amber); }
 
-        .filter-panel h2, .form-panel h2, .table-toolbar h2, .summary-box h3 {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            color: var(--text-main);
-        }
+  .stamp{
+    position:absolute; top:20px; right:22px;
+    border:2.5px solid var(--amber); color:var(--amber);
+    padding:5px 10px; border-radius:6px;
+    font-family:'Sora',sans-serif; font-weight:800; font-size:11px;
+    letter-spacing:.08em; transform:rotate(8deg);
+    opacity:0; transition:opacity .25s;
+  }
+  .stamp.show{ opacity:1; }
 
-        .form-row, .filter-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            align-items: flex-end;
-        }
+  /* recent entries */
+  .recent-card{ margin-top:22px; padding:22px 24px; }
+  .recent-card h3{ font-size:14px; margin:0 0 14px; color:var(--ink-700); }
+  table.recent{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.recent th{ text-align:left; font-size:11px; color:var(--ink-300); text-transform:uppercase; letter-spacing:.04em; padding-bottom:8px; font-weight:600; }
+  table.recent td{ padding:9px 0; border-top:1px solid var(--border); color:var(--ink-700); }
+  table.recent td.amt{ font-family:'IBM Plex Mono',monospace; text-align:right; color:var(--ink-900); font-weight:600; }
+  .cat-pill{ display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; background:var(--teal-tint); color:var(--teal-dark); }
+  .empty-state{ color:var(--ink-300); font-size:13px; padding:18px 0; text-align:center; }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+  /* ---------- ANALYSIS PAGE ---------- */
+  .stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  @media (max-width:860px){ .stat-row{ grid-template-columns:1fr 1fr; } }
+  .stat-card{ background:var(--paper); border:1px solid var(--border); border-radius:var(--radius); padding:20px 20px; box-shadow:var(--shadow); }
+  .stat-card .lbl{ font-size:11.5px; color:var(--ink-500); text-transform:uppercase; letter-spacing:.04em; font-weight:600; margin-bottom:8px; }
+  .stat-card .val{ font-family:'IBM Plex Mono',monospace; font-size:24px; font-weight:600; color:var(--ink-900); }
+  .stat-card .val.accent{ color:var(--teal-dark); }
+  .stat-card .sub{ font-size:12px; color:var(--ink-300); margin-top:4px; }
 
-        .form-group label {
-            font-size: 13px;
-            font-weight: 400;
-            color: var(--text-muted);
-        }
+  .analysis-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+  @media (max-width:860px){ .analysis-grid{ grid-template-columns:1fr; } }
+  .chart-card{ background:var(--paper); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 22px 14px; }
+  .chart-card h3{ font-size:14px; margin:0 0 4px; color:var(--ink-700); }
+  .chart-card p.hint{ font-size:12px; color:var(--ink-300); margin:0 0 14px; }
+  .chart-wrap{ position:relative; height:260px; }
 
-        .form-control {
-            width: 100%;
-            height: 40px;
-            padding: 0 14px;
-            background: #FAFAFA;
-            border: 1px solid var(--border-heavy);
-            border-radius: 4px;
-            font-size: 14px;
-            color: var(--text-main);
-            outline: none;
-            transition: all 0.2s ease;
-        }
+  .filter-bar{ display:flex; gap:10px; align-items:center; margin-bottom:22px; flex-wrap:wrap; }
+  .filter-bar select, .filter-bar input{
+    padding:9px 12px; border:1.5px solid var(--border); border-radius:8px;
+    background:var(--paper); font-family:'Inter',sans-serif; font-size:13px; color:var(--ink-700);
+  }
+  .filter-bar .refresh{ margin-left:auto; }
 
-        .form-control:focus {
-            border-color: var(--text-main); /* โฟกัสด้วยสีข้อความหลัก สไตล์เรียบง่าย */
-            background: #FFFFFF;
-        }
+  .table-card{ background:var(--paper); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 24px; }
+  .table-card h3{ font-size:14px; margin:0 0 14px; color:var(--ink-700); }
+  table.payees{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.payees th{ text-align:left; font-size:11px; color:var(--ink-300); text-transform:uppercase; letter-spacing:.04em; padding:0 0 10px; font-weight:600; }
+  table.payees td{ padding:11px 0; border-top:1px solid var(--border); }
+  table.payees td.n{ font-family:'IBM Plex Mono',monospace; text-align:right; font-weight:600; }
+  .bar-mini{ height:6px; border-radius:4px; background:var(--teal-tint); margin-top:5px; overflow:hidden; }
+  .bar-mini i{ display:block; height:100%; background:var(--teal); }
 
-        /* Fuel Special Input Block */
-        .fuel-input-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            background: #FDFBF7;
-            padding: 16px;
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
-        }
+  .loading-row{ text-align:center; padding:30px; color:var(--ink-300); font-size:13px; }
 
-        /* Conditional Section Containers */
-        .conditional-container {
-            display: none;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            background: #FDFBF7;
-            padding: 20px;
-            border-radius: 6px;
-            margin-top: 20px;
-            border: 1px dashed var(--border-heavy);
-        }
+  ::placeholder{ color:var(--ink-300); }
 
-        .conditional-container.show { display: grid; }
-
-        /* KPI Cards Layout */
-        .kpi-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 24px;
-            margin-bottom: 28px;
-        }
-
-        .kpi-card {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 24px;
-        }
-
-        .kpi-card.highlight { background: #F5F2EB; color: var(--text-main); border-color: var(--border-heavy); }
-        .kpi-card.danger { background: var(--color-danger-bg); color: var(--accent-muji-red); border-color: var(--border-light); }
-        .kpi-label { font-size: 12px; font-weight: 400; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
-        .kpi-value { font-size: 24px; font-weight: 500; }
-
-        /* Grids & Dashboard widgets */
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 0.9fr 0.9fr;
-            gap: 24px;
-            margin-bottom: 28px;
-        }
-
-        .fuel-analysis-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 28px;
-            margin-bottom: 28px;
-        }
-
-        @media (max-width: 900px) {
-            .analytics-grid { grid-template-columns: 1fr; }
-        }
-
-        .summary-list { display: flex; flex-direction: column; gap: 12px; max-height: 350px; overflow-y: auto; }
-        .summary-item {
-            display: flex; justify-content: space-between; font-size: 13px; padding: 12px 16px;
-            background: #FAFAFA; border-radius: 4px; border: 1px solid var(--border-light); font-weight: 400; align-items: center;
-        }
-
-        .anomaly-badge {
-            background: var(--color-danger-bg);
-            color: var(--accent-muji-red);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 400;
-            border: 1px solid var(--border-light);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Progress Bars UI */
-        .chart-item { display: flex; flex-direction: column; gap: 8px; background: #FAFAFA; padding: 14px; border-radius: 4px; border: 1px solid var(--border-light); }
-        .chart-info { display: flex; justify-content: space-between; font-size: 13px; font-weight: 400; }
-        .progress-bar-bg { width: 100%; height: 6px; background: #EBE7DF; border-radius: 3px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; width: 0%; transition: width 0.4s ease; }
-
-        /* Tables & Lists */
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; }
-        .table-scroll { overflow-x: auto; border: 1px solid var(--border-light); border-radius: 4px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: #F5F2EB; color: var(--text-main); font-weight: 500; padding: 14px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-heavy); }
-        td { padding: 16px 16px; border-bottom: 1px solid var(--border-light); color: var(--text-main); vertical-align: middle; }
-        tr.anomaly-row { background-color: var(--color-danger-bg) !important; }
-        tr:nth-child(even):not(.anomaly-row) { background-color: #FDFBF7; }
-
-        /* Trend Plot Component */
-        .trend-history-list { display: flex; flex-direction: column; gap: 10px; }
-        .trend-history-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; background: #ffffff; border: 1px solid var(--border-light); border-radius: 4px; font-size: 13px;
-        }
-
-        /* Buttons (สไตล์เรียบแบน แมตต์ ไม่เงา) */
-        .btn-blue { height: 40px; padding: 0 24px; background: var(--text-main); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 400; cursor: pointer; transition: background 0.2s; }
-        .btn-blue:hover { background: #444444; }
-        .btn-orange { height: 40px; padding: 0 24px; background: var(--color-fuel); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 400; cursor: pointer; }
-        .btn-outline { background: #ffffff; color: var(--text-main); border: 1px solid var(--border-heavy); border-radius: 4px; height: 40px; padding: 0 16px; font-size: 13px; font-weight: 400; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-outline:hover { background: #FAFAFA; border-color: var(--text-main); }
-        .btn-action { border: none; background: none; cursor: pointer; padding: 4px 8px; font-size: 13px; font-weight: 400; }
-        .btn-edit { color: var(--text-main); text-decoration: underline; }
-        .btn-delete { color: var(--accent-muji-red); text-decoration: underline; margin-left: 6px; }
-        .btn-logout { background: none; border: none; color: var(--accent-muji-red); font-size: 13px; cursor: pointer; font-weight: 400; text-decoration: underline; }
-
-        /* Modals & Dialogs Blur Frame */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(122, 117, 107, 0.2); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.show { display: flex; }
-        .modal-box { background: #ffffff; border-radius: var(--radius-pro); border: 1px solid var(--border-heavy); width: 100%; max-width: 480px; padding: 32px; box-shadow: 0 12px 36px rgba(0,0,0,0.03); }
-        .modal-title { font-size: 16px; font-weight: 500; margin-bottom: 20px; color: var(--text-main); }
-        .modal-body { font-size: 14px; line-height: 1.6; margin-bottom: 28px; background: #FDFBF7; padding: 20px; border-radius: 4px; border: 1px solid var(--border-light); }
-        .modal-row { display: flex; margin-bottom: 10px; }
-        .modal-label { width: 130px; font-weight: 400; color: var(--text-muted); }
-        .modal-value { flex: 1; color: var(--text-main); font-weight: 500; }
-        .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; }
-
-        .status-badge { display: inline-flex; align-items: center; gap: 8px; }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .tag-pill { display: inline-block; font-size: 11px; font-weight: 400; padding: 2px 8px; border-radius: 3px; margin-top: 4px; }
-        .tag-pill.vehicle { background: #F5F2EB; color: var(--text-main); border: 1px solid var(--border-light); }
-        .tag-pill.person { background: #EBE7DF; color: var(--text-main); }
-        .no-data { text-align: center; color: var(--text-muted); padding: 40px; font-size: 13px; }
-    </style>
+  /* small screens: topbar */
+  @media (max-width:640px){
+    header.topbar{ flex-wrap:wrap; height:auto; padding:14px 16px; gap:10px; }
+    nav.tabs{ order:3; width:100%; justify-content:center; }
+    main{ padding:20px 16px 50px; }
+    .stat-row{ grid-template-columns:1fr 1fr; }
+  }
+</style>
 </head>
 <body>
 
-    <!-- Auth System Frame -->
-    <div id="authBlock" class="auth-wrapper">
-        <div class="auth-icon">⚙️</div>
-        <div class="auth-title">KYH Ledger System</div>
-        <div class="auth-subtitle">ระบบบันทึกและตรวจสอบบัญชีรายจ่ายกลาง</div>
-        <form id="loginForm">
-            <div class="form-group" style="margin-bottom: 20px;">
-                <input type="password" id="passwordInput" class="form-control" placeholder="กรอกรหัสผ่านเพื่อตรวจสอบสิทธิ์" style="text-align: center; height: 42px;" required autofocus>
-            </div>
-            <button type="submit" class="btn-blue" style="width: 100%; height: 42px;">เข้าสู่ระบบ</button>
-        </form>
+<!-- ================= GATE ================= -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">฿</div>
+    <h1>ระบบบันทึกค่าใช้จ่ายบริษัท</h1>
+    <p class="sub">กรุณากรอกรหัสผ่านเพื่อเข้าใช้งาน</p>
+    <div class="code-input-wrap">
+      <input type="password" id="code-input" inputmode="numeric" maxlength="12" placeholder="••••">
     </div>
+    <div id="gate-error"></div>
+    <button class="btn btn-primary" id="gate-submit">เข้าสู่ระบบ</button>
+  </div>
+</div>
 
-    <!-- Main Workspace Frame -->
-    <div id="appBlock" class="container">
-        
-        <header class="app-header">
-            <div><h1>KYH Workspace</h1></div>
-            <button id="logoutBtn" class="btn-logout">ออกจากระบบ</button>
-        </header>
-
-        <!-- Navigation Tabs -->
-        <nav class="tabs-navigation">
-            <button id="tabEntryBtn" class="tab-btn active" onclick="switchSection('entry')">📝 บันทึกข้อมูลค่าใช้จ่าย</button>
-            <button id="tabVisualBtn" class="tab-btn" onclick="switchSection('visual')">📊 สรุปแดชบอร์ด & วิเคราะห์</button>
-        </nav>
-
-        <!-- ==================== TAB 1: DATA ENTRY ==================== -->
-        <main id="sectionEntry" class="section-view active">
-            <section class="form-panel">
-                <h2 id="formPanelTitle">บันทึกข้อมูลค่าใช้จ่ายใหม่</h2>
-                <form id="expenseForm">
-                    <input type="hidden" id="editingRecordId" value="">
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="date">วันที่ทำรายการ</label>
-                            <input type="date" id="date" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="category">หมวดหมู่ค่าใช้จ่าย</label>
-                            <select id="category" class="form-control" required>
-                                <option value="">-- เลือกหมวดหมู่ --</option>
-                                <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
-                                <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
-                                <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
-                                <option value="ค่าประกันสังคม">ค่าประกันสังคม</option>
-                                <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน / ค่าผ่านทาง</option>
-                                <option value="ค่าโทรศัพท์ / อินเตอร์เน็ต">ค่าโทรศัพท์ / อินเตอร์เน็ต</option>
-                                <option value="ค่าไฟฟ้า / ประปา">ค่าไฟฟ้า / ประปา</option>
-                                <option value="ค่าส่งเอกสาร / พัสดุ / ขนส่งสินค้า">ค่าส่งเอกสาร / พัสดุ</option>
-                                <option value="ค่าอุปกรณ์สำนักงาน">ค่าอุปกรณ์สำนักงาน</option>
-                                <option value="ค่าอุปกรณ์ซ่อมบำรุงรถยนต์">ค่าอุปกรณ์ซ่อมรถ</option>
-                                <option value="ค่าปรับจราจร">ค่าปรับจราจร</option>
-                                <option value="ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ">ค่า พรบ. / ประกันรถ</option>
-                                <option value="ค่างานศพ / งานแต่ง / บริจาค / งานบุญ">ค่างานบุญ / บริจาค</option>
-                                <option value="ค่าน้ำดื่ม">ค่าน้ำดื่ม</option>
-                                <option value="ค่าแรงพิเศษลูกน้อง">ค่าแรงพิเศษลูกน้อง</option>
-                                <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
-                                <option value="ค่าไหว้เจ้า">ค่าไหว้เจ้า</option>
-                                <option value="ค่ารับรองแขก">ค่ารับรองแขก</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="amount">จำนวนเงินสุทธิ (บาท)</label>
-                            <input type="number" id="amount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="note">รายละเอียดเพิ่มเติม</label>
-                            <input type="text" id="note" class="form-control" placeholder="บันทึกช่วยจำ...">
-                        </div>
-
-                        <button type="submit" id="btnSubmitForm" class="btn-blue">ตรวจสอบข้อมูล</button>
-                    </div>
-
-                    <!-- Dynamic Fields Blocks Context Wrapper -->
-                    <div id="conditionalWrapper" class="conditional-container">
-                        <!-- Vehicle Selector Column -->
-                        <div id="vehicleFieldBlock" class="form-group" style="display: none;">
-                            <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
-                            <input type="text" id="vehiclePlate" class="form-control" list="vehicleList" placeholder="เลือกทะเบียน หรือพิมพ์ใหม่...">
-                            <datalist id="vehicleList"></datalist>
-                        </div>
-
-                        <!-- NEW: Fuel Sub-Form Fields Block -->
-                        <div id="fuelDetailsBlock" class="form-group" style="display: none; margin-top: 10px;">
-                            <label>⛽ รายละเอียดข้อมูลการเติมน้ำมันเชิงลึก</label>
-                            <div class="fuel-input-grid">
-                                <div>
-                                    <label style="font-size:11px; color:var(--text-muted);">ราคาน้ำมัน (บาท/ลิตร)</label>
-                                    <input type="number" id="fuelPrice" class="form-control" min="0" step="0.01" placeholder="เช่น 38.50">
-                                </div>
-                                <div>
-                                    <label style="font-size:11px; color:var(--text-muted);">จำนวนลิตรที่เติม (L)</label>
-                                    <input type="number" id="fuelLitres" class="form-control" min="0" step="0.01" placeholder="เช่น 45.20">
-                                </div>
-                                <div>
-                                    <label style="font-size:11px; color:var(--text-muted);">เลขไมล์รถล่าสุด (กม.)</label>
-                                    <input type="number" id="fuelOdometer" class="form-control" min="0" placeholder="เช่น 124500">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Person Selector Column -->
-                        <div id="personFieldBlock" class="form-group" style="display: none;">
-                            <label for="personName">👤 ชื่อผู้รับเงิน / พนักงาน</label>
-                            <input type="text" id="personName" class="form-control" list="personList" placeholder="เลือกพนักงาน หรือพิมพ์ใหม่...">
-                            <datalist id="personList"></datalist>
-                        </div>
-                    </div>
-                </form>
-            </section>
-
-            <!-- Table Ledger System Layout -->
-            <section class="table-panel">
-                <div class="table-toolbar">
-                    <h2>สมุดบัญชีรายจ่ายแยกตามแถวรายการทั้งหมด</h2>
-                    <button id="exportBtn" class="btn-outline">📥 Export CSV รายการทั้งหมด</button>
-                </div>
-
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 120px;">วันที่บันทึก</th>
-                                <th style="width: 180px;">หมวดหมู่ประเภท</th>
-                                <th>รายละเอียดรายการบันทึก</th>
-                                <th style="text-align: right; width: 140px;">ยอดเงินสุทธิ</th>
-                                <th style="text-align: center; width: 130px;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                    <div id="noDataMessage" class="no-data" style="display: none;">ยังไม่มีข้อมูลรายการบัญชีในระบบ</div>
-                </div>
-            </section>
-        </main>
-
-        <!-- ==================== TAB 2: ANALYTICS & DASHBOARD ==================== -->
-        <main id="sectionVisual" class="section-view">
-            <!-- Filter Options Layout Section -->
-            <section class="filter-panel">
-                <h2>🔍 เลือกช่วงเวลาและกรองเงื่อนไขสำหรับการแสดงผลกราฟแดชบอร์ด</h2>
-                <div class="filter-row">
-                    <div class="form-group">
-                        <label for="filterStartDate">📅 ตั้งแต่วันที่ (From)</label>
-                        <input type="date" id="filterStartDate" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="filterEndDate">📅 ถึงวันที่ (To)</label>
-                        <input type="date" id="filterEndDate" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="filterCategory">📁 เจาะลึกหมวดหมู่</label>
-                        <select id="filterCategory" class="form-control">
-                            <option value="">หมวดหมู่ทั้งหมด</option>
-                            <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
-                            <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
-                            <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
-                        </select>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button id="btnApplyFilter" class="btn-blue" style="flex: 1;">ประมวลผลข้อมูล</button>
-                        <button id="btnResetFilter" class="btn-outline">ล้างค่า</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- KPI Row indicators -->
-            <section class="kpi-row">
-                <div class="kpi-card highlight">
-                    <div class="kpi-label">รายจ่ายรวมตามเงื่อนไข (Filtered Outflow)</div>
-                    <div class="kpi-value" id="totalAmount">0.00 ฿</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">จำนวนรายการประมวลผล (Transactions)</div>
-                    <div class="kpi-value" id="totalCount">0 รายการ</div>
-                </div>
-                <!-- Alert Anomaly Summary Trigger Box Widget -->
-                <div id="anomalyKpiCard" class="kpi-card danger">
-                    <div class="kpi-label" style="color:var(--color-danger); font-weight:500;">🚨 ตรวจพบความผิดปกติ</div>
-                    <div class="kpi-value" id="anomalyKpiCount" style="color:var(--color-danger);">0 จุด</div>
-                </div>
-            </section>
-
-            <!-- NEW ADVANCED SECTION: SPECIAL FUEL METRICS DIAGNOSTICS VISUAL PANEL -->
-            <section class="fuel-analysis-panel">
-                <h3 style="font-size:15px; font-weight:500; margin-bottom:20px; display:flex; align-items:center; gap:6px;">
-                    ⛽ ระบบวิเคราะห์ประสิทธิภาพค่าน้ำมันและประวัติแนวโน้ม (Fuel Logistics Visualizer)
-                </h3>
-                <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:24px;">
-                    <!-- Price and Odometer Trend Plots -->
-                    <div class="summary-box" style="margin-bottom:0; padding:20px; background:#fff; border: 1px solid var(--border-light);">
-                        <h4 style="font-size:13px; font-weight:400; margin-bottom:14px; color:var(--text-muted);">📈 ลำดับประวัติแนวโน้มราคา & อัตราสิ้นเปลืองล่าสุด</h4>
-                        <div id="fuelTrendLogList" class="trend-history-list"></div>
-                    </div>
-                    <!-- Analytics calculation summaries -->
-                    <div style="display:flex; flex-direction:column; gap:16px;">
-                        <div class="summary-box" style="margin-bottom:0; padding:16px; background:#fff; border: 1px solid var(--border-light);">
-                            <h4 style="font-size:13px; font-weight:400; margin-bottom:10px; color:var(--text-muted);">🚗 อัตราสิ้นเปลืองเฉลี่ยแยกคัน (กม./ลิตร)</h4>
-                            <div id="fuelEfficiencyStats" class="summary-list"></div>
-                        </div>
-                        <div class="summary-box" style="margin-bottom:0; padding:16px; background:#fff; border: 1px solid var(--border-light);">
-                            <h4 style="font-size:13px; font-weight:400; margin-bottom:10px; color:var(--text-muted);">⏱️ ความถี่เฉลี่ยในการเข้าเติมน้ำมัน (เติมทุกๆ วัน)</h4>
-                            <div id="fuelFrequencyStats" class="summary-list"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Layout Core Row charts -->
-            <section class="analytics-grid">
-                <div class="summary-box">
-                    <h3>📊 สัดส่วนค่าใช้จ่ายแยกตามหมวดหมู่ (%)</h3>
-                    <div id="categoryChartList" class="summary-list"></div>
-                </div>
-                <div class="summary-box">
-                    <h3>🚗 ยอดสะสมแยกตามทะเบียนรถ</h3>
-                    <div id="vehicleSummaryList" class="summary-list"></div>
-                </div>
-                <div class="summary-box">
-                    <h3>👤 ยอดสะสมแยกตามบุคคล</h3>
-                    <div id="personSummaryList" class="summary-list"></div>
-                </div>
-            </section>
-        </main>
+<!-- ================= APP ================= -->
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">฿</div>
+      <div class="name">Expense Ledger<span>ระบบบันทึกค่าใช้จ่ายบริษัท</span></div>
     </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-page="record">บันทึกรายจ่าย</button>
+      <button class="tab-btn" data-page="analysis">วิเคราะห์ค่าใช้จ่าย</button>
+    </nav>
+    <div class="session-info">
+      <button id="logout-btn">ออกจากระบบ</button>
+    </div>
+  </header>
 
-    <!-- Confirm Dialog Overlays -->
-    <div id="confirmModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-title">🔍 ยืนยันความถูกต้องของข้อมูลรายจ่าย</div>
-            <div class="modal-body">
-                <div class="modal-row"><div class="modal-label">วันที่:</div><div id="mDate" class="modal-value"></div></div>
-                <div class="modal-row"><div class="modal-label">หมวดหมู่:</div><div id="mCategory" class="modal-value"></div></div>
-                <div class="modal-row" id="mVehicleRow"><div class="modal-label">ทะเบียนรถ:</div><div id="mVehicle" class="modal-value"></div></div>
-                <div class="modal-row" id="mFuelRow" style="background:var(--bg-main); padding:12px; border-radius:4px; border:1px solid var(--border-light); flex-direction:column; display:none; margin-bottom: 10px;">
-                    <div style="font-weight:500; color:var(--text-main); margin-bottom:4px;">ข้อมูลน้ำมัน:</div>
-                    <div style="font-size:13px; color: var(--text-muted);" id="mFuelDetails"></div>
-                </div>
-                <div class="modal-row" id="mPersonRow"><div class="modal-label">ชื่อผู้รับ/พนักงาน:</div><div id="mPerson" class="modal-value"></div></div>
-                <div class="modal-row"><div class="modal-label">ยอดเงินสุทธิ:</div><div id="mAmount" class="modal-value" style="color: var(--accent-muji-red); font-weight: 600;"></div></div>
-                <div class="modal-row"><div class="modal-label">รายละเอียด:</div><div id="mNote" class="modal-value"></div></div>
+  <main>
+    <!-- ---------- PAGE: RECORD ---------- -->
+    <section class="page active" id="page-record">
+      <div class="page-head">
+        <h2>บันทึกรายการค่าใช้จ่าย</h2>
+        <p>กรอกข้อมูลด้านล่างให้ครบถ้วน ระบบจะบันทึกเข้า Google Sheet ทันที</p>
+      </div>
+
+      <div class="record-grid">
+        <div class="card form-card">
+          <div class="field">
+            <label for="f-date">วันที่</label>
+            <input type="date" id="f-date" class="mono">
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="f-category">หมวดหมู่ค่าใช้จ่าย</label>
+              <select id="f-category">
+                <option value="">เลือกหมวดหมู่</option>
+                <option>ค่าเดินทาง</option>
+                <option>ค่าอาหารและรับรอง</option>
+                <option>ค่าออฟฟิศและอุปกรณ์</option>
+                <option>ค่าสาธารณูปโภค</option>
+                <option>ค่าการตลาดและโฆษณา</option>
+                <option>ค่าซ่อมบำรุง</option>
+                <option>ค่าที่ปรึกษา/วิชาชีพ</option>
+                <option>อื่นๆ</option>
+              </select>
             </div>
-            <div class="modal-buttons">
-                <button id="btnCancelModal" class="btn-outline">แก้ไขข้อมูล</button>
-                <button id="btnConfirmModal" class="btn-blue">ถูกต้อง บันทึกข้อมูล</button>
+            <div class="field">
+              <label for="f-amount">จำนวนเงิน</label>
+              <div class="amount-wrap">
+                <span>฿</span>
+                <input type="number" id="f-amount" class="mono" placeholder="0.00" min="0" step="0.01">
+              </div>
             </div>
+          </div>
+          <div class="field">
+            <label for="f-payee">ผู้รับเงิน</label>
+            <input type="text" id="f-payee" placeholder="ชื่อบุคคล / ร้านค้า / บริษัท">
+          </div>
+          <div class="field">
+            <label for="f-note">หมายเหตุ (ไม่บังคับ)</label>
+            <textarea id="f-note" placeholder="รายละเอียดเพิ่มเติม เช่น เลขที่ใบเสร็จ"></textarea>
+          </div>
+          <div class="form-foot">
+            <button class="btn btn-teal" id="submit-btn">บันทึกรายการ</button>
+            <span id="submit-status"></span>
+          </div>
         </div>
-    </div>
 
-    <script>
-        const HASHED_PASSWORD_KEY = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"; 
-        async function sha256(m) { const b = new TextEncoder().encode(m); const h = await crypto.subtle.digest('SHA-256', b); return Array.from(new Uint8Array(h)).map(x => x.toString(16).padStart(2, '0')).join(''); }
+        <div>
+          <div class="card voucher">
+            <div class="stamp" id="stamp">บันทึกแล้ว</div>
+            <div class="voucher-top">
+              <div class="voucher-eyebrow">Expense Voucher</div>
+              <div class="voucher-title">ใบสำคัญจ่าย</div>
+              <div class="voucher-id" id="v-id">รอการบันทึก</div>
+            </div>
+            <div class="voucher-perf"></div>
+            <div class="voucher-body">
+              <div class="v-row"><span class="v-label">วันที่</span><span class="v-value empty" id="v-date">—</span></div>
+              <div class="v-row"><span class="v-label">หมวดหมู่</span><span class="v-value empty" id="v-category">—</span></div>
+              <div class="v-row"><span class="v-label">ผู้รับเงิน</span><span class="v-value empty" id="v-payee">—</span></div>
+              <div class="v-row"><span class="v-label">หมายเหตุ</span><span class="v-value empty" id="v-note">—</span></div>
+              <div class="v-amount"><span class="lbl">ยอดรวม</span><span class="val mono" id="v-amount">฿0.00</span></div>
+            </div>
+          </div>
 
-        // ปรับกลุ่มจุดสีสถานะให้ล้อไปกับ Palette ใหม่
-        const dotColors = { 'ค่าน้ำมัน': 'var(--color-fuel)', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์': 'var(--color-fuel)', 'ค่าพรบ.รถ': 'var(--color-fuel)', 'ค่าเงินเดือน': 'var(--color-salary)' };
+          <div class="card recent-card">
+            <h3>รายการล่าสุด</h3>
+            <div id="recent-wrap">
+              <div class="empty-state">ยังไม่มีข้อมูล</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        const defaultMock = [
-            { id: 1, date: '2026-07-01', category: 'ค่าน้ำมัน', amount: 1500.00, note: 'เติมดีเซลเต็มถัง', vehiclePlate: 'บย-4321 สมุทรสาคร', personName: '', fuelPrice: 37.50, fuelLitres: 40, fuelOdometer: 100000 },
-            { id: 2, date: '2026-07-05', category: 'ค่าน้ำมัน', amount: 1600.00, note: 'เติมน้ำมันวิ่งไปกลับ กทม.', vehiclePlate: 'บย-4321 สมุทรสาคร', personName: '', fuelPrice: 38.10, fuelLitres: 42, fuelOdometer: 100500 },
-            { id: 3, date: '2026-07-06', category: 'ค่าเงินเดือน', amount: 25000.00, note: 'เงินเดือนแอดมิน', vehiclePlate: '', personName: 'สมหญิง', fuelPrice: 0, fuelLitres: 0, fuelOdometer: 0 },
-            { id: 4, date: '2026-07-10', category: 'ค่าน้ำมัน', amount: 1200.00, note: 'เติมแก๊สโซฮอล์รถเก๋ง', vehiclePlate: 'กข-9999 กรุงเทพ', personName: '', fuelPrice: 39.00, fuelLitres: 30.76, fuelOdometer: 52000 },
-            { id: 5, date: '2026-07-11', category: 'ค่าน้ำมัน', amount: 1800.00, note: 'เติมน้ำมันผิดปกติ (ทดสอบแจ้งเตือน)', vehiclePlate: 'กข-9999 กรุงเทพ', personName: '', fuelPrice: 65.00, fuelLitres: 27.69, fuelOdometer: 52100 }
-        ];
+    <!-- ---------- PAGE: ANALYSIS ---------- -->
+    <section class="page" id="page-analysis">
+      <div class="page-head">
+        <h2>วิเคราะห์ค่าใช้จ่าย</h2>
+        <p>ภาพรวมค่าใช้จ่ายจากข้อมูลทั้งหมดใน Google Sheet</p>
+      </div>
 
-        let expenses = JSON.parse(localStorage.getItem('kyh_pro_db2')) || defaultMock;
-        if(!localStorage.getItem('kyh_pro_db2')) localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
+      <div class="filter-bar">
+        <select id="filter-month">
+          <option value="">ทุกเดือน</option>
+        </select>
+        <select id="filter-category">
+          <option value="">ทุกหมวดหมู่</option>
+        </select>
+        <button class="btn btn-ghost refresh" id="refresh-btn">รีเฟรชข้อมูล</button>
+      </div>
 
-        let rememberedVehicles = JSON.parse(localStorage.getItem('kyh_vehicles')) || [
-    'Toyota : 1ฒต-49',
-    'Vigo : ฒน-3824',
-    'Hino : 80-7026',
-    'MG : 2ขฆ-8955',
-    'Toyota : 4กฆ-4825',
-    'Revo : 1ฒฬ-6998',
-    'Commuter : ฮล-2603',
-    'Wave : 242',
-    'Folklift : Auto',
-    'Folklife : Manual'
-];
-let rememberedPersons = JSON.parse(localStorage.getItem('kyh_persons')) || ['สุธา', 'มาโนช', 'สำราญ', 'พรพรหม', 'ธีรภพ', 'สุภา', 'สิริรัตน์', 'สุรีย์พร', 'พงศกร', 'ธนาภรณ์', 'สมชาย'];
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="lbl">ยอดรวมทั้งหมด</div>
+          <div class="val accent mono" id="stat-total">฿0.00</div>
+          <div class="sub" id="stat-total-sub">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">จำนวนรายการ</div>
+          <div class="val mono" id="stat-count">0</div>
+          <div class="sub">รายการที่บันทึก</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">ค่าเฉลี่ยต่อรายการ</div>
+          <div class="val mono" id="stat-avg">฿0.00</div>
+          <div class="sub">ต่อรายการ</div>
+        </div>
+        <div class="stat-card">
+          <div class="lbl">หมวดหมู่สูงสุด</div>
+          <div class="val mono" id="stat-top-cat" style="font-size:16px;">—</div>
+          <div class="sub" id="stat-top-cat-sub">—</div>
+        </div>
+      </div>
 
+      <div class="analysis-grid">
+        <div class="chart-card">
+          <h3>สัดส่วนตามหมวดหมู่</h3>
+          <p class="hint">แบ่งตามหมวดหมู่ค่าใช้จ่าย</p>
+          <div class="chart-wrap"><canvas id="chart-category"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>แนวโน้มรายเดือน</h3>
+          <p class="hint">ยอดรวมค่าใช้จ่ายแต่ละเดือน</p>
+          <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
+        </div>
+      </div>
 
-        const authBlock = document.getElementById('authBlock'); const appBlock = document.getElementById('appBlock');
-        const loginForm = document.getElementById('loginForm'); const passwordInput = document.getElementById('passwordInput');
-        const logoutBtn = document.getElementById('logoutBtn'); const expenseForm = document.getElementById('expenseForm');
-        const categorySelect = document.getElementById('category'); const editingRecordIdInput = document.getElementById('editingRecordId');
-        const formPanelTitle = document.getElementById('formPanelTitle'); const btnSubmitForm = document.getElementById('btnSubmitForm');
-        
-        const conditionalWrapper = document.getElementById('conditionalWrapper');
-        const vehicleFieldBlock = document.getElementById('vehicleFieldBlock'); const vehiclePlateInput = document.getElementById('vehiclePlate');
-        const fuelDetailsBlock = document.getElementById('fuelDetailsBlock');
-        const fuelPriceInput = document.getElementById('fuelPrice'); const fuelLitresInput = document.getElementById('fuelLitres'); const fuelOdometerInput = document.getElementById('fuelOdometer');
-        const personFieldBlock = document.getElementById('personFieldBlock'); const personNameInput = document.getElementById('personName');
-        const vehicleList = document.getElementById('vehicleList'); const personList = document.getElementById('personList');
+      <div class="table-card">
+        <h3>ผู้รับเงินสูงสุด</h3>
+        <table class="payees">
+          <thead><tr><th>ผู้รับเงิน</th><th style="text-align:right;">ยอดรวม</th></tr></thead>
+          <tbody id="payees-body">
+            <tr><td colspan="2" class="loading-row">ยังไม่มีข้อมูล</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
 
-        const filterStartDate = document.getElementById('filterStartDate'); const filterEndDate = document.getElementById('filterEndDate'); const filterCategory = document.getElementById('filterCategory');
-        const tableBody = document.getElementById('tableBody'); const noDataMessage = document.getElementById('noDataMessage');
-        const totalAmountEl = document.getElementById('totalAmount'); const totalCountEl = document.getElementById('totalCount');
-        const anomalyKpiCard = document.getElementById('anomalyKpiCard'); const anomalyKpiCount = document.getElementById('anomalyKpiCount');
-        const exportBtn = document.getElementById('exportBtn');
+<script>
+/* ======================================================================
+   ตั้งค่าหลัก — แก้ไข 2 ค่านี้ให้ตรงกับของคุณ
+   ====================================================================== */
+const ACCESS_CODE = "1234";              // รหัสผ่านสำหรับเข้าใช้งาน (แก้ไขได้ตามต้องการ)
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzNlb3tlg9ONgn0Y5Asqod48rsP0_Lova_Oha014OVSWU-P2HP8Nzhj7D1DSyCad0Zhrw/exec"; // URL จาก Google Apps Script (ดูวิธีตั้งค่าในไฟล์ apps-script-backend.gs)
 
-        const categoryChartList = document.getElementById('categoryChartList'); const vehicleSummaryList = document.getElementById('vehicleSummaryList'); const personSummaryList = document.getElementById('personSummaryList');
-        const fuelTrendLogList = document.getElementById('fuelTrendLogList'); const fuelEfficiencyStats = document.getElementById('fuelEfficiencyStats'); const fuelFrequencyStats = document.getElementById('fuelFrequencyStats');
+/* ====================== GATE / LOGIN ====================== */
+const gateEl = document.getElementById('gate');
+const appEl = document.getElementById('app');
+const codeInput = document.getElementById('code-input');
+const gateError = document.getElementById('gate-error');
 
-        const confirmModal = document.getElementById('confirmModal'); const btnCancelModal = document.getElementById('btnCancelModal'); const btnConfirmModal = document.getElementById('btnConfirmModal');
-        let temporaryRecordData = null;
+function tryEnter(){
+  const val = codeInput.value.trim();
+  if(val === ACCESS_CODE){
+    sessionStorage.setItem('expense_app_auth','1');
+    gateEl.style.display='none';
+    appEl.style.display='flex';
+    initApp();
+  } else {
+    gateError.textContent = 'รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่';
+    codeInput.value='';
+    codeInput.focus();
+  }
+}
+document.getElementById('gate-submit').addEventListener('click', tryEnter);
+codeInput.addEventListener('keydown', e => { if(e.key==='Enter') tryEnter(); });
 
-        const vehicleCategories = ['ค่าน้ำมัน', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์', 'ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ'];
-        const personCategories = ['ค่าเบี้ยเลี้ยง', 'ค่าเงินเดือน', 'ค่าแรงพิเศษลูกน้อง', 'ค่าแรง Outsource'];
+document.getElementById('logout-btn').addEventListener('click', ()=>{
+  sessionStorage.removeItem('expense_app_auth');
+  appEl.style.display='none';
+  gateEl.style.display='flex';
+  codeInput.value=''; gateError.textContent='';
+});
 
-        window.switchSection = function(t) {
-            document.getElementById('tabEntryBtn').classList.toggle('active', t === 'entry');
-            document.getElementById('tabVisualBtn').classList.toggle('active', t === 'visual');
-            document.getElementById('sectionEntry').classList.toggle('active', t === 'entry');
-            document.getElementById('sectionVisual').classList.toggle('active', t === 'visual');
-            renderCoreEngine();
-        };
+if(sessionStorage.getItem('expense_app_auth')==='1'){
+  gateEl.style.display='none';
+  appEl.style.display='flex';
+  window.addEventListener('DOMContentLoaded', initApp);
+}
 
-        function updateDropdownOptions() {
-            vehicleList.innerHTML = ''; rememberedVehicles.forEach(x => { let o = document.createElement('option'); o.value = x; vehicleList.appendChild(o); });
-            personList.innerHTML = ''; rememberedPersons.forEach(x => { let o = document.createElement('option'); o.value = x; personList.appendChild(o); });
-        }
+/* ====================== TAB NAV ====================== */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-'+btn.dataset.page).classList.add('active');
+    if(btn.dataset.page==='analysis') loadAnalysis();
+  });
+});
 
-        function checkFuelAnomaly(item, historicDataset) {
-            if (item.category !== 'ค่าน้ำมัน') return { isAnomaly: false, reason: '' };
-            if (item.fuelPrice && (item.fuelPrice < 30 || item.fuelPrice > 50)) {
-                return { isAnomaly: true, reason: `ราคาผิดปกติ (${item.fuelPrice} ฿/L)` };
-            }
-            if (item.vehiclePlate && item.fuelOdometer && item.fuelLitres) {
-                const sameVehicleRecords = historicDataset
-                    .filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate === item.vehiclePlate && x.fuelOdometer < item.fuelOdometer)
-                    .sort((a,b) => b.fuelOdometer - a.fuelOdometer);
-                
-                if (sameVehicleRecords.length > 0) {
-                    const lastRecord = sameVehicleRecords[0];
-                    const distance = item.fuelOdometer - lastRecord.fuelOdometer;
-                    if (distance > 0) {
-                        const kml = distance / item.fuelLitres;
-                        if (kml < 8) return { isAnomaly: true, reason: `กินน้ำมันสูง (${kml.toFixed(1)} กม./ลิตร)` };
-                        if (kml > 25) return { isAnomaly: true, reason: `ไมล์สูงเกินจริง (${kml.toFixed(1)} กม./ลิตร)` };
-                    }
-                }
-            }
-            return { isAnomaly: false, reason: '' };
-        }
+/* ====================== VOUCHER LIVE PREVIEW ====================== */
+const fDate = document.getElementById('f-date');
+const fCategory = document.getElementById('f-category');
+const fAmount = document.getElementById('f-amount');
+const fPayee = document.getElementById('f-payee');
+const fNote = document.getElementById('f-note');
 
-        function handleCategoryFieldsVisibility(cat) {
-            let showVehicle = vehicleCategories.includes(cat);
-            let showPerson = personCategories.includes(cat);
-            let isFuel = (cat === 'ค่าน้ำมัน');
+function fmtMoney(n){
+  return '฿' + Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtDateTH(iso){
+  if(!iso) return '—';
+  const d = new Date(iso+'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'});
+}
 
-            conditionalWrapper.classList.toggle('show', showVehicle || showPerson || isFuel);
-            vehicleFieldBlock.style.display = showVehicle ? 'block' : 'none';
-            vehiclePlateInput.required = showVehicle;
-            
-            fuelDetailsBlock.style.display = isFuel ? 'block' : 'none';
-            fuelPriceInput.required = isFuel;
-            fuelLitresInput.required = isFuel;
-            fuelOdometerInput.required = isFuel;
+function updateVoucher(){
+  document.getElementById('v-date').textContent = fDate.value ? fmtDateTH(fDate.value) : '—';
+  document.getElementById('v-date').classList.toggle('empty', !fDate.value);
+  document.getElementById('v-category').textContent = fCategory.value || '—';
+  document.getElementById('v-category').classList.toggle('empty', !fCategory.value);
+  document.getElementById('v-payee').textContent = fPayee.value || '—';
+  document.getElementById('v-payee').classList.toggle('empty', !fPayee.value);
+  document.getElementById('v-note').textContent = fNote.value || '—';
+  document.getElementById('v-note').classList.toggle('empty', !fNote.value);
+  document.getElementById('v-amount').textContent = fmtMoney(fAmount.value);
+}
+[fDate,fCategory,fAmount,fPayee,fNote].forEach(el=> el.addEventListener('input', updateVoucher));
 
-            personFieldBlock.style.display = showPerson ? 'block' : 'none';
-            personNameInput.required = showPerson;
-        }
+/* ====================== SUBMIT ENTRY ====================== */
+const submitBtn = document.getElementById('submit-btn');
+const submitStatus = document.getElementById('submit-status');
+const stampEl = document.getElementById('stamp');
+const vIdEl = document.getElementById('v-id');
 
-        categorySelect.addEventListener('change', () => handleCategoryFieldsVisibility(categorySelect.value));
+function resetForm(){
+  fCategory.value=''; fAmount.value=''; fPayee.value=''; fNote.value='';
+  fDate.value = todayISO();
+  updateVoucher();
+}
+function todayISO(){
+  const d = new Date();
+  const tz = d.getTimezoneOffset()*60000;
+  return new Date(d - tz).toISOString().slice(0,10);
+}
 
-        function autoCalculateAmount() {
-            if(categorySelect.value === 'ค่าน้ำมัน' && fuelPriceInput.value && fuelLitresInput.value) {
-                document.getElementById('amount').value = (parseFloat(fuelPriceInput.value) * parseFloat(fuelLitresInput.value)).toFixed(2);
-            }
-        }
-        fuelPriceInput.addEventListener('input', autoCalculateAmount);
-        fuelLitresInput.addEventListener('input', autoCalculateAmount);
+submitBtn.addEventListener('click', async ()=>{
+  if(!fDate.value || !fCategory.value || !fAmount.value || !fPayee.value){
+    submitStatus.textContent = 'กรุณากรอกวันที่ หมวดหมู่ จำนวนเงิน และผู้รับเงินให้ครบ';
+    submitStatus.className = 'err';
+    return;
+  }
+  if(GAS_URL.indexOf('PASTE_YOUR') === 0){
+    submitStatus.textContent = 'ยังไม่ได้ตั้งค่า GAS_URL ในไฟล์ HTML';
+    submitStatus.className = 'err';
+    return;
+  }
+  submitBtn.disabled = true;
+  submitStatus.textContent = 'กำลังบันทึก...';
+  submitStatus.className = '';
 
-        if (sessionStorage.getItem('isAuthenticated') === 'true') {
-            authBlock.style.display = 'none'; appBlock.style.display = 'block'; updateDropdownOptions(); renderCoreEngine();
-        }
+  const payload = {
+    action:'add',
+    date: fDate.value,
+    category: fCategory.value,
+    amount: fAmount.value,
+    payee: fPayee.value,
+    note: fNote.value,
+    recordedBy: ''
+  };
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if ((await sha256(passwordInput.value)) === HASHED_PASSWORD_KEY) {
-                sessionStorage.setItem('isAuthenticated', 'true'); authBlock.style.display = 'none'; appBlock.style.display = 'block'; updateDropdownOptions(); renderCoreEngine();
-            } else { alert('รหัสผ่านไม่ถูกต้อง'); passwordInput.value = ''; }
-        });
-        logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('isAuthenticated'); window.location.reload(); });
+  try{
+    await fetch(GAS_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'}, // หลีกเลี่ยง CORS preflight
+      body: JSON.stringify(payload)
+    });
+    submitStatus.textContent = 'บันทึกสำเร็จ';
+    submitStatus.className = 'ok';
+    vIdEl.textContent = 'บันทึกเมื่อ ' + new Date().toLocaleTimeString('th-TH');
+    stampEl.classList.add('show');
+    setTimeout(()=> stampEl.classList.remove('show'), 2200);
+    addRecentLocal(payload);
+    setTimeout(resetForm, 600);
+  }catch(err){
+    submitStatus.textContent = 'บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง';
+    submitStatus.className = 'err';
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
 
-        function renderCoreEngine() {
-            const masterList = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-            tableBody.innerHTML = '';
-            let globalAnomalyCounter = 0;
+/* recent entries list (local, session-based preview) */
+let recentLocal = [];
+function addRecentLocal(entry){
+  recentLocal.unshift(entry);
+  recentLocal = recentLocal.slice(0,6);
+  renderRecent();
+}
+function renderRecent(){
+  const wrap = document.getElementById('recent-wrap');
+  if(recentLocal.length===0){
+    wrap.innerHTML = '<div class="empty-state">ยังไม่มีข้อมูล</div>';
+    return;
+  }
+  let html = '<table class="recent"><thead><tr><th>วันที่</th><th>หมวดหมู่</th><th>ผู้รับเงิน</th><th style="text-align:right;">จำนวนเงิน</th></tr></thead><tbody>';
+  recentLocal.forEach(r=>{
+    html += `<tr><td>${fmtDateTH(r.date)}</td><td><span class="cat-pill">${r.category}</span></td><td>${r.payee}</td><td class="amt">${fmtMoney(r.amount)}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
 
-            if (masterList.length === 0) {
-                noDataMessage.style.display = 'block';
-            } else {
-                noDataMessage.style.display = 'none';
-                masterList.forEach(exp => {
-                    let subBadge = '';
-                    const anomalyCheck = checkFuelAnomaly(exp, expenses);
-                    if(anomalyCheck.isAnomaly) globalAnomalyCounter++;
+/* ====================== ANALYSIS ====================== */
+let allRows = [];
+let chartCategory, chartTrend;
 
-                    if (exp.category === 'ค่าน้ำมัน') {
-                        subBadge = `<span class="tag-pill vehicle">🚗 ${exp.vehiclePlate || 'ไม่ระบุทะเบียน'}</span> 
-                                    <span style="background:#F5F2EB; color:var(--text-main);" class="tag-pill">⛽ ${exp.fuelPrice}฿/L | ${exp.fuelLitres}L | ไมล์: ${exp.fuelOdometer}</span>`;
-                        if(anomalyCheck.isAnomaly) {
-                            subBadge += ` <div class="anomaly-badge">🚨 ${anomalyCheck.reason}</div>`;
-                        }
-                    } else if (exp.vehiclePlate) {
-                        subBadge = `<span class="tag-pill vehicle">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
-                    }
-                    if (exp.personName) subBadge += ` <span class="tag-pill person">👤 ผู้รับ: ${exp.personName}</span>`;
+async function loadAnalysis(){
+  const payeesBody = document.getElementById('payees-body');
+  payeesBody.innerHTML = '<tr><td colspan="2" class="loading-row">กำลังโหลดข้อมูล...</td></tr>';
 
-                    const dotColor = dotColors[exp.category] || 'var(--color-other)';
-                    const row = document.createElement('tr');
-                    if(anomalyCheck.isAnomaly) row.className = 'anomaly-row';
+  if(GAS_URL.indexOf('PASTE_YOUR') === 0){
+    payeesBody.innerHTML = '<tr><td colspan="2" class="loading-row">ยังไม่ได้ตั้งค่า GAS_URL ในไฟล์ HTML</td></tr>';
+    return;
+  }
 
-                    row.innerHTML = `
-                        <td style="color: var(--text-muted); font-size: 13px;">${exp.date}</td>
-                        <td><div class="status-badge"><span class="status-dot" style="background-color: ${dotColor};"></span><span>${exp.category}</span></div></td>
-                        <td><div style="margin-bottom: 2px;">${exp.note || '—'}</div>${subBadge}</td>
-                        <td style="text-align: right; font-weight: 500; font-size: 15px;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</td>
-                        <td style="text-align: center;">
-                            <button class="btn-action btn-edit" onclick="editRecord(${exp.id})">แก้ไข</button>
-                            <button class="btn-action btn-delete" onclick="deleteRecord(${exp.id})">ลบ</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            }
+  try{
+    const res = await fetch(GAS_URL + '?action=list');
+    const data = await res.json();
+    allRows = (data.rows || []);
+    populateFilters();
+    renderAnalysis();
+  }catch(err){
+    payeesBody.innerHTML = '<tr><td colspan="2" class="loading-row">โหลดข้อมูลไม่สำเร็จ</td></tr>';
+  }
+}
 
-            const startStr = filterStartDate.value; const endStr = filterEndDate.value; const catFilter = filterCategory.value;
-            const filteredData = expenses.filter(exp => {
-                if (catFilter && exp.category !== catFilter) return false;
-                if (startStr && exp.date < startStr) return false;
-                if (endStr && exp.date > endStr) return false;
-                return true;
-            });
+function populateFilters(){
+  const monthSel = document.getElementById('filter-month');
+  const catSel = document.getElementById('filter-category');
+  const months = [...new Set(allRows.map(r=> (r.date||'').slice(0,7)).filter(Boolean))].sort().reverse();
+  const cats = [...new Set(allRows.map(r=> r.category).filter(Boolean))].sort();
 
-            let totalSum = 0;
-            const categoryTotals = {}; const vehicleTotals = {}; const personTotals = {};
-            const fuelRecordsFiltered = filteredData.filter(x => x.category === 'ค่าน้ำมัน' && x.fuelPrice > 0).sort((a,b) => new Date(a.date) - new Date(b.date));
-            
-            filteredData.forEach(exp => {
-                totalSum += parseFloat(exp.amount);
-                categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + parseFloat(exp.amount);
-                if (exp.vehiclePlate) vehicleTotals[exp.vehiclePlate] = (vehicleTotals[exp.vehiclePlate] || 0) + parseFloat(exp.amount);
-                if (exp.personName) personTotals[exp.personName] = (personTotals[exp.personName] || 0) + parseFloat(exp.amount);
-            });
+  const curMonth = monthSel.value, curCat = catSel.value;
+  monthSel.innerHTML = '<option value="">ทุกเดือน</option>' + months.map(m=>{
+    const label = new Date(m+'-01').toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+    return `<option value="${m}">${label}</option>`;
+  }).join('');
+  catSel.innerHTML = '<option value="">ทุกหมวดหมู่</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  monthSel.value = curMonth; catSel.value = curCat;
+}
 
-            totalAmountEl.textContent = `${totalSum.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿`;
-            totalCountEl.textContent = `${filteredData.length} รายการ`;
+document.getElementById('filter-month').addEventListener('change', renderAnalysis);
+document.getElementById('filter-category').addEventListener('change', renderAnalysis);
+document.getElementById('refresh-btn').addEventListener('click', loadAnalysis);
 
-            if(globalAnomalyCounter > 0) {
-                anomalyKpiCard.style.display = 'block';
-                anomalyKpiCount.textContent = `${globalAnomalyCounter} รายการ`;
-            } else {
-                anomalyKpiCard.style.display = 'none';
-            }
+function renderAnalysis(){
+  const month = document.getElementById('filter-month').value;
+  const cat = document.getElementById('filter-category').value;
+  const rows = allRows.filter(r=>{
+    if(month && (r.date||'').slice(0,7) !== month) return false;
+    if(cat && r.category !== cat) return false;
+    return true;
+  });
 
-            categoryChartList.innerHTML = '';
-            Object.keys(categoryTotals).sort((a,b) => categoryTotals[b] - categoryTotals[a]).forEach(cat => {
-                const amt = categoryTotals[cat]; const pct = totalSum > 0 ? ((amt / totalSum) * 100).toFixed(1) : 0;
-                const div = document.createElement('div'); div.className = 'chart-item';
-                div.innerHTML = `
-                    <div class="chart-info"><span>${cat}</span><span style="font-weight:500;">${amt.toLocaleString()} ฿ (${pct}%)</span></div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%; background-color:${dotColors[cat]||'var(--color-other)'};"></div></div>
-                `;
-                categoryChartList.appendChild(div);
-            });
+  const total = rows.reduce((s,r)=> s + (Number(r.amount)||0), 0);
+  const count = rows.length;
+  const avg = count ? total/count : 0;
 
-            vehicleSummaryList.innerHTML = '';
-            Object.keys(vehicleTotals).forEach(v => {
-                const div = document.createElement('div'); div.className = 'summary-item';
-                div.innerHTML = `<span>🚗 ${v}</span> <span style="color:var(--text-main); font-weight:500;">${vehicleTotals[v].toLocaleString()} ฿</span>`;
-                vehicleSummaryList.appendChild(div);
-            });
+  document.getElementById('stat-total').textContent = fmtMoney(total);
+  document.getElementById('stat-total-sub').textContent = month ? new Date(month+'-01').toLocaleDateString('th-TH',{month:'long',year:'numeric'}) : 'ทุกช่วงเวลา';
+  document.getElementById('stat-count').textContent = count.toLocaleString('th-TH');
+  document.getElementById('stat-avg').textContent = fmtMoney(avg);
 
-            personSummaryList.innerHTML = '';
-            Object.keys(personTotals).forEach(p => {
-                const div = document.createElement('div'); div.className = 'summary-item';
-                div.innerHTML = `<span>👤 ${p}</span> <span style="color:var(--text-main); font-weight:500;">${personTotals[p].toLocaleString()} ฿</span>`;
-                personSummaryList.appendChild(div);
-            });
+  const byCat = {};
+  rows.forEach(r=>{ byCat[r.category] = (byCat[r.category]||0) + (Number(r.amount)||0); });
+  const catEntries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  if(catEntries.length){
+    document.getElementById('stat-top-cat').textContent = catEntries[0][0];
+    document.getElementById('stat-top-cat-sub').textContent = fmtMoney(catEntries[0][1]) + ' (' + Math.round(catEntries[0][1]/total*100) + '%)';
+  } else {
+    document.getElementById('stat-top-cat').textContent = '—';
+    document.getElementById('stat-top-cat-sub').textContent = '—';
+  }
 
-            fuelTrendLogList.innerHTML = '';
-            if(fuelRecordsFiltered.length === 0) {
-                fuelTrendLogList.innerHTML = `<div style="text-align:center; padding:15px; color:var(--text-muted); font-size:12px;">ไม่มีข้อมูลค่าน้ำมันในช่วงเวลานี้</div>`;
-            } else {
-                const trendDisplayList = [...fuelRecordsFiltered].reverse().slice(0, 5);
-                trendDisplayList.forEach(item => {
-                    const anomalyCheck = checkFuelAnomaly(item, expenses);
-                    const borderStyle = anomalyCheck.isAnomaly ? 'border-left: 3px solid var(--accent-muji-red); background:var(--color-danger-bg);' : 'border-left: 3px solid var(--color-fuel);';
-                    
-                    const div = document.createElement('div');
-                    div.className = 'trend-history-item';
-                    div.style = borderStyle;
-                    div.innerHTML = `
-                        <div>
-                            <span style="font-weight:500; color:var(--text-main);">${item.date}</span> - 
-                            <span style="color:var(--text-muted);">${item.vehiclePlate}</span>
-                        </div>
-                        <div style="font-weight:500; color:var(--text-main);">
-                            ${item.fuelPrice.toFixed(2)} ฿/ลิตร | ${item.fuelLitres} ลิตร
-                            ${anomalyCheck.isAnomaly ? ' <span style="color:var(--accent-muji-red);">⚠️ ผิดปกติ</span>' : ''}
-                        </div>
-                    `;
-                    fuelTrendLogList.appendChild(div);
-                });
-            }
+  renderCategoryChart(catEntries);
+  renderTrendChart(rows);
+  renderPayeeTable(rows);
+}
 
-            fuelEfficiencyStats.innerHTML = '';
-            const vPlates = [...new Set(expenses.filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate).map(x => x.vehiclePlate))];
-            
-            if(vPlates.length === 0) {
-                fuelEfficiencyStats.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center;">ไม่มีข้อมูลทะเบียนรถ</div>`;
-            } else {
-                vPlates.forEach(plate => {
-                    const carFuelRecords = expenses.filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate === plate && x.fuelOdometer > 0).sort((a,b) => a.fuelOdometer - b.fuelOdometer);
-                    if(carFuelRecords.length >= 2) {
-                        const first = carFuelRecords[0];
-                        const last = carFuelRecords[carFuelRecords.length - 1];
-                        const totalDistance = last.fuelOdometer - first.fuelOdometer;
-                        let totalL = 0; for(let i=1; i<carFuelRecords.length; i++) { totalL += carFuelRecords[i].fuelLitres; }
-                        
-                        if(totalL > 0 && totalDistance > 0) {
-                            const avgKml = totalDistance / totalL;
-                            let statusText = avgKml < 8 ? ' <span style="color:var(--accent-muji-red);">(กินน้ำมันสูง)</span>' : '';
-                            const div = document.createElement('div'); div.className = 'summary-item';
-                            div.innerHTML = `<span>🚗 ${plate}</span> <strong>${avgKml.toFixed(1)} กม./ลิตร ${statusText}</strong>`;
-                            fuelEfficiencyStats.appendChild(div);
-                            return;
-                        }
-                    }
-                    fuelEfficiencyStats.innerHTML += `<div class="summary-item"><span>🚗 ${plate}</span> <span style="color:var(--text-muted);">รอข้อมูลเติมน้ำมันครั้งถัดไป</span></div>`;
-                });
-            }
+const palette = ['#0E7C74','#BD8A2E','#B0432B','#2B5D8C','#6B4E8C','#4C8C5A','#8C6B4E','#5B6576'];
 
-            fuelFrequencyStats.innerHTML = '';
-            vPlates.forEach(plate => {
-                const carFuelRecords = expenses.filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate === plate).sort((a,b) => new Date(a.date) - new Date(b.date));
-                if(carFuelRecords.length >= 2) {
-                    let totalDaysDiff = 0;
-                    for(let i=1; i<carFuelRecords.length; i++) {
-                        const d1 = new Date(carFuelRecords[i-1].date);
-                        const d2 = new Date(carFuelRecords[i].date);
-                        totalDaysDiff += Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
-                    }
-                    const avgDays = (totalDaysDiff / (carFuelRecords.length - 1)).toFixed(1);
-                    const div = document.createElement('div'); div.className = 'summary-item';
-                    div.innerHTML = `<span>🚗 ${plate}</span> <strong>เข้าเติมทุกๆ ${avgDays} วัน</strong>`;
-                    fuelFrequencyStats.appendChild(div);
-                } else {
-                    fuelFrequencyStats.innerHTML += `<div class="summary-item"><span>🚗 ${plate}</span> <span style="color:var(--text-muted);">ข้อมูลไม่เพียงพอ</span></div>`;
-                }
-            });
-        }
+function renderCategoryChart(catEntries){
+  const ctx = document.getElementById('chart-category');
+  const labels = catEntries.map(e=>e[0]);
+  const values = catEntries.map(e=>e[1]);
+  if(chartCategory) chartCategory.destroy();
+  chartCategory = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data: values, backgroundColor: palette, borderWidth:2, borderColor:'#fff' }] },
+    options:{
+      maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{ position:'bottom', labels:{ font:{family:'Inter',size:11}, boxWidth:10, padding:12 } },
+        tooltip:{ callbacks:{ label: c => c.label + ': ' + fmtMoney(c.parsed) } }
+      }
+    }
+  });
+}
 
-        document.getElementById('btnApplyFilter').addEventListener('click', renderCoreEngine);
-        document.getElementById('btnResetFilter').addEventListener('click', () => { filterStartDate.value=''; filterEndDate.value=''; filterCategory.value=''; renderCoreEngine(); });
+function renderTrendChart(rows){
+  const ctx = document.getElementById('chart-trend');
+  const byMonth = {};
+  rows.forEach(r=>{
+    const m = (r.date||'').slice(0,7);
+    if(!m) return;
+    byMonth[m] = (byMonth[m]||0) + (Number(r.amount)||0);
+  });
+  const months = Object.keys(byMonth).sort();
+  const labels = months.map(m=> new Date(m+'-01').toLocaleDateString('th-TH',{month:'short',year:'2-digit'}));
+  const values = months.map(m=> byMonth[m]);
+  if(chartTrend) chartTrend.destroy();
+  chartTrend = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data: values, backgroundColor:'#0E7C74', borderRadius:5, maxBarThickness:38 }] },
+    options:{
+      maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: c => fmtMoney(c.parsed.y) } } },
+      scales:{
+        y:{ ticks:{ font:{family:'IBM Plex Mono',size:10}, callback:v=>'฿'+v.toLocaleString('th-TH') }, grid:{color:'#EEF0EC'} },
+        x:{ ticks:{ font:{family:'Inter',size:11} }, grid:{display:false} }
+      }
+    }
+  });
+}
 
-        window.editRecord = function(id) {
-            const t = expenses.find(x => x.id === id); if (!t) return;
-            editingRecordIdInput.value = t.id; document.getElementById('date').value = t.date;
-            categorySelect.value = t.category; document.getElementById('amount').value = t.amount;
-            document.getElementById('note').value = t.note === '—' ? '' : t.note;
+function renderPayeeTable(rows){
+  const byPayee = {};
+  rows.forEach(r=>{ byPayee[r.payee] = (byPayee[r.payee]||0) + (Number(r.amount)||0); });
+  const entries = Object.entries(byPayee).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const max = entries.length ? entries[0][1] : 1;
+  const body = document.getElementById('payees-body');
+  if(!entries.length){
+    body.innerHTML = '<tr><td colspan="2" class="loading-row">ไม่มีข้อมูล</td></tr>';
+    return;
+  }
+  body.innerHTML = entries.map(([payee,amt])=>`
+    <tr>
+      <td>${payee || '—'}<div class="bar-mini"><i style="width:${(amt/max*100).toFixed(0)}%"></i></div></td>
+      <td class="n">${fmtMoney(amt)}</td>
+    </tr>`).join('');
+}
 
-            handleCategoryFieldsVisibility(t.category);
-            if (vehicleCategories.includes(t.category)) vehiclePlateInput.value = t.vehiclePlate || '';
-            if (t.category === 'ค่าน้ำมัน') {
-                fuelPriceInput.value = t.fuelPrice || ''; fuelLitresInput.value = t.fuelLitres || ''; fuelOdometerInput.value = t.fuelOdometer || '';
-            }
-            if (personCategories.includes(t.category)) personNameInput.value = t.personName || '';
-
-            formPanelTitle.textContent = "✏️ กำลังแก้ไขข้อมูลรายการ"; formPanelTitle.style.color = "var(--color-fuel)";
-            btnSubmitForm.textContent = "ตรวจสอบการแก้ไข"; btnSubmitForm.className = "btn-orange";
-            window.scrollTo({ top: document.getElementById('expenseForm').offsetTop - 40, behavior: 'smooth' });
-        };
-
-        window.deleteRecord = function(id) {
-            const t = expenses.find(x => x.id === id); if (!t) return;
-            if (confirm(`ลบรายการ "${t.category} ยอด ${t.amount} บาท" ใช่หรือไม่?`)) {
-                expenses = expenses.filter(x => x.id !== id); localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
-                if (editingRecordIdInput.value == id) resetFormState();
-                renderCoreEngine();
-            }
-        };
-
-        function resetFormState() {
-            editingRecordIdInput.value = ''; document.getElementById('amount').value = ''; document.getElementById('note').value = '';
-            vehiclePlateInput.value = ''; personNameInput.value = ''; fuelPriceInput.value = ''; fuelLitresInput.value = ''; fuelOdometerInput.value = '';
-            categorySelect.value = ''; document.getElementById('date').value = new Date().toISOString().split('T')[0];
-            conditionalWrapper.classList.remove('show'); formPanelTitle.textContent = "บันทึกข้อมูลค่าใช้จ่ายใหม่";
-            formPanelTitle.style.color = "var(--text-main)"; btnSubmitForm.textContent = "ตรวจสอบข้อมูล"; btnSubmitForm.className = "btn-blue";
-        }
-
-        expenseForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const cat = categorySelect.value;
-            temporaryRecordData = {
-                id: editingRecordIdInput.value ? parseInt(editingRecordIdInput.value) : null,
-                date: document.getElementById('date').value, category: cat,
-                amount: parseFloat(document.getElementById('amount').value), note: document.getElementById('note').value || '—',
-                vehiclePlate: vehiclePlateInput.value.trim(), personName: personNameInput.value.trim(),
-                fuelPrice: cat === 'ค่าน้ำมัน' ? parseFloat(fuelPriceInput.value) : 0,
-                fuelLitres: cat === 'ค่าน้ำมัน' ? parseFloat(fuelLitresInput.value) : 0,
-                fuelOdometer: cat === 'ค่าน้ำมัน' ? parseInt(fuelOdometerInput.value) : 0
-            };
-
-            document.getElementById('mDate').textContent = temporaryRecordData.date;
-            document.getElementById('mCategory').textContent = temporaryRecordData.category;
-            document.getElementById('mAmount').textContent = temporaryRecordData.amount.toLocaleString() + ' ฿';
-            document.getElementById('mNote').textContent = temporaryRecordData.note;
-            document.getElementById('mVehicleRow').style.display = temporaryRecordData.vehiclePlate ? 'flex' : 'none';
-            document.getElementById('mVehicle').textContent = temporaryRecordData.vehiclePlate;
-            document.getElementById('mPersonRow').style.display = temporaryRecordData.personName ? 'flex' : 'none';
-            document.getElementById('mPerson').textContent = temporaryRecordData.personName;
-
-            if(cat === 'ค่าน้ำมัน') {
-                document.getElementById('mFuelRow').style.display = 'flex';
-                document.getElementById('mFuelDetails').innerHTML = `ราคา: ${temporaryRecordData.fuelPrice} ฿/L | ปริมาณ: ${temporaryRecordData.fuelLitres} ลิตร | เลขไมล์: ${temporaryRecordData.fuelOdometer} กม.`;
-            } else { document.getElementById('mFuelRow').style.display = 'none'; }
-
-            confirmModal.classList.add('show');
-        });
-
-        btnCancelModal.addEventListener('click', () => { confirmModal.classList.remove('show'); temporaryRecordData = null; });
-        btnConfirmModal.addEventListener('click', function() {
-            if (!temporaryRecordData) return;
-            if (temporaryRecordData.id) {
-                const idx = expenses.findIndex(x => x.id === temporaryRecordData.id); if (idx !== -1) expenses[idx] = { ...temporaryRecordData };
-            } else { expenses.push({ ...temporaryRecordData, id: Date.now() }); }
-
-            localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
-            if (temporaryRecordData.vehiclePlate && !rememberedVehicles.includes(temporaryRecordData.vehiclePlate)) { rememberedVehicles.push(temporaryRecordData.vehiclePlate); localStorage.setItem('kyh_vehicles', JSON.stringify(rememberedVehicles)); }
-            if (temporaryRecordData.personName && !rememberedPersons.includes(temporaryRecordData.personName)) { rememberedPersons.push(temporaryRecordData.personName); localStorage.setItem('kyh_persons', JSON.stringify(rememberedPersons)); }
-
-            confirmModal.classList.remove('show'); temporaryRecordData = null; resetFormState(); updateDropdownOptions(); renderCoreEngine();
-        });
-    </script>
+/* ====================== INIT ====================== */
+function initApp(){
+  fDate.value = todayISO();
+  updateVoucher();
+  renderRecent();
+}
+if(sessionStorage.getItem('expense_app_auth')==='1'){ initApp(); }
+</script>
 </body>
 </html>
