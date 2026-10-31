@@ -1,984 +1,819 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KYH — Expense & Fuel Analytics Management System</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- เปลี่ยนฟอนต์ไทยเป็น Prompt และอังกฤษเป็น Inter เพื่อความมินิมอลและอบอุ่น -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Sarabun & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        khima: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            /* MUJI Color Palette: ขาวนวล, ครีมเบจ, เทาแมตต์หม่น และแดงอิฐตุ่น */
-            --bg-main: #FDFBF7;           /* สีพื้นหลังหลักขาวนวลสบายตา */
-            --panel-bg: #FFFFFF;
-            --text-main: #333333;          /* สีเทาถ่านเข้ม ลดความกระด้างของสีดำสนิท */
-            --text-muted: #7A756B;         /* เทาอมเบจสำหรับตัวอักษรรอง */
-            --accent-blue: #5F6B59;        /* ปรับเป็นสีเขียวมะกอกตุ่นสไตล์ธรรมชาติ */
-            --accent-hover: #4B5446;
-            --accent-muji-red: #A94442;    /* สีแดงอิฐหม่นสำหรับจุดเน้น/เตือน */
-            --border-light: #EBE7DF;       /* เส้นขอบสีเบจอ่อนนุ่มนวล */
-            --border-heavy: #D1C9BC;
-            --radius-pro: 8px;             /* ความโค้งมนระดับพอดีแบบเฟอร์นิเจอร์ญี่ปุ่น */
-            
-            /* Status Colors (Muted Tone) */
-            --color-fuel: #D9822B;
-            --color-salary: #5F6B59;
-            --color-bill: #6B8E9E;
-            --color-other: #968F85;
-            --color-danger: #A94442;
-            --color-danger-bg: #FDF3F2;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', 'Prompt', -apple-system, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            letter-spacing: -0.1px;
-        }
-
         body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            padding: 50px 24px; /* เพิ่มระยะขอบบนล่างให้โปร่งโล่ง */
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            transition: all 0.3s ease;
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            background-color: #0b132b;
+            color: #f8fafc;
         }
-
-        .container {
-            width: 100%;
-            max-width: 1140px;
-            display: none;
-            animation: fadeIn 0.4s ease-out; /* Smooth Fade In ตอนโหลด */
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
+        ::-webkit-scrollbar-track {
+            background: #1c2541;
         }
-
-        /* Auth Screen */
-        .auth-wrapper {
-            width: 100%;
-            max-width: 400px;
-            margin-top: 12vh;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 40px 32px;
-            box-shadow: none; /* ถอดเงาหนาออกตามสไตล์ Muji */
-            text-align: center;
-        }
-
-        .auth-icon {
-            width: 52px;
-            height: 52px;
-            background: #F5F2EB; /* เปลี่ยนพื้นหลังไอคอนเป็นสีเบจกระดาษคราฟต์ */
-            color: var(--text-main);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin: 0 auto 20px auto;
-        }
-
-        .auth-title {
-            font-size: 20px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--text-main);
-        }
-
-        .auth-subtitle {
-            color: var(--text-muted);
-            font-size: 13px;
-            margin-bottom: 28px;
-        }
-
-        /* Header */
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: 16px;
-        }
-
-        .app-header h1 {
-            font-size: 22px;
-            font-weight: 500;
-        }
-
-        /* NAVIGATION TABS SYSTEM */
-        .tabs-navigation {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 32px;
-            background: #F5F2EB; /* พื้นหลังแท็บสีเบจกระดาษคราฟต์อ่อน */
-            padding: 4px;
-            border-radius: var(--radius-pro);
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 400;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn:hover { color: var(--text-main); }
-        .tab-btn.active {
-            background: var(--panel-bg);
-            color: var(--text-main);
-            font-weight: 500;
-            /* ใช้การตัดกันของพื้นหลังแทนเงาเข้ม */
-            border: 1px solid var(--border-light);
-        }
-
-        .section-view { display: none; }
-        .section-view.active { display: block; }
-
-        /* Panels (เน้นเว้นพื้นที่ว่าง White Space และถอดเงา) */
-        .filter-panel, .form-panel, .table-panel, .summary-box {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 28px;
-            margin-bottom: 28px;
-        }
-
-        .filter-panel h2, .form-panel h2, .table-toolbar h2, .summary-box h3 {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            color: var(--text-main);
-        }
-
-        .form-row, .filter-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            align-items: flex-end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 400;
-            color: var(--text-muted);
-        }
-
-        .form-control {
-            width: 100%;
-            height: 40px;
-            padding: 0 14px;
-            background: #FAFAFA;
-            border: 1px solid var(--border-heavy);
+        ::-webkit-scrollbar-thumb {
+            background: #3a506b;
             border-radius: 4px;
-            font-size: 14px;
-            color: var(--text-main);
-            outline: none;
-            transition: all 0.2s ease;
         }
-
-        .form-control:focus {
-            border-color: var(--text-main); /* โฟกัสด้วยสีข้อความหลัก สไตล์เรียบง่าย */
-            background: #FFFFFF;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5bc0be;
         }
-
-        /* Fuel Special Input Block */
-        .fuel-input-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            background: #FDFBF7;
-            padding: 16px;
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
-        }
-
-        /* Conditional Section Containers */
-        .conditional-container {
-            display: none;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            background: #FDFBF7;
-            padding: 20px;
-            border-radius: 6px;
-            margin-top: 20px;
-            border: 1px dashed var(--border-heavy);
-        }
-
-        .conditional-container.show { display: grid; }
-
-        /* KPI Cards Layout */
-        .kpi-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 24px;
-            margin-bottom: 28px;
-        }
-
-        .kpi-card {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 24px;
-        }
-
-        .kpi-card.highlight { background: #F5F2EB; color: var(--text-main); border-color: var(--border-heavy); }
-        .kpi-card.danger { background: var(--color-danger-bg); color: var(--accent-muji-red); border-color: var(--border-light); }
-        .kpi-label { font-size: 12px; font-weight: 400; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
-        .kpi-value { font-size: 24px; font-weight: 500; }
-
-        /* Grids & Dashboard widgets */
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 0.9fr 0.9fr;
-            gap: 24px;
-            margin-bottom: 28px;
-        }
-
-        .fuel-analysis-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-pro);
-            padding: 28px;
-            margin-bottom: 28px;
-        }
-
-        @media (max-width: 900px) {
-            .analytics-grid { grid-template-columns: 1fr; }
-        }
-
-        .summary-list { display: flex; flex-direction: column; gap: 12px; max-height: 350px; overflow-y: auto; }
-        .summary-item {
-            display: flex; justify-content: space-between; font-size: 13px; padding: 12px 16px;
-            background: #FAFAFA; border-radius: 4px; border: 1px solid var(--border-light); font-weight: 400; align-items: center;
-        }
-
-        .anomaly-badge {
-            background: var(--color-danger-bg);
-            color: var(--accent-muji-red);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 400;
-            border: 1px solid var(--border-light);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Progress Bars UI */
-        .chart-item { display: flex; flex-direction: column; gap: 8px; background: #FAFAFA; padding: 14px; border-radius: 4px; border: 1px solid var(--border-light); }
-        .chart-info { display: flex; justify-content: space-between; font-size: 13px; font-weight: 400; }
-        .progress-bar-bg { width: 100%; height: 6px; background: #EBE7DF; border-radius: 3px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; width: 0%; transition: width 0.4s ease; }
-
-        /* Tables & Lists */
-        .table-toolbar { display: flex; justify-content: space-between; align-items: center; }
-        .table-scroll { overflow-x: auto; border: 1px solid var(--border-light); border-radius: 4px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: #F5F2EB; color: var(--text-main); font-weight: 500; padding: 14px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border-heavy); }
-        td { padding: 16px 16px; border-bottom: 1px solid var(--border-light); color: var(--text-main); vertical-align: middle; }
-        tr.anomaly-row { background-color: var(--color-danger-bg) !important; }
-        tr:nth-child(even):not(.anomaly-row) { background-color: #FDFBF7; }
-
-        /* Trend Plot Component */
-        .trend-history-list { display: flex; flex-direction: column; gap: 10px; }
-        .trend-history-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; background: #ffffff; border: 1px solid var(--border-light); border-radius: 4px; font-size: 13px;
-        }
-
-        /* Buttons (สไตล์เรียบแบน แมตต์ ไม่เงา) */
-        .btn-blue { height: 40px; padding: 0 24px; background: var(--text-main); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 400; cursor: pointer; transition: background 0.2s; }
-        .btn-blue:hover { background: #444444; }
-        .btn-orange { height: 40px; padding: 0 24px; background: var(--color-fuel); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 400; cursor: pointer; }
-        .btn-outline { background: #ffffff; color: var(--text-main); border: 1px solid var(--border-heavy); border-radius: 4px; height: 40px; padding: 0 16px; font-size: 13px; font-weight: 400; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-outline:hover { background: #FAFAFA; border-color: var(--text-main); }
-        .btn-action { border: none; background: none; cursor: pointer; padding: 4px 8px; font-size: 13px; font-weight: 400; }
-        .btn-edit { color: var(--text-main); text-decoration: underline; }
-        .btn-delete { color: var(--accent-muji-red); text-decoration: underline; margin-left: 6px; }
-        .btn-logout { background: none; border: none; color: var(--accent-muji-red); font-size: 13px; cursor: pointer; font-weight: 400; text-decoration: underline; }
-
-        /* Modals & Dialogs Blur Frame */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(122, 117, 107, 0.2); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.show { display: flex; }
-        .modal-box { background: #ffffff; border-radius: var(--radius-pro); border: 1px solid var(--border-heavy); width: 100%; max-width: 480px; padding: 32px; box-shadow: 0 12px 36px rgba(0,0,0,0.03); }
-        .modal-title { font-size: 16px; font-weight: 500; margin-bottom: 20px; color: var(--text-main); }
-        .modal-body { font-size: 14px; line-height: 1.6; margin-bottom: 28px; background: #FDFBF7; padding: 20px; border-radius: 4px; border: 1px solid var(--border-light); }
-        .modal-row { display: flex; margin-bottom: 10px; }
-        .modal-label { width: 130px; font-weight: 400; color: var(--text-muted); }
-        .modal-value { flex: 1; color: var(--text-main); font-weight: 500; }
-        .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; }
-
-        .status-badge { display: inline-flex; align-items: center; gap: 8px; }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .tag-pill { display: inline-block; font-size: 11px; font-weight: 400; padding: 2px 8px; border-radius: 3px; margin-top: 4px; }
-        .tag-pill.vehicle { background: #F5F2EB; color: var(--text-main); border: 1px solid var(--border-light); }
-        .tag-pill.person { background: #EBE7DF; color: var(--text-main); }
-        .no-data { text-align: center; color: var(--text-muted); padding: 40px; font-size: 13px; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-emerald-500 selection:text-white">
 
-    <!-- Auth System Frame -->
-    <div id="authBlock" class="auth-wrapper">
-        <div class="auth-icon">⚙️</div>
-        <div class="auth-title">KYH Ledger System</div>
-        <div class="auth-subtitle">ระบบบันทึกและตรวจสอบบัญชีรายจ่ายกลาง</div>
-        <form id="loginForm">
-            <div class="form-group" style="margin-bottom: 20px;">
-                <input type="password" id="passwordInput" class="form-control" placeholder="กรอกรหัสผ่านเพื่อตรวจสอบสิทธิ์" style="text-align: center; height: 42px;" required autofocus>
+    <!-- Header Bar -->
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50 px-4 py-3 sm:px-6">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 text-emerald-400">
+                    <i class="fa-solid fa-water text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-emerald-400 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
+                        Interactive Net Mesh Simulator (อวนขี้ม้า 18 x 2" x 300 ตา x ลึก 30 ม.)
+                    </h1>
+                    <p class="text-xs text-slate-400">จำลองการกางขึงและคำนวณมิติอวนประมงเรียลไทม์ (ความกว้าง vs ความลึก 30 เมตร)</p>
+                </div>
             </div>
-            <button type="submit" class="btn-blue" style="width: 100%; height: 42px;">เข้าสู่ระบบ</button>
-        </form>
-    </div>
 
-    <!-- Main Workspace Frame -->
-    <div id="appBlock" class="container">
-        
-        <header class="app-header">
-            <div><h1>KYH Workspace</h1></div>
-            <button id="logoutBtn" class="btn-logout">ออกจากระบบ</button>
-        </header>
-
-        <!-- Navigation Tabs -->
-        <nav class="tabs-navigation">
-            <button id="tabEntryBtn" class="tab-btn active" onclick="switchSection('entry')">📝 บันทึกข้อมูลค่าใช้จ่าย</button>
-            <button id="tabVisualBtn" class="tab-btn" onclick="switchSection('visual')">📊 สรุปแดชบอร์ด & วิเคราะห์</button>
-        </nav>
-
-        <!-- ==================== TAB 1: DATA ENTRY ==================== -->
-        <main id="sectionEntry" class="section-view active">
-            <section class="form-panel">
-                <h2 id="formPanelTitle">บันทึกข้อมูลค่าใช้จ่ายใหม่</h2>
-                <form id="expenseForm">
-                    <input type="hidden" id="editingRecordId" value="">
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="date">วันที่ทำรายการ</label>
-                            <input type="date" id="date" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="category">หมวดหมู่ค่าใช้จ่าย</label>
-                            <select id="category" class="form-control" required>
-                                <option value="">-- เลือกหมวดหมู่ --</option>
-                                <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
-                                <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
-                                <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
-                                <option value="ค่าประกันสังคม">ค่าประกันสังคม</option>
-                                <option value="ค่าทางด่วน / ค่าผ่านทาง">ค่าทางด่วน / ค่าผ่านทาง</option>
-                                <option value="ค่าโทรศัพท์ / อินเตอร์เน็ต">ค่าโทรศัพท์ / อินเตอร์เน็ต</option>
-                                <option value="ค่าไฟฟ้า / ประปา">ค่าไฟฟ้า / ประปา</option>
-                                <option value="ค่าส่งเอกสาร / พัสดุ / ขนส่งสินค้า">ค่าส่งเอกสาร / พัสดุ</option>
-                                <option value="ค่าอุปกรณ์สำนักงาน">ค่าอุปกรณ์สำนักงาน</option>
-                                <option value="ค่าอุปกรณ์ซ่อมบำรุงรถยนต์">ค่าอุปกรณ์ซ่อมรถ</option>
-                                <option value="ค่าปรับจราจร">ค่าปรับจราจร</option>
-                                <option value="ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ">ค่า พรบ. / ประกันรถ</option>
-                                <option value="ค่างานศพ / งานแต่ง / บริจาค / งานบุญ">ค่างานบุญ / บริจาค</option>
-                                <option value="ค่าน้ำดื่ม">ค่าน้ำดื่ม</option>
-                                <option value="ค่าแรงพิเศษลูกน้อง">ค่าแรงพิเศษลูกน้อง</option>
-                                <option value="ค่าแรง Outsource">ค่าแรง Outsource</option>
-                                <option value="ค่าไหว้เจ้า">ค่าไหว้เจ้า</option>
-                                <option value="ค่ารับรองแขก">ค่ารับรองแขก</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="amount">จำนวนเงินสุทธิ (บาท)</label>
-                            <input type="number" id="amount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="note">รายละเอียดเพิ่มเติม</label>
-                            <input type="text" id="note" class="form-control" placeholder="บันทึกช่วยจำ...">
-                        </div>
-
-                        <button type="submit" id="btnSubmitForm" class="btn-blue">ตรวจสอบข้อมูล</button>
-                    </div>
-
-                    <!-- Dynamic Fields Blocks Context Wrapper -->
-                    <div id="conditionalWrapper" class="conditional-container">
-                        <!-- Vehicle Selector Column -->
-                        <div id="vehicleFieldBlock" class="form-group" style="display: none;">
-                            <label for="vehiclePlate">🚗 หมายเลขทะเบียนรถ</label>
-                            <input type="text" id="vehiclePlate" class="form-control" list="vehicleList" placeholder="เลือกทะเบียน หรือพิมพ์ใหม่...">
-                            <datalist id="vehicleList"></datalist>
-                        </div>
-
-                        <!-- NEW: Fuel Sub-Form Fields Block -->
-                        <div id="fuelDetailsBlock" class="form-group" style="display: none; margin-top: 10px;">
-                            <label>⛽ รายละเอียดข้อมูลการเติมน้ำมันเชิงลึก</label>
-                            <div class="fuel-input-grid">
-                                <div>
-                                    <label style="font-size:11px; color:var(--text-muted);">ราคาน้ำมัน (บาท/ลิตร)</label>
-                                    <input type="number" id="fuelPrice" class="form-control" min="0" step="0.01" placeholder="เช่น 38.50">
-                                </div>
-                                <div>
-                                    <label style="font-size:11px; color:var(--text-muted);">จำนวนลิตรที่เติม (L)</label>
-                                    <input type="number" id="fuelLitres" class="form-control" min="0" step="0.01" placeholder="เช่น 45.20">
-                                </div>
-                                <div>
-                                    <label style="font-size:11px; color:var(--text-muted);">เลขไมล์รถล่าสุด (กม.)</label>
-                                    <input type="number" id="fuelOdometer" class="form-control" min="0" placeholder="เช่น 124500">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Person Selector Column -->
-                        <div id="personFieldBlock" class="form-group" style="display: none;">
-                            <label for="personName">👤 ชื่อผู้รับเงิน / พนักงาน</label>
-                            <input type="text" id="personName" class="form-control" list="personList" placeholder="เลือกพนักงาน หรือพิมพ์ใหม่...">
-                            <datalist id="personList"></datalist>
-                        </div>
-                    </div>
-                </form>
-            </section>
-
-            <!-- Table Ledger System Layout -->
-            <section class="table-panel">
-                <div class="table-toolbar">
-                    <h2>สมุดบัญชีรายจ่ายแยกตามแถวรายการทั้งหมด</h2>
-                    <button id="exportBtn" class="btn-outline">📥 Export CSV รายการทั้งหมด</button>
-                </div>
-
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 120px;">วันที่บันทึก</th>
-                                <th style="width: 180px;">หมวดหมู่ประเภท</th>
-                                <th>รายละเอียดรายการบันทึก</th>
-                                <th style="text-align: right; width: 140px;">ยอดเงินสุทธิ</th>
-                                <th style="text-align: center; width: 130px;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                    <div id="noDataMessage" class="no-data" style="display: none;">ยังไม่มีข้อมูลรายการบัญชีในระบบ</div>
-                </div>
-            </section>
-        </main>
-
-        <!-- ==================== TAB 2: ANALYTICS & DASHBOARD ==================== -->
-        <main id="sectionVisual" class="section-view">
-            <!-- Filter Options Layout Section -->
-            <section class="filter-panel">
-                <h2>🔍 เลือกช่วงเวลาและกรองเงื่อนไขสำหรับการแสดงผลกราฟแดชบอร์ด</h2>
-                <div class="filter-row">
-                    <div class="form-group">
-                        <label for="filterStartDate">📅 ตั้งแต่วันที่ (From)</label>
-                        <input type="date" id="filterStartDate" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="filterEndDate">📅 ถึงวันที่ (To)</label>
-                        <input type="date" id="filterEndDate" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="filterCategory">📁 เจาะลึกหมวดหมู่</label>
-                        <select id="filterCategory" class="form-control">
-                            <option value="">หมวดหมู่ทั้งหมด</option>
-                            <option value="ค่าน้ำมัน">ค่าน้ำมัน</option>
-                            <option value="ค่าเบี้ยเลี้ยง">ค่าเบี้ยเลี้ยง</option>
-                            <option value="ค่าเงินเดือน">ค่าเงินเดือน</option>
-                        </select>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button id="btnApplyFilter" class="btn-blue" style="flex: 1;">ประมวลผลข้อมูล</button>
-                        <button id="btnResetFilter" class="btn-outline">ล้างค่า</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- KPI Row indicators -->
-            <section class="kpi-row">
-                <div class="kpi-card highlight">
-                    <div class="kpi-label">รายจ่ายรวมตามเงื่อนไข (Filtered Outflow)</div>
-                    <div class="kpi-value" id="totalAmount">0.00 ฿</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">จำนวนรายการประมวลผล (Transactions)</div>
-                    <div class="kpi-value" id="totalCount">0 รายการ</div>
-                </div>
-                <!-- Alert Anomaly Summary Trigger Box Widget -->
-                <div id="anomalyKpiCard" class="kpi-card danger">
-                    <div class="kpi-label" style="color:var(--color-danger); font-weight:500;">🚨 ตรวจพบความผิดปกติ</div>
-                    <div class="kpi-value" id="anomalyKpiCount" style="color:var(--color-danger);">0 จุด</div>
-                </div>
-            </section>
-
-            <!-- NEW ADVANCED SECTION: SPECIAL FUEL METRICS DIAGNOSTICS VISUAL PANEL -->
-            <section class="fuel-analysis-panel">
-                <h3 style="font-size:15px; font-weight:500; margin-bottom:20px; display:flex; align-items:center; gap:6px;">
-                    ⛽ ระบบวิเคราะห์ประสิทธิภาพค่าน้ำมันและประวัติแนวโน้ม (Fuel Logistics Visualizer)
-                </h3>
-                <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:24px;">
-                    <!-- Price and Odometer Trend Plots -->
-                    <div class="summary-box" style="margin-bottom:0; padding:20px; background:#fff; border: 1px solid var(--border-light);">
-                        <h4 style="font-size:13px; font-weight:400; margin-bottom:14px; color:var(--text-muted);">📈 ลำดับประวัติแนวโน้มราคา & อัตราสิ้นเปลืองล่าสุด</h4>
-                        <div id="fuelTrendLogList" class="trend-history-list"></div>
-                    </div>
-                    <!-- Analytics calculation summaries -->
-                    <div style="display:flex; flex-direction:column; gap:16px;">
-                        <div class="summary-box" style="margin-bottom:0; padding:16px; background:#fff; border: 1px solid var(--border-light);">
-                            <h4 style="font-size:13px; font-weight:400; margin-bottom:10px; color:var(--text-muted);">🚗 อัตราสิ้นเปลืองเฉลี่ยแยกคัน (กม./ลิตร)</h4>
-                            <div id="fuelEfficiencyStats" class="summary-list"></div>
-                        </div>
-                        <div class="summary-box" style="margin-bottom:0; padding:16px; background:#fff; border: 1px solid var(--border-light);">
-                            <h4 style="font-size:13px; font-weight:400; margin-bottom:10px; color:var(--text-muted);">⏱️ ความถี่เฉลี่ยในการเข้าเติมน้ำมัน (เติมทุกๆ วัน)</h4>
-                            <div id="fuelFrequencyStats" class="summary-list"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Layout Core Row charts -->
-            <section class="analytics-grid">
-                <div class="summary-box">
-                    <h3>📊 สัดส่วนค่าใช้จ่ายแยกตามหมวดหมู่ (%)</h3>
-                    <div id="categoryChartList" class="summary-list"></div>
-                </div>
-                <div class="summary-box">
-                    <h3>🚗 ยอดสะสมแยกตามทะเบียนรถ</h3>
-                    <div id="vehicleSummaryList" class="summary-list"></div>
-                </div>
-                <div class="summary-box">
-                    <h3>👤 ยอดสะสมแยกตามบุคคล</h3>
-                    <div id="personSummaryList" class="summary-list"></div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Confirm Dialog Overlays -->
-    <div id="confirmModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-title">🔍 ยืนยันความถูกต้องของข้อมูลรายจ่าย</div>
-            <div class="modal-body">
-                <div class="modal-row"><div class="modal-label">วันที่:</div><div id="mDate" class="modal-value"></div></div>
-                <div class="modal-row"><div class="modal-label">หมวดหมู่:</div><div id="mCategory" class="modal-value"></div></div>
-                <div class="modal-row" id="mVehicleRow"><div class="modal-label">ทะเบียนรถ:</div><div id="mVehicle" class="modal-value"></div></div>
-                <div class="modal-row" id="mFuelRow" style="background:var(--bg-main); padding:12px; border-radius:4px; border:1px solid var(--border-light); flex-direction:column; display:none; margin-bottom: 10px;">
-                    <div style="font-weight:500; color:var(--text-main); margin-bottom:4px;">ข้อมูลน้ำมัน:</div>
-                    <div style="font-size:13px; color: var(--text-muted);" id="mFuelDetails"></div>
-                </div>
-                <div class="modal-row" id="mPersonRow"><div class="modal-label">ชื่อผู้รับ/พนักงาน:</div><div id="mPerson" class="modal-value"></div></div>
-                <div class="modal-row"><div class="modal-label">ยอดเงินสุทธิ:</div><div id="mAmount" class="modal-value" style="color: var(--accent-muji-red); font-weight: 600;"></div></div>
-                <div class="modal-row"><div class="modal-label">รายละเอียด:</div><div id="mNote" class="modal-value"></div></div>
-            </div>
-            <div class="modal-buttons">
-                <button id="btnCancelModal" class="btn-outline">แก้ไขข้อมูล</button>
-                <button id="btnConfirmModal" class="btn-blue">ถูกต้อง บันทึกข้อมูล</button>
+            <!-- View Switch Tabs -->
+            <div class="flex items-center gap-1 bg-slate-950 p-1.5 rounded-xl border border-slate-800 text-xs">
+                <button id="tabSingleView" onclick="switchView('single')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-medium shadow-sm transition">
+                    <i class="fa-solid fa-vector-square mr-1"></i> 1 ตาอวน (Single Mesh)
+                </button>
+                <button id="tabFullView" onclick="switchView('full')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-border-all mr-1"></i> ผืนอวน 300 ตา (ลึก 30 ม.)
+                </button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <script>
-        const HASHED_PASSWORD_KEY = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"; 
-        async function sha256(m) { const b = new TextEncoder().encode(m); const h = await crypto.subtle.digest('SHA-256', b); return Array.from(new Uint8Array(h)).map(x => x.toString(16).padStart(2, '0')).join(''); }
-
-        // ปรับกลุ่มจุดสีสถานะให้ล้อไปกับ Palette ใหม่
-        const dotColors = { 'ค่าน้ำมัน': 'var(--color-fuel)', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์': 'var(--color-fuel)', 'ค่าพรบ.รถ': 'var(--color-fuel)', 'ค่าเงินเดือน': 'var(--color-salary)' };
-
-        const defaultMock = [
-            { id: 1, date: '2026-07-01', category: 'ค่าน้ำมัน', amount: 1500.00, note: 'เติมดีเซลเต็มถัง', vehiclePlate: 'บย-4321 สมุทรสาคร', personName: '', fuelPrice: 37.50, fuelLitres: 40, fuelOdometer: 100000 },
-            { id: 2, date: '2026-07-05', category: 'ค่าน้ำมัน', amount: 1600.00, note: 'เติมน้ำมันวิ่งไปกลับ กทม.', vehiclePlate: 'บย-4321 สมุทรสาคร', personName: '', fuelPrice: 38.10, fuelLitres: 42, fuelOdometer: 100500 },
-            { id: 3, date: '2026-07-06', category: 'ค่าเงินเดือน', amount: 25000.00, note: 'เงินเดือนแอดมิน', vehiclePlate: '', personName: 'สมหญิง', fuelPrice: 0, fuelLitres: 0, fuelOdometer: 0 },
-            { id: 4, date: '2026-07-10', category: 'ค่าน้ำมัน', amount: 1200.00, note: 'เติมแก๊สโซฮอล์รถเก๋ง', vehiclePlate: 'กข-9999 กรุงเทพ', personName: '', fuelPrice: 39.00, fuelLitres: 30.76, fuelOdometer: 52000 },
-            { id: 5, date: '2026-07-11', category: 'ค่าน้ำมัน', amount: 1800.00, note: 'เติมน้ำมันผิดปกติ (ทดสอบแจ้งเตือน)', vehiclePlate: 'กข-9999 กรุงเทพ', personName: '', fuelPrice: 65.00, fuelLitres: 27.69, fuelOdometer: 52100 }
-        ];
-
-        let expenses = JSON.parse(localStorage.getItem('kyh_pro_db2')) || defaultMock;
-        if(!localStorage.getItem('kyh_pro_db2')) localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
-
-        let rememberedVehicles = JSON.parse(localStorage.getItem('kyh_vehicles')) || ['บย-4321 สมุทรสาคร', 'กข-9999 กรุงเทพ'];
-        let rememberedPersons = JSON.parse(localStorage.getItem('kyh_persons')) || ['สมชาย', 'สมหญิง'];
-
-        document.getElementById('date').value = new Date().toISOString().split('T')[0];
-
-        const authBlock = document.getElementById('authBlock'); const appBlock = document.getElementById('appBlock');
-        const loginForm = document.getElementById('loginForm'); const passwordInput = document.getElementById('passwordInput');
-        const logoutBtn = document.getElementById('logoutBtn'); const expenseForm = document.getElementById('expenseForm');
-        const categorySelect = document.getElementById('category'); const editingRecordIdInput = document.getElementById('editingRecordId');
-        const formPanelTitle = document.getElementById('formPanelTitle'); const btnSubmitForm = document.getElementById('btnSubmitForm');
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto">
         
-        const conditionalWrapper = document.getElementById('conditionalWrapper');
-        const vehicleFieldBlock = document.getElementById('vehicleFieldBlock'); const vehiclePlateInput = document.getElementById('vehiclePlate');
-        const fuelDetailsBlock = document.getElementById('fuelDetailsBlock');
-        const fuelPriceInput = document.getElementById('fuelPrice'); const fuelLitresInput = document.getElementById('fuelLitres'); const fuelOdometerInput = document.getElementById('fuelOdometer');
-        const personFieldBlock = document.getElementById('personFieldBlock'); const personNameInput = document.getElementById('personName');
-        const vehicleList = document.getElementById('vehicleList'); const personList = document.getElementById('personList');
+        <!-- Controls Panel (Left 4 cols) -->
+        <section class="lg:col-span-4 flex flex-col gap-4 bg-slate-900/70 border border-slate-800 p-5 rounded-2xl backdrop-blur-md shadow-xl">
+            <h2 class="text-base font-semibold text-emerald-400 flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i class="fa-solid fa-sliders"></i> ตั้งค่ามิติผืนอวน (Controls)
+            </h2>
 
-        const filterStartDate = document.getElementById('filterStartDate'); const filterEndDate = document.getElementById('filterEndDate'); const filterCategory = document.getElementById('filterCategory');
-        const tableBody = document.getElementById('tableBody'); const noDataMessage = document.getElementById('noDataMessage');
-        const totalAmountEl = document.getElementById('totalAmount'); const totalCountEl = document.getElementById('totalCount');
-        const anomalyKpiCard = document.getElementById('anomalyKpiCard'); const anomalyKpiCount = document.getElementById('anomalyKpiCount');
-        const exportBtn = document.getElementById('exportBtn');
+            <!-- Quick Presets -->
+            <div class="flex items-center justify-between bg-slate-950/80 p-2 rounded-xl border border-slate-800 text-xs">
+                <span class="text-slate-400 font-medium"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>โหมดกาง:</span>
+                <div class="flex gap-1">
+                    <button onclick="setPresetAngle(90)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-600 transition text-slate-300 hover:text-white font-mono">
+                        90° (จัตุรัส)
+                    </button>
+                    <button onclick="setPresetAngle(60)" class="px-2.5 py-1 rounded bg-emerald-600 text-white font-mono font-medium shadow-sm">
+                        60° (มาตรฐาน)
+                    </button>
+                    <button onclick="setPresetAngle(40)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-600 transition text-slate-300 hover:text-white font-mono">
+                        40° (หย่อน)
+                    </button>
+                </div>
+            </div>
 
-        const categoryChartList = document.getElementById('categoryChartList'); const vehicleSummaryList = document.getElementById('vehicleSummaryList'); const personSummaryList = document.getElementById('personSummaryList');
-        const fuelTrendLogList = document.getElementById('fuelTrendLogList'); const fuelEfficiencyStats = document.getElementById('fuelEfficiencyStats'); const fuelFrequencyStats = document.getElementById('fuelFrequencyStats');
+            <!-- Control 1: Stretched Mesh Size -->
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center text-sm">
+                    <label for="stretchedSize" class="font-medium text-slate-200">ขนาดตาแบบยืดสุด (Stretched Size)</label>
+                    <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold" id="stretchedValDisplay">2.0 นิ้ว</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="range" id="stretchedSize" min="0.5" max="10" step="0.25" value="2" 
+                           class="w-full accent-emerald-500 bg-slate-800 rounded-lg h-2 cursor-pointer">
+                    <input type="number" id="stretchedNumInput" min="0.5" max="20" step="0.25" value="2" 
+                           class="w-20 bg-slate-800 border border-slate-700 text-center text-sm font-mono rounded-lg py-1 text-emerald-400 focus:outline-none focus:border-emerald-500">
+                    <span class="text-xs text-slate-400">นิ้ว</span>
+                </div>
+            </div>
 
-        const confirmModal = document.getElementById('confirmModal'); const btnCancelModal = document.getElementById('btnCancelModal'); const btnConfirmModal = document.getElementById('btnConfirmModal');
-        let temporaryRecordData = null;
+            <!-- Control 2: Mesh Count Horizontal -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-800/60">
+                <div class="flex justify-between items-center text-sm">
+                    <label for="meshCountHoriz" class="font-medium text-slate-200">จำนวนตาแนวนอน (Horizontal Meshes)</label>
+                    <span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono font-bold" id="countHorizDisplay">300 ตา</span>
+                </div>
+                <input type="range" id="meshCountHoriz" min="10" max="1000" step="10" value="300" 
+                       class="w-full accent-amber-400 bg-slate-800 rounded-lg h-2 cursor-pointer">
+            </div>
 
-        const vehicleCategories = ['ค่าน้ำมัน', 'ค่าอุปกรณ์ซ่อมบำรุงรถยนต์', 'ค่าพรบ.รถ / ประกันรถ / ภาษีรถ /ตรวจสภาพพรบ'];
-        const personCategories = ['ค่าเบี้ยเลี้ยง', 'ค่าเงินเดือน', 'ค่าแรงพิเศษลูกน้อง', 'ค่าแรง Outsource'];
+            <!-- Control 3: Net Stretched Depth (Meters) -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-800/60">
+                <div class="flex justify-between items-center text-sm">
+                    <label for="netDepthMeters" class="font-medium text-slate-200">ความลึกผืนอวนยืดสุด (Stretched Depth)</label>
+                    <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-mono font-bold" id="depthMetersDisplay">30.0 เมตร</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="range" id="netDepthMeters" min="1" max="100" step="1" value="30" 
+                           class="w-full accent-cyan-400 bg-slate-800 rounded-lg h-2 cursor-pointer">
+                    <input type="number" id="netDepthNumInput" min="1" max="200" step="1" value="30" 
+                           class="w-20 bg-slate-800 border border-slate-700 text-center text-sm font-mono rounded-lg py-1 text-cyan-400 focus:outline-none focus:border-cyan-500">
+                    <span class="text-xs text-slate-400">เมตร</span>
+                </div>
+                <p class="text-[11px] text-slate-400" id="calculatedMDText">คิดเป็นประมาณ 591 ตา (MD) ในแนวลึก</p>
+            </div>
 
-        window.switchSection = function(t) {
-            document.getElementById('tabEntryBtn').classList.toggle('active', t === 'entry');
-            document.getElementById('tabVisualBtn').classList.toggle('active', t === 'visual');
-            document.getElementById('sectionEntry').classList.toggle('active', t === 'entry');
-            document.getElementById('sectionVisual').classList.toggle('active', t === 'visual');
-            renderCoreEngine();
-        };
+            <!-- Control 4: Mesh Angle / Hanging Angle -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-800/60">
+                <div class="flex justify-between items-center text-sm">
+                    <label for="meshAngle" class="font-medium text-slate-200">มุมกางตาอวน ($\theta$ / Mesh Angle)</label>
+                    <span class="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 font-mono font-bold" id="angleValDisplay">60°</span>
+                </div>
+                <input type="range" id="meshAngle" min="10" max="170" step="1" value="60" 
+                       class="w-full accent-purple-400 bg-slate-800 rounded-lg h-2 cursor-pointer">
+                <div class="flex justify-between text-[11px] text-slate-400 font-mono">
+                    <span>10° (ตั้งแคบ)</span>
+                    <span>60° (มาตรฐาน)</span>
+                    <span>170° (แบนราบ)</span>
+                </div>
+            </div>
 
-        function updateDropdownOptions() {
-            vehicleList.innerHTML = ''; rememberedVehicles.forEach(x => { let o = document.createElement('option'); o.value = x; vehicleList.appendChild(o); });
-            personList.innerHTML = ''; rememberedPersons.forEach(x => { let o = document.createElement('option'); o.value = x; personList.appendChild(o); });
-        }
+            <!-- Display Options -->
+            <div class="pt-2 border-t border-slate-800/60 space-y-1.5 text-xs">
+                <span class="font-medium text-slate-300 block mb-1">ตัวเลือกการแสดงผล</span>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer bg-slate-950/50 p-2 rounded-lg border border-slate-800 hover:border-slate-700">
+                        <input type="checkbox" id="chkShowDimensions" checked class="rounded accent-emerald-500">
+                        <span>แสดงเส้นวัดมิติ</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300 cursor-pointer bg-slate-950/50 p-2 rounded-lg border border-slate-800 hover:border-slate-700">
+                        <input type="checkbox" id="chkShowGrid" checked class="rounded accent-emerald-500">
+                        <span>แสดงทุ่น/ตะกั่ว</span>
+                    </label>
+                </div>
+            </div>
 
-        function checkFuelAnomaly(item, historicDataset) {
-            if (item.category !== 'ค่าน้ำมัน') return { isAnomaly: false, reason: '' };
-            if (item.fuelPrice && (item.fuelPrice < 30 || item.fuelPrice > 50)) {
-                return { isAnomaly: true, reason: `ราคาผิดปกติ (${item.fuelPrice} ฿/L)` };
-            }
-            if (item.vehiclePlate && item.fuelOdometer && item.fuelLitres) {
-                const sameVehicleRecords = historicDataset
-                    .filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate === item.vehiclePlate && x.fuelOdometer < item.fuelOdometer)
-                    .sort((a,b) => b.fuelOdometer - a.fuelOdometer);
+            <!-- Calculation Summary Mini Box -->
+            <div class="mt-auto p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/20 space-y-2">
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-400">อัตราส่วนกาง (Hanging Ratio - E):</span>
+                    <span class="font-mono text-emerald-400 font-bold" id="calcHangingRatio">50.0%</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-400">ความกว้างกางจริง ($C$):</span>
+                    <span class="font-mono text-cyan-300 font-bold" id="calcMiniWidth">7.62 ม.</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-400">ความลึกกางจริง ($H$):</span>
+                    <span class="font-mono text-purple-300 font-bold" id="calcMiniDepth">25.98 ม.</span>
+                </div>
+                <div class="flex justify-between text-xs pt-1 border-t border-slate-800">
+                    <span class="text-slate-400">พื้นที่ผืนอวนกางใช้งาน:</span>
+                    <span class="font-mono text-amber-300 font-bold" id="calcMiniArea">197.97 ตร.ม.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Canvas & Metrics Display (Right 8 cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-5">
+            
+            <!-- Canvas Container -->
+            <div class="relative bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[440px]">
                 
-                if (sameVehicleRecords.length > 0) {
-                    const lastRecord = sameVehicleRecords[0];
-                    const distance = item.fuelOdometer - lastRecord.fuelOdometer;
-                    if (distance > 0) {
-                        const kml = distance / item.fuelLitres;
-                        if (kml < 8) return { isAnomaly: true, reason: `กินน้ำมันสูง (${kml.toFixed(1)} กม./ลิตร)` };
-                        if (kml > 25) return { isAnomaly: true, reason: `ไมล์สูงเกินจริง (${kml.toFixed(1)} กม./ลิตร)` };
-                    }
-                }
-            }
-            return { isAnomaly: false, reason: '' };
-        }
+                <!-- Canvas Toolbar Header -->
+                <div class="flex justify-between items-center px-4 py-2 bg-slate-950 border-b border-slate-800 text-xs">
+                    <div class="flex items-center gap-2 text-slate-300 font-medium" id="canvasViewTitle">
+                        <i class="fa-solid fa-vector-square text-emerald-400"></i>
+                        <span>โหมด 1 ตาอวน (Single Mesh Geometry)</span>
+                    </div>
+                    <div class="flex items-center gap-2" id="fullNetControls">
+                        <button onclick="resetZoomPan()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition">
+                            <i class="fa-solid fa-arrows-to-dot mr-1"></i> รีเซ็ตมุมมอง
+                        </button>
+                    </div>
+                </div>
 
-        function handleCategoryFieldsVisibility(cat) {
-            let showVehicle = vehicleCategories.includes(cat);
-            let showPerson = personCategories.includes(cat);
-            let isFuel = (cat === 'ค่าน้ำมัน');
+                <!-- Main Canvas -->
+                <div class="relative flex-1 bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing" id="canvasHolder">
+                    <canvas id="meshCanvas" class="w-full h-full block"></canvas>
 
-            conditionalWrapper.classList.toggle('show', showVehicle || showPerson || isFuel);
-            vehicleFieldBlock.style.display = showVehicle ? 'block' : 'none';
-            vehiclePlateInput.required = showVehicle;
-            
-            fuelDetailsBlock.style.display = isFuel ? 'block' : 'none';
-            fuelPriceInput.required = isFuel;
-            fuelLitresInput.required = isFuel;
-            fuelOdometerInput.required = isFuel;
+                    <!-- Overlay Diagram Label -->
+                    <div class="absolute bottom-3 left-3 bg-slate-900/85 backdrop-blur border border-slate-700/60 text-[11px] px-3 py-2 rounded-xl text-slate-300 space-y-0.5 pointer-events-none shadow-lg">
+                        <div id="canvasOverlayTitle"><strong class="text-emerald-400">ขนาดตาอวน:</strong> 2 นิ้ว (ยาวด้านละ 1 นิ้ว)</div>
+                        <div class="text-slate-400 text-[10px]" id="canvasOverlaySub">*เส้นทแยงมุม DB = ความกว้างกางจริง / CA = ความสูงกางจริง</div>
+                    </div>
+                </div>
+            </div>
 
-            personFieldBlock.style.display = showPerson ? 'block' : 'none';
-            personNameInput.required = showPerson;
-        }
+            <!-- Metrics Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+                
+                <!-- Card 1: Theoretical Stretched Size -->
+                <div class="bg-slate-900/60 border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between hover:border-slate-700 transition">
+                    <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+                        <span>ตึงสุด 100% (ราบ)</span>
+                        <i class="fa-solid fa-ruler-combined text-slate-500"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold font-mono text-slate-200" id="cardStretchedWidth">15.24 ม.</div>
+                        <div class="text-xs text-slate-400 font-mono mt-0.5" id="cardStretchedDepth">ลึก 30.00 ม.</div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-2">ขนาดดึงตึงเต็มผืน</p>
+                </div>
 
-        categorySelect.addEventListener('change', () => handleCategoryFieldsVisibility(categorySelect.value));
+                <!-- Card 2: Actual Hung Width -->
+                <div class="bg-slate-900/90 border border-cyan-500/40 p-3.5 rounded-xl flex flex-col justify-between shadow-lg shadow-cyan-950/20 hover:border-cyan-500/60 transition">
+                    <div class="flex items-center justify-between text-cyan-400 text-xs mb-1 font-medium">
+                        <span>ความกว้างกางจริง ($C$)</span>
+                        <i class="fa-solid fa-arrows-left-right text-cyan-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold font-mono text-cyan-300" id="cardHungWidthMeters">7.62 เมตร</div>
+                        <div class="text-xs font-semibold text-cyan-400/80 font-mono mt-0.5" id="cardHungWidthInches">300.0 นิ้ว</div>
+                    </div>
+                    <p class="text-[10px] text-cyan-400/70 mt-2 font-medium" id="cardWidthNote">กาง 50.0% ของ 15.24ม.</p>
+                </div>
 
-        function autoCalculateAmount() {
-            if(categorySelect.value === 'ค่าน้ำมัน' && fuelPriceInput.value && fuelLitresInput.value) {
-                document.getElementById('amount').value = (parseFloat(fuelPriceInput.value) * parseFloat(fuelLitresInput.value)).toFixed(2);
-            }
-        }
-        fuelPriceInput.addEventListener('input', autoCalculateAmount);
-        fuelLitresInput.addEventListener('input', autoCalculateAmount);
+                <!-- Card 3: Actual Hung Depth -->
+                <div class="bg-slate-900/90 border border-purple-500/40 p-3.5 rounded-xl flex flex-col justify-between shadow-lg shadow-purple-950/20 hover:border-purple-500/60 transition">
+                    <div class="flex items-center justify-between text-purple-400 text-xs mb-1 font-medium">
+                        <span>ความลึกกางจริง ($H$)</span>
+                        <i class="fa-solid fa-arrows-up-down text-purple-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold font-mono text-purple-300" id="cardHungDepthMeters">25.98 เมตร</div>
+                        <div class="text-xs font-semibold text-purple-400/80 font-mono mt-0.5" id="cardHungDepthFeet">85.24 ฟุต</div>
+                    </div>
+                    <p class="text-[10px] text-purple-400/70 mt-2 font-medium" id="cardDepthNote">หดลงเหลือ 86.6% ของ 30ม.</p>
+                </div>
 
-        if (sessionStorage.getItem('isAuthenticated') === 'true') {
-            authBlock.style.display = 'none'; appBlock.style.display = 'block'; updateDropdownOptions(); renderCoreEngine();
-        }
+                <!-- Card 4: Actual Surface Area -->
+                <div class="bg-slate-900/90 border border-amber-500/40 p-3.5 rounded-xl flex flex-col justify-between shadow-lg shadow-amber-950/20 hover:border-amber-500/60 transition">
+                    <div class="flex items-center justify-between text-amber-400 text-xs mb-1 font-medium">
+                        <span>พื้นที่ครอบคลุม ($C \times H$)</span>
+                        <i class="fa-solid fa-chart-area text-amber-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold font-mono text-amber-300" id="cardAreaSqM">197.97 ตร.ม.</div>
+                        <div class="text-xs text-amber-400/80 font-mono mt-0.5" id="cardAreaRai">0.12 ไร่</div>
+                    </div>
+                    <p class="text-[10px] text-amber-400/70 mt-2 font-medium">พื้นที่ผืนอวนขณะใช้งานจริง</p>
+                </div>
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if ((await sha256(passwordInput.value)) === HASHED_PASSWORD_KEY) {
-                sessionStorage.setItem('isAuthenticated', 'true'); authBlock.style.display = 'none'; appBlock.style.display = 'block'; updateDropdownOptions(); renderCoreEngine();
-            } else { alert('รหัสผ่านไม่ถูกต้อง'); passwordInput.value = ''; }
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-3 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span>Net Mesh Simulation Tool &copy; 2026 - อวนโปลีขี้ม้า 380/18 ขนาด 2 นิ้ว</span>
+            <span>คำนวณตามหลักอวนศาสตร์ (Hanging Ratio & Net Geometry: $C = D \cdot E$, $H = D_{depth} \cdot \sqrt{1-E^2}$)</span>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic & Canvas Renderer -->
+    <script>
+        // --- State Variables ---
+        let stretchedSizeInches = 2.0;  // Stretched mesh length (นิ้ว)
+        let meshAngleDeg = 60;           // Hanging angle \theta (องศา)
+        let meshCountHoriz = 300;        // จำนวนตาแนวนอน
+        let netDepthMeters = 30.0;       // ความลึกผืนอวนยืดสุด (เมตร)
+        let activeView = 'single';       // 'single' or 'full'
+
+        // Zoom & Pan state for Full View
+        let zoomScale = 1.0;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let startPanX = 0;
+        let startPanY = 0;
+
+        // --- DOM Elements ---
+        const stretchedSlider = document.getElementById('stretchedSize');
+        const stretchedNumInput = document.getElementById('stretchedNumInput');
+        const stretchedValDisplay = document.getElementById('stretchedValDisplay');
+        
+        const countHorizSlider = document.getElementById('meshCountHoriz');
+        const countHorizDisplay = document.getElementById('countHorizDisplay');
+
+        const netDepthSlider = document.getElementById('netDepthMeters');
+        const netDepthNumInput = document.getElementById('netDepthNumInput');
+        const depthMetersDisplay = document.getElementById('depthMetersDisplay');
+        const calculatedMDText = document.getElementById('calculatedMDText');
+
+        const angleSlider = document.getElementById('meshAngle');
+        const angleValDisplay = document.getElementById('angleValDisplay');
+
+        const chkShowDimensions = document.getElementById('chkShowDimensions');
+        const chkShowGrid = document.getElementById('chkShowGrid');
+
+        const canvas = document.getElementById('meshCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasHolder = document.getElementById('canvasHolder');
+
+        // Output Display Elements
+        const calcHangingRatio = document.getElementById('calcHangingRatio');
+        const calcMiniWidth = document.getElementById('calcMiniWidth');
+        const calcMiniDepth = document.getElementById('calcMiniDepth');
+        const calcMiniArea = document.getElementById('calcMiniArea');
+
+        const cardStretchedWidth = document.getElementById('cardStretchedWidth');
+        const cardStretchedDepth = document.getElementById('cardStretchedDepth');
+        const cardHungWidthMeters = document.getElementById('cardHungWidthMeters');
+        const cardHungWidthInches = document.getElementById('cardHungWidthInches');
+        const cardWidthNote = document.getElementById('cardWidthNote');
+
+        const cardHungDepthMeters = document.getElementById('cardHungDepthMeters');
+        const cardHungDepthFeet = document.getElementById('cardHungDepthFeet');
+        const cardDepthNote = document.getElementById('cardDepthNote');
+
+        const cardAreaSqM = document.getElementById('cardAreaSqM');
+        const cardAreaRai = document.getElementById('cardAreaRai');
+
+        const canvasViewTitle = document.getElementById('canvasViewTitle');
+        const canvasOverlayTitle = document.getElementById('canvasOverlayTitle');
+        const canvasOverlaySub = document.getElementById('canvasOverlaySub');
+
+        // --- Event Listeners ---
+        stretchedSlider.addEventListener('input', (e) => {
+            stretchedSizeInches = parseFloat(e.target.value);
+            stretchedNumInput.value = stretchedSizeInches;
+            updateAll();
         });
-        logoutBtn.addEventListener('click', () => { sessionStorage.removeItem('isAuthenticated'); window.location.reload(); });
 
-        function renderCoreEngine() {
-            const masterList = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-            tableBody.innerHTML = '';
-            let globalAnomalyCounter = 0;
+        stretchedNumInput.addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value);
+            if (isNaN(val) || val <= 0) val = 0.5;
+            stretchedSizeInches = val;
+            stretchedSlider.value = Math.min(val, 10);
+            updateAll();
+        });
 
-            if (masterList.length === 0) {
-                noDataMessage.style.display = 'block';
-            } else {
-                noDataMessage.style.display = 'none';
-                masterList.forEach(exp => {
-                    let subBadge = '';
-                    const anomalyCheck = checkFuelAnomaly(exp, expenses);
-                    if(anomalyCheck.isAnomaly) globalAnomalyCounter++;
+        countHorizSlider.addEventListener('input', (e) => {
+            meshCountHoriz = parseInt(e.target.value);
+            updateAll();
+        });
 
-                    if (exp.category === 'ค่าน้ำมัน') {
-                        subBadge = `<span class="tag-pill vehicle">🚗 ${exp.vehiclePlate || 'ไม่ระบุทะเบียน'}</span> 
-                                    <span style="background:#F5F2EB; color:var(--text-main);" class="tag-pill">⛽ ${exp.fuelPrice}฿/L | ${exp.fuelLitres}L | ไมล์: ${exp.fuelOdometer}</span>`;
-                        if(anomalyCheck.isAnomaly) {
-                            subBadge += ` <div class="anomaly-badge">🚨 ${anomalyCheck.reason}</div>`;
-                        }
-                    } else if (exp.vehiclePlate) {
-                        subBadge = `<span class="tag-pill vehicle">🚗 ทะเบียน: ${exp.vehiclePlate}</span>`;
-                    }
-                    if (exp.personName) subBadge += ` <span class="tag-pill person">👤 ผู้รับ: ${exp.personName}</span>`;
+        netDepthSlider.addEventListener('input', (e) => {
+            netDepthMeters = parseFloat(e.target.value);
+            netDepthNumInput.value = netDepthMeters;
+            updateAll();
+        });
 
-                    const dotColor = dotColors[exp.category] || 'var(--color-other)';
-                    const row = document.createElement('tr');
-                    if(anomalyCheck.isAnomaly) row.className = 'anomaly-row';
+        netDepthNumInput.addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value);
+            if (isNaN(val) || val <= 0) val = 1;
+            netDepthMeters = val;
+            netDepthSlider.value = Math.min(val, 100);
+            updateAll();
+        });
 
-                    row.innerHTML = `
-                        <td style="color: var(--text-muted); font-size: 13px;">${exp.date}</td>
-                        <td><div class="status-badge"><span class="status-dot" style="background-color: ${dotColor};"></span><span>${exp.category}</span></div></td>
-                        <td><div style="margin-bottom: 2px;">${exp.note || '—'}</div>${subBadge}</td>
-                        <td style="text-align: right; font-weight: 500; font-size: 15px;">${exp.amount.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿</td>
-                        <td style="text-align: center;">
-                            <button class="btn-action btn-edit" onclick="editRecord(${exp.id})">แก้ไข</button>
-                            <button class="btn-action btn-delete" onclick="deleteRecord(${exp.id})">ลบ</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
+        angleSlider.addEventListener('input', (e) => {
+            meshAngleDeg = parseInt(e.target.value);
+            updateAll();
+        });
+
+        chkShowDimensions.addEventListener('change', drawSimulation);
+        chkShowGrid.addEventListener('change', drawSimulation);
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Pan & Zoom Events
+        canvasHolder.addEventListener('mousedown', (e) => {
+            if (activeView === 'full') {
+                isDragging = true;
+                startPanX = e.clientX - panX;
+                startPanY = e.clientY - panY;
             }
+        });
 
-            const startStr = filterStartDate.value; const endStr = filterEndDate.value; const catFilter = filterCategory.value;
-            const filteredData = expenses.filter(exp => {
-                if (catFilter && exp.category !== catFilter) return false;
-                if (startStr && exp.date < startStr) return false;
-                if (endStr && exp.date > endStr) return false;
-                return true;
-            });
-
-            let totalSum = 0;
-            const categoryTotals = {}; const vehicleTotals = {}; const personTotals = {};
-            const fuelRecordsFiltered = filteredData.filter(x => x.category === 'ค่าน้ำมัน' && x.fuelPrice > 0).sort((a,b) => new Date(a.date) - new Date(b.date));
-            
-            filteredData.forEach(exp => {
-                totalSum += parseFloat(exp.amount);
-                categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + parseFloat(exp.amount);
-                if (exp.vehiclePlate) vehicleTotals[exp.vehiclePlate] = (vehicleTotals[exp.vehiclePlate] || 0) + parseFloat(exp.amount);
-                if (exp.personName) personTotals[exp.personName] = (personTotals[exp.personName] || 0) + parseFloat(exp.amount);
-            });
-
-            totalAmountEl.textContent = `${totalSum.toLocaleString('th-TH', {minimumFractionDigits: 2})} ฿`;
-            totalCountEl.textContent = `${filteredData.length} รายการ`;
-
-            if(globalAnomalyCounter > 0) {
-                anomalyKpiCard.style.display = 'block';
-                anomalyKpiCount.textContent = `${globalAnomalyCounter} รายการ`;
-            } else {
-                anomalyKpiCard.style.display = 'none';
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging && activeView === 'full') {
+                panX = e.clientX - startPanX;
+                panY = e.clientY - startPanY;
+                drawSimulation();
             }
+        });
 
-            categoryChartList.innerHTML = '';
-            Object.keys(categoryTotals).sort((a,b) => categoryTotals[b] - categoryTotals[a]).forEach(cat => {
-                const amt = categoryTotals[cat]; const pct = totalSum > 0 ? ((amt / totalSum) * 100).toFixed(1) : 0;
-                const div = document.createElement('div'); div.className = 'chart-item';
-                div.innerHTML = `
-                    <div class="chart-info"><span>${cat}</span><span style="font-weight:500;">${amt.toLocaleString()} ฿ (${pct}%)</span></div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%; background-color:${dotColors[cat]||'var(--color-other)'};"></div></div>
-                `;
-                categoryChartList.appendChild(div);
-            });
+        window.addEventListener('mouseup', () => { isDragging = false; });
 
-            vehicleSummaryList.innerHTML = '';
-            Object.keys(vehicleTotals).forEach(v => {
-                const div = document.createElement('div'); div.className = 'summary-item';
-                div.innerHTML = `<span>🚗 ${v}</span> <span style="color:var(--text-main); font-weight:500;">${vehicleTotals[v].toLocaleString()} ฿</span>`;
-                vehicleSummaryList.appendChild(div);
-            });
-
-            personSummaryList.innerHTML = '';
-            Object.keys(personTotals).forEach(p => {
-                const div = document.createElement('div'); div.className = 'summary-item';
-                div.innerHTML = `<span>👤 ${p}</span> <span style="color:var(--text-main); font-weight:500;">${personTotals[p].toLocaleString()} ฿</span>`;
-                personSummaryList.appendChild(div);
-            });
-
-            fuelTrendLogList.innerHTML = '';
-            if(fuelRecordsFiltered.length === 0) {
-                fuelTrendLogList.innerHTML = `<div style="text-align:center; padding:15px; color:var(--text-muted); font-size:12px;">ไม่มีข้อมูลค่าน้ำมันในช่วงเวลานี้</div>`;
-            } else {
-                const trendDisplayList = [...fuelRecordsFiltered].reverse().slice(0, 5);
-                trendDisplayList.forEach(item => {
-                    const anomalyCheck = checkFuelAnomaly(item, expenses);
-                    const borderStyle = anomalyCheck.isAnomaly ? 'border-left: 3px solid var(--accent-muji-red); background:var(--color-danger-bg);' : 'border-left: 3px solid var(--color-fuel);';
-                    
-                    const div = document.createElement('div');
-                    div.className = 'trend-history-item';
-                    div.style = borderStyle;
-                    div.innerHTML = `
-                        <div>
-                            <span style="font-weight:500; color:var(--text-main);">${item.date}</span> - 
-                            <span style="color:var(--text-muted);">${item.vehiclePlate}</span>
-                        </div>
-                        <div style="font-weight:500; color:var(--text-main);">
-                            ${item.fuelPrice.toFixed(2)} ฿/ลิตร | ${item.fuelLitres} ลิตร
-                            ${anomalyCheck.isAnomaly ? ' <span style="color:var(--accent-muji-red);">⚠️ ผิดปกติ</span>' : ''}
-                        </div>
-                    `;
-                    fuelTrendLogList.appendChild(div);
-                });
+        canvasHolder.addEventListener('wheel', (e) => {
+            if (activeView === 'full') {
+                e.preventDefault();
+                const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+                zoomScale = Math.min(Math.max(0.3, zoomScale * zoomFactor), 5.0);
+                drawSimulation();
             }
+        }, { passive: false });
 
-            fuelEfficiencyStats.innerHTML = '';
-            const vPlates = [...new Set(expenses.filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate).map(x => x.vehiclePlate))];
-            
-            if(vPlates.length === 0) {
-                fuelEfficiencyStats.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center;">ไม่มีข้อมูลทะเบียนรถ</div>`;
+        function switchView(view) {
+            activeView = view;
+            const tabSingle = document.getElementById('tabSingleView');
+            const tabFull = document.getElementById('tabFullView');
+
+            if (view === 'single') {
+                tabSingle.className = "px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-medium shadow-sm transition";
+                tabFull.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition";
+                canvasViewTitle.innerHTML = `<i class="fa-solid fa-vector-square text-emerald-400"></i><span>โหมด 1 ตาอวน (Single Mesh Geometry)</span>`;
+                canvasOverlayTitle.innerHTML = `<strong class="text-emerald-400">ขนาดตาอวน:</strong> ${stretchedSizeInches.toFixed(2)} นิ้ว (ยาวด้านละ ${(stretchedSizeInches/2).toFixed(2)} นิ้ว)`;
+                canvasOverlaySub.innerText = "*เส้นทแยงมุม DB = ความกว้างกางจริง / CA = ความสูงกางจริงต่อตา";
             } else {
-                vPlates.forEach(plate => {
-                    const carFuelRecords = expenses.filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate === plate && x.fuelOdometer > 0).sort((a,b) => a.fuelOdometer - b.fuelOdometer);
-                    if(carFuelRecords.length >= 2) {
-                        const first = carFuelRecords[0];
-                        const last = carFuelRecords[carFuelRecords.length - 1];
-                        const totalDistance = last.fuelOdometer - first.fuelOdometer;
-                        let totalL = 0; for(let i=1; i<carFuelRecords.length; i++) { totalL += carFuelRecords[i].fuelLitres; }
-                        
-                        if(totalL > 0 && totalDistance > 0) {
-                            const avgKml = totalDistance / totalL;
-                            let statusText = avgKml < 8 ? ' <span style="color:var(--accent-muji-red);">(กินน้ำมันสูง)</span>' : '';
-                            const div = document.createElement('div'); div.className = 'summary-item';
-                            div.innerHTML = `<span>🚗 ${plate}</span> <strong>${avgKml.toFixed(1)} กม./ลิตร ${statusText}</strong>`;
-                            fuelEfficiencyStats.appendChild(div);
-                            return;
-                        }
-                    }
-                    fuelEfficiencyStats.innerHTML += `<div class="summary-item"><span>🚗 ${plate}</span> <span style="color:var(--text-muted);">รอข้อมูลเติมน้ำมันครั้งถัดไป</span></div>`;
-                });
+                tabFull.className = "px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-medium shadow-sm transition";
+                tabSingle.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition";
+                canvasViewTitle.innerHTML = `<i class="fa-solid fa-border-all text-emerald-400"></i><span>โหมดจำลองผืนอวนเต็ม ${meshCountHoriz} ตา (ความลึก ${netDepthMeters.toFixed(1)} เมตร)</span>`;
+                canvasOverlayTitle.innerHTML = `<strong class="text-emerald-400">ผืนอวนโปลีขี้ม้า 18:</strong> ${meshCountHoriz} ตา × ลึก ${netDepthMeters.toFixed(1)} เมตร`;
+                canvasOverlaySub.innerText = "*หมุน Scroll Wheel เพื่อขยาย Zoom / คลิกลากเพื่อย้ายมุมมอง Pan";
             }
-
-            fuelFrequencyStats.innerHTML = '';
-            vPlates.forEach(plate => {
-                const carFuelRecords = expenses.filter(x => x.category === 'ค่าน้ำมัน' && x.vehiclePlate === plate).sort((a,b) => new Date(a.date) - new Date(b.date));
-                if(carFuelRecords.length >= 2) {
-                    let totalDaysDiff = 0;
-                    for(let i=1; i<carFuelRecords.length; i++) {
-                        const d1 = new Date(carFuelRecords[i-1].date);
-                        const d2 = new Date(carFuelRecords[i].date);
-                        totalDaysDiff += Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
-                    }
-                    const avgDays = (totalDaysDiff / (carFuelRecords.length - 1)).toFixed(1);
-                    const div = document.createElement('div'); div.className = 'summary-item';
-                    div.innerHTML = `<span>🚗 ${plate}</span> <strong>เข้าเติมทุกๆ ${avgDays} วัน</strong>`;
-                    fuelFrequencyStats.appendChild(div);
-                } else {
-                    fuelFrequencyStats.innerHTML += `<div class="summary-item"><span>🚗 ${plate}</span> <span style="color:var(--text-muted);">ข้อมูลไม่เพียงพอ</span></div>`;
-                }
-            });
+            resetZoomPan();
+            drawSimulation();
         }
 
-        document.getElementById('btnApplyFilter').addEventListener('click', renderCoreEngine);
-        document.getElementById('btnResetFilter').addEventListener('click', () => { filterStartDate.value=''; filterEndDate.value=''; filterCategory.value=''; renderCoreEngine(); });
-
-        window.editRecord = function(id) {
-            const t = expenses.find(x => x.id === id); if (!t) return;
-            editingRecordIdInput.value = t.id; document.getElementById('date').value = t.date;
-            categorySelect.value = t.category; document.getElementById('amount').value = t.amount;
-            document.getElementById('note').value = t.note === '—' ? '' : t.note;
-
-            handleCategoryFieldsVisibility(t.category);
-            if (vehicleCategories.includes(t.category)) vehiclePlateInput.value = t.vehiclePlate || '';
-            if (t.category === 'ค่าน้ำมัน') {
-                fuelPriceInput.value = t.fuelPrice || ''; fuelLitresInput.value = t.fuelLitres || ''; fuelOdometerInput.value = t.fuelOdometer || '';
-            }
-            if (personCategories.includes(t.category)) personNameInput.value = t.personName || '';
-
-            formPanelTitle.textContent = "✏️ กำลังแก้ไขข้อมูลรายการ"; formPanelTitle.style.color = "var(--color-fuel)";
-            btnSubmitForm.textContent = "ตรวจสอบการแก้ไข"; btnSubmitForm.className = "btn-orange";
-            window.scrollTo({ top: document.getElementById('expenseForm').offsetTop - 40, behavior: 'smooth' });
-        };
-
-        window.deleteRecord = function(id) {
-            const t = expenses.find(x => x.id === id); if (!t) return;
-            if (confirm(`ลบรายการ "${t.category} ยอด ${t.amount} บาท" ใช่หรือไม่?`)) {
-                expenses = expenses.filter(x => x.id !== id); localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
-                if (editingRecordIdInput.value == id) resetFormState();
-                renderCoreEngine();
-            }
-        };
-
-        function resetFormState() {
-            editingRecordIdInput.value = ''; document.getElementById('amount').value = ''; document.getElementById('note').value = '';
-            vehiclePlateInput.value = ''; personNameInput.value = ''; fuelPriceInput.value = ''; fuelLitresInput.value = ''; fuelOdometerInput.value = '';
-            categorySelect.value = ''; document.getElementById('date').value = new Date().toISOString().split('T')[0];
-            conditionalWrapper.classList.remove('show'); formPanelTitle.textContent = "บันทึกข้อมูลค่าใช้จ่ายใหม่";
-            formPanelTitle.style.color = "var(--text-main)"; btnSubmitForm.textContent = "ตรวจสอบข้อมูล"; btnSubmitForm.className = "btn-blue";
+        function resetZoomPan() {
+            zoomScale = 1.0;
+            panX = 0;
+            panY = 0;
+            drawSimulation();
         }
 
-        expenseForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const cat = categorySelect.value;
-            temporaryRecordData = {
-                id: editingRecordIdInput.value ? parseInt(editingRecordIdInput.value) : null,
-                date: document.getElementById('date').value, category: cat,
-                amount: parseFloat(document.getElementById('amount').value), note: document.getElementById('note').value || '—',
-                vehiclePlate: vehiclePlateInput.value.trim(), personName: personNameInput.value.trim(),
-                fuelPrice: cat === 'ค่าน้ำมัน' ? parseFloat(fuelPriceInput.value) : 0,
-                fuelLitres: cat === 'ค่าน้ำมัน' ? parseFloat(fuelLitresInput.value) : 0,
-                fuelOdometer: cat === 'ค่าน้ำมัน' ? parseInt(fuelOdometerInput.value) : 0
+        function setPresetAngle(deg) {
+            meshAngleDeg = deg;
+            angleSlider.value = deg;
+            updateAll();
+        }
+
+        // --- Core Calculations ---
+        function calculateMetrics() {
+            const sideInches = stretchedSizeInches / 2; // ด้านของสี่เหลี่ยมขนมเปียกปูน
+            const rad = (meshAngleDeg * Math.PI) / 180;
+            
+            // Single Mesh Dimensions
+            const dbInches = 2 * sideInches * Math.sin(rad / 2); // เส้นทแยงมุมแนวนอน DB
+            const caInches = 2 * sideInches * Math.cos(rad / 2); // เส้นทแยงมุมแนวตั้ง CA
+
+            // Hanging Ratio E = sin(\theta / 2)
+            const hangingRatio = Math.sin(rad / 2);
+            // Vertical Ratio E_vert = cos(\theta / 2) = \sqrt{1 - E^2}
+            const verticalRatio = Math.cos(rad / 2);
+
+            // Total Theoretical Stretched Dimensions
+            const totalStretchedWidthInches = stretchedSizeInches * meshCountHoriz;
+            const totalStretchedWidthMeters = totalStretchedWidthInches * 0.0254;
+
+            // Actual Hung Width (C)
+            const hungWidthMeters = totalStretchedWidthMeters * hangingRatio;
+            const hungWidthInches = totalStretchedWidthInches * hangingRatio;
+
+            // Actual Hung Depth (H)
+            const hungDepthMeters = netDepthMeters * verticalRatio;
+            const hungDepthFeet = hungDepthMeters * 3.28084;
+
+            // Calculated Mesh Depth Count (MD)
+            const stretchedMeshSizeMeters = stretchedSizeInches * 0.0254;
+            const calculatedMD = Math.round(netDepthMeters / stretchedMeshSizeMeters);
+
+            // Operational Surface Area (ตร.ม. และ ไร่)
+            const surfaceAreaSqM = hungWidthMeters * hungDepthMeters;
+            const surfaceAreaRai = surfaceAreaSqM / 1600;
+
+            return {
+                sideInches,
+                dbInches,
+                caInches,
+                hangingRatio,
+                verticalRatio,
+                totalStretchedWidthInches,
+                totalStretchedWidthMeters,
+                hungWidthMeters,
+                hungWidthInches,
+                hungDepthMeters,
+                hungDepthFeet,
+                calculatedMD,
+                surfaceAreaSqM,
+                surfaceAreaRai
             };
+        }
 
-            document.getElementById('mDate').textContent = temporaryRecordData.date;
-            document.getElementById('mCategory').textContent = temporaryRecordData.category;
-            document.getElementById('mAmount').textContent = temporaryRecordData.amount.toLocaleString() + ' ฿';
-            document.getElementById('mNote').textContent = temporaryRecordData.note;
-            document.getElementById('mVehicleRow').style.display = temporaryRecordData.vehiclePlate ? 'flex' : 'none';
-            document.getElementById('mVehicle').textContent = temporaryRecordData.vehiclePlate;
-            document.getElementById('mPersonRow').style.display = temporaryRecordData.personName ? 'flex' : 'none';
-            document.getElementById('mPerson').textContent = temporaryRecordData.personName;
+        // --- Update UI Text & Cards ---
+        function updateAll() {
+            const metrics = calculateMetrics();
 
-            if(cat === 'ค่าน้ำมัน') {
-                document.getElementById('mFuelRow').style.display = 'flex';
-                document.getElementById('mFuelDetails').innerHTML = `ราคา: ${temporaryRecordData.fuelPrice} ฿/L | ปริมาณ: ${temporaryRecordData.fuelLitres} ลิตร | เลขไมล์: ${temporaryRecordData.fuelOdometer} กม.`;
-            } else { document.getElementById('mFuelRow').style.display = 'none'; }
+            // Inputs UI
+            stretchedValDisplay.innerText = `${stretchedSizeInches.toFixed(2)} นิ้ว`;
+            countHorizDisplay.innerText = `${meshCountHoriz} ตา`;
+            depthMetersDisplay.innerText = `${netDepthMeters.toFixed(1)} เมตร`;
+            angleValDisplay.innerText = `${meshAngleDeg}°`;
+            calculatedMDText.innerText = `คิดเป็นประมาณ ${metrics.calculatedMD.toLocaleString()} ตา (MD) ในแนวลึก`;
 
-            confirmModal.classList.add('show');
-        });
+            // Mini Summary Box
+            calcHangingRatio.innerText = `${(metrics.hangingRatio * 100).toFixed(1)}%`;
+            calcMiniWidth.innerText = `${metrics.hungWidthMeters.toFixed(2)} ม.`;
+            calcMiniDepth.innerText = `${metrics.hungDepthMeters.toFixed(2)} ม.`;
+            calcMiniArea.innerText = `${metrics.surfaceAreaSqM.toFixed(2)} ตร.ม.`;
 
-        btnCancelModal.addEventListener('click', () => { confirmModal.classList.remove('show'); temporaryRecordData = null; });
-        btnConfirmModal.addEventListener('click', function() {
-            if (!temporaryRecordData) return;
-            if (temporaryRecordData.id) {
-                const idx = expenses.findIndex(x => x.id === temporaryRecordData.id); if (idx !== -1) expenses[idx] = { ...temporaryRecordData };
-            } else { expenses.push({ ...temporaryRecordData, id: Date.now() }); }
+            // Metric Cards
+            cardStretchedWidth.innerText = `${metrics.totalStretchedWidthMeters.toFixed(2)} ม.`;
+            cardStretchedDepth.innerText = `ลึกยืดสุด ${netDepthMeters.toFixed(2)} ม.`;
 
-            localStorage.setItem('kyh_pro_db2', JSON.stringify(expenses));
-            if (temporaryRecordData.vehiclePlate && !rememberedVehicles.includes(temporaryRecordData.vehiclePlate)) { rememberedVehicles.push(temporaryRecordData.vehiclePlate); localStorage.setItem('kyh_vehicles', JSON.stringify(rememberedVehicles)); }
-            if (temporaryRecordData.personName && !rememberedPersons.includes(temporaryRecordData.personName)) { rememberedPersons.push(temporaryRecordData.personName); localStorage.setItem('kyh_persons', JSON.stringify(rememberedPersons)); }
+            cardHungWidthMeters.innerText = `${metrics.hungWidthMeters.toFixed(2)} เมตร`;
+            cardHungWidthInches.innerText = `${metrics.hungWidthInches.toLocaleString(undefined, {maximumFractionDigits:1})} นิ้ว`;
+            cardWidthNote.innerText = `กาง ${(metrics.hangingRatio * 100).toFixed(1)}% ของ ${metrics.totalStretchedWidthMeters.toFixed(2)}ม.`;
 
-            confirmModal.classList.remove('show'); temporaryRecordData = null; resetFormState(); updateDropdownOptions(); renderCoreEngine();
-        });
+            cardHungDepthMeters.innerText = `${metrics.hungDepthMeters.toFixed(2)} เมตร`;
+            cardHungDepthFeet.innerText = `${metrics.hungDepthFeet.toFixed(1)} ฟุต`;
+            cardDepthNote.innerText = `หดเหลือ ${(metrics.verticalRatio * 100).toFixed(1)}% ของ ${netDepthMeters.toFixed(1)}ม.`;
+
+            cardAreaSqM.innerText = `${metrics.surfaceAreaSqM.toFixed(2)} ตร.ม.`;
+            cardAreaRai.innerText = `${metrics.surfaceAreaRai.toFixed(3)} ไร่`;
+
+            drawSimulation();
+        }
+
+        // --- Canvas Rendering Router ---
+        function resizeCanvas() {
+            const holder = document.getElementById('canvasHolder');
+            canvas.width = holder.clientWidth * window.devicePixelRatio;
+            canvas.height = holder.clientHeight * window.devicePixelRatio;
+            drawSimulation();
+        }
+
+        function drawSimulation() {
+            if (!canvas.width || !canvas.height) return;
+
+            ctx.save();
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
+
+            // Clear Background
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, width, height);
+
+            drawBgGrid(ctx, width, height);
+
+            if (activeView === 'single') {
+                drawSingleMeshView(ctx, width, height);
+            } else {
+                drawFullNetView(ctx, width, height);
+            }
+
+            ctx.restore();
+        }
+
+        // --- View 1: Single Mesh Diagram (ABCD) ---
+        function drawSingleMeshView(ctx, width, height) {
+            const metrics = calculateMetrics();
+            const rad = (meshAngleDeg * Math.PI) / 180;
+
+            const centerX = width * 0.5;
+            const centerY = height * 0.5;
+
+            const maxDimension = Math.min(width, height) * 0.38;
+            const sidePixel = maxDimension;
+
+            const dbPixel = 2 * sidePixel * Math.sin(rad / 2);
+            const caPixel = 2 * sidePixel * Math.cos(rad / 2);
+
+            const C = { x: centerX, y: centerY - caPixel / 2 };
+            const A = { x: centerX, y: centerY + caPixel / 2 };
+            const D = { x: centerX - dbPixel / 2, y: centerY };
+            const B = { x: centerX + dbPixel / 2, y: centerY };
+            const I = { x: centerX, y: centerY };
+
+            // 1. Mesh Rhombus Lines
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 3.5;
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(C.x, C.y);
+            ctx.lineTo(B.x, B.y);
+            ctx.lineTo(A.x, A.y);
+            ctx.lineTo(D.x, D.y);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.08)';
+            ctx.fill();
+
+            // 2. Corner Knots
+            [C, B, A, D].forEach(k => {
+                ctx.beginPath();
+                ctx.arc(k.x, k.y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#10b981';
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+            });
+
+            // Labels A, B, C, D
+            ctx.font = 'bold 15px Sarabun, sans-serif';
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillText('C', C.x - 5, C.y - 12);
+            ctx.fillText('A', A.x - 5, A.y + 22);
+            ctx.fillText('D', D.x - 22, D.y + 5);
+            ctx.fillText('B', B.x + 12, B.y + 5);
+
+            // 3. Diagonals & Measurements
+            if (chkShowDimensions.checked) {
+                // DB Horizontal
+                ctx.setLineDash([5, 4]);
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(D.x, D.y);
+                ctx.lineTo(B.x, B.y);
+                ctx.stroke();
+
+                // CA Vertical
+                ctx.strokeStyle = '#c084fc';
+                ctx.beginPath();
+                ctx.moveTo(C.x, C.y);
+                ctx.lineTo(A.x, A.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Right angle at I
+                const sq = 10;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.rect(I.x, I.y - sq, sq, sq);
+                ctx.stroke();
+
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 13px Sarabun, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`DB (ความกว้าง/ตา) = ${metrics.dbInches.toFixed(2)}"`, centerX, D.y - 12);
+
+                ctx.fillStyle = '#c084fc';
+                ctx.textAlign = 'left';
+                ctx.fillText(`CA (ความสูง/ตา) = ${metrics.caInches.toFixed(2)}"`, C.x + 14, centerY + 4);
+            }
+        }
+
+        // --- View 2: Full 300-Mesh Net Simulation (Width 15.24m x Depth 30m) ---
+        function drawFullNetView(ctx, width, height) {
+            const metrics = calculateMetrics();
+
+            ctx.save();
+            // Apply Zoom & Pan
+            ctx.translate(width / 2 + panX, height * 0.2 + panY);
+            ctx.scale(zoomScale, zoomScale);
+
+            // Scale factor to map meters to pixels nicely in canvas
+            const baseNetWidthPx = Math.min(width * 0.75, 550);
+            // Calculate Pixel Width & Depth according to ratios
+            const pixelWidth = baseNetWidthPx * metrics.hangingRatio;
+            const pixelDepth = (baseNetWidthPx * (netDepthMeters / metrics.totalStretchedWidthMeters)) * metrics.verticalRatio;
+
+            const startX = -pixelWidth / 2;
+            const startY = 0;
+
+            // 1. Draw Net Mesh Grid Lines
+            const drawCols = 30; // Subsampled mesh grid cols for high performance rendering
+            const drawRows = 20; // Subsampled mesh depth rows
+            const dx = pixelWidth / drawCols;
+            const dy = pixelDepth / drawRows;
+
+            ctx.strokeStyle = 'rgba(52, 211, 153, 0.45)';
+            ctx.lineWidth = 1.2;
+
+            for (let r = 0; r < drawRows; r++) {
+                const y = startY + r * dy;
+                for (let c = 0; c < drawCols; c++) {
+                    const x = startX + c * dx + (r % 2 === 1 ? dx / 2 : 0);
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + dx / 2, y + dy / 2);
+                    ctx.lineTo(x, y + dy);
+                    ctx.lineTo(x - dx / 2, y + dy / 2);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            }
+
+            // 2. Headrope / Float Line (เพลาบน)
+            ctx.strokeStyle = '#f59e0b'; // Amber Rope
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(startX - 20, startY);
+            ctx.lineTo(startX + pixelWidth + 20, startY);
+            ctx.stroke();
+
+            // 3. Bottom Footrope / Sinker Line (เพลาล่าง)
+            const bottomY = startY + pixelDepth;
+            ctx.strokeStyle = '#64748b'; // Slate Rope
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(startX - 20, bottomY);
+            ctx.lineTo(startX + pixelWidth + 20, bottomY);
+            ctx.stroke();
+
+            // 4. Floats (ทุ่นเพลาบน) & Sinkers (ตะกั่วเพลาล่าง)
+            if (chkShowGrid.checked) {
+                const floatCount = 12;
+                for (let i = 0; i <= floatCount; i++) {
+                    const fx = startX + (pixelWidth / floatCount) * i;
+                    // Floater (Orange Capsule)
+                    ctx.fillStyle = '#f97316';
+                    ctx.beginPath();
+                    ctx.ellipse(fx, startY - 2, 7, 11, Math.PI / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    // Sinker (Lead Oval)
+                    ctx.fillStyle = '#475569';
+                    ctx.beginPath();
+                    ctx.ellipse(fx, bottomY + 2, 5, 8, Math.PI / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 5. Dimension Markers (Width C & Depth H)
+            if (chkShowDimensions.checked) {
+                // Width C Arrow (Top)
+                ctx.strokeStyle = '#38bdf8';
+                ctx.fillStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+
+                ctx.beginPath();
+                ctx.moveTo(startX, startY - 28);
+                ctx.lineTo(startX + pixelWidth, startY - 28);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.font = 'bold 13px Sarabun, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`กางจริงแนวนอน C = ${metrics.hungWidthMeters.toFixed(2)} เมตร`, 0, startY - 36);
+
+                // Depth H Arrow (Right side)
+                const rightX = startX + pixelWidth + 35;
+                ctx.strokeStyle = '#c084fc';
+                ctx.fillStyle = '#c084fc';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+
+                ctx.beginPath();
+                ctx.moveTo(rightX, startY);
+                ctx.lineTo(rightX, bottomY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.textAlign = 'left';
+                ctx.fillText(`ความลึกกางจริง H = ${metrics.hungDepthMeters.toFixed(2)} เมตร`, rightX + 10, startY + pixelDepth / 2);
+            }
+
+            ctx.restore();
+        }
+
+        // Draw background grid
+        function drawBgGrid(ctx, w, h) {
+            ctx.strokeStyle = '#161e31';
+            ctx.lineWidth = 1;
+            const step = 30;
+            ctx.beginPath();
+            for (let x = 0; x < w; x += step) {
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+            }
+            for (let y = 0; y < h; y += step) {
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+            }
+            ctx.stroke();
+        }
+
+        // Initial Load
+        window.onload = () => {
+            resizeCanvas();
+            updateAll();
+        };
     </script>
 </body>
 </html>
